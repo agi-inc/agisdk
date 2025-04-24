@@ -1,0 +1,51 @@
+{
+  "id": "networkin1_jmespath_llm",
+  "goal": "Create a new text post for the feed with a professional update about AI trends in 2025, mentioning three key advancements and their impact on the job market.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://evals-networkin.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "jmespath",
+      "description": "at least one post added",
+      "expected_value": true,
+      "query": "length(feedPostsDiff.added) >= `1`"
+    },
+    {
+      "type": "jmespath",
+      "description": "post contains AI mention",
+      "expected_value": true,
+      "query": "contains(feedPostsDiff.added[0].description, 'AI')"
+    },
+    {
+      "type": "jmespath_llm",
+      "description": "post mentions 2025 trends",
+      "query": "feedPostsDiff.added[0].description",
+      "rubric": "The post MUST explicitly discuss AI trends in the context of the year 2025. The post should frame these as trends or developments happening specifically in 2025, not just mention AI and 2025 separately.",
+      "expected_value": true
+    },
+    {
+      "type": "jmespath_llm",
+      "description": "post mentions three key advancements",
+      "query": "feedPostsDiff.added[0].description",
+      "rubric": "The post MUST describe at least three DISTINCT AI advancements or trends. Each advancement should be clearly identifiable as a separate point. Simply listing capabilities of AI is not sufficient - each advancement should be specific and distinct.",
+      "expected_value": true
+    },
+    {
+      "type": "jmespath_llm",
+      "description": "post discusses job market impact",
+      "query": "feedPostsDiff.added[0].description",
+      "rubric": "The post MUST discuss in detail how the mentioned AI advancements will impact the job market. This should include specific effects on jobs, employment, or work practices, not just a brief mention that there will be some impact.",
+      "expected_value": true
+    }
+  ],
+  "points": 1,
+  "config": {}
+} 
