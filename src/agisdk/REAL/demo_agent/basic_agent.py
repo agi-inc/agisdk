@@ -77,7 +77,10 @@ class DemoAgent(Agent):
 
         if model_name.startswith("gpt-") or model_name.startswith("o1") or model_name.startswith("o3"):
             # Use provided API key or fall back to environment variable
-            self.client = OpenAI(api_key=openai_api_key)
+            if openai_api_key is None:
+                openai_api_key = os.getenv('OPENAI_API_KEY')
+            base_url = os.getenv('OPENAI_API_BASE')
+            self.client = OpenAI(base_url=base_url, api_key=openai_api_key)
             self.model_name = model_name
             # Define function to query OpenAI models
             def query_model(system_msgs, user_msgs):

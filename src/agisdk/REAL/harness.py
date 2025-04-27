@@ -189,7 +189,7 @@ class harness:
         # Log initialization
         logger.info(f"Harness initialized with model={model or 'custom'}, task={task_name or task_type}")
     
-    def run(self, tasks: List[str] = None) -> Dict[str, Any]:
+    def  run(self, tasks: List[str] = None) -> Dict[str, Any]:
         """
         Run the tasks with the configured agent and environment.
         

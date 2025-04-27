@@ -6,3 +6,5 @@ learnstagehand
 udrive
 build
 .trash
+.env
+*.egg-info/

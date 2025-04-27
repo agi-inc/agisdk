@@ -78,7 +78,7 @@ class DemoAgent(Agent):
         import os
 
         # Initialize OpenAI client for GPT-4o
-        self.client = OpenAI()
+        self.client = OpenAI(base_url=os.getenv('OPENAI_API_BASE'))
         self.model_name = "gpt-4o"  # Always use GPT-4o regardless of input model_name
         
         # Define function to query OpenAI models
