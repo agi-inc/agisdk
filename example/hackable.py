@@ -364,9 +364,7 @@ class DemoAgentArgs(AbstractAgentArgs):
 
 
 # Example creating and using the DemoAgent
-def run_demo_agent(model_name="gpt-4o", task_name="webclones.omnizon-1", headless=False, leaderboard=False, run_id=None):
-    logger.info(f"Starting DemoAgent test with model: {model_name} on task: {task_name}")
-    
+def run_demo_agent(model_name="gpt-4o", headless=False, leaderboard=False, run_id=None):    
     # Create the agent arguments with the specified parameters
     agent_args = DemoAgentArgs(
         model_name=model_name,
@@ -391,7 +389,7 @@ def run_demo_agent(model_name="gpt-4o", task_name="webclones.omnizon-1", headles
     )
     
     # Run the task
-    logger.info("Running task...")
+    logger.info("Running tasks...")
     results = harness.run()
     
     # Print results summary
@@ -402,29 +400,5 @@ def run_demo_agent(model_name="gpt-4o", task_name="webclones.omnizon-1", headles
 
 
 if __name__ == "__main__":
-    import argparse
-    
-    # Set up command-line argument parsing
-    parser = argparse.ArgumentParser(description="Run DemoAgent on browsergym tasks")
-    parser.add_argument("--model", type=str, default="gpt-4o",
-                        help="Model to use with the agent (default: gpt-4o)")
-    parser.add_argument("--task", type=str, default="webclones.omnizon-1",
-                        help="Task to run (default: webclones.omnizon-1)")
-    parser.add_argument("--headless", type=str2bool, default=False,
-                        help="Run headless (default: False)")
-    #Leaderboard arguments
-    parser.add_argument("--run_id", type=str, default=None,
-                        help="Run ID for leaderboard submission (required for leaderboard)")
-    parser.add_argument("--leaderboard", type=str2bool, default=False,
-                        help="Submit results to leaderboard (default: False)")
-    
-    args = parser.parse_args()
-    
     # Run the agent with the specified parameters
-    results = run_demo_agent(
-        model_name=args.model, 
-        task_name=args.task, 
-        headless=args.headless,
-        leaderboard=args.leaderboard,
-        run_id=args.run_id
-    )
+    results = run_demo_agent()
