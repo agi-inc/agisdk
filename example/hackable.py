@@ -9,6 +9,14 @@ import dataclasses
 import numpy as np
 import io
 import logging
+import os
+import uuid
+import time
+from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from PIL import Image
 from typing import Literal
@@ -21,6 +29,18 @@ from agisdk.REAL.browsergym.core.action.highlevel import HighLevelActionSet
 from agisdk.REAL.browsergym.core.action.python import PythonActionSet
 from agisdk.REAL.browsergym.utils.obs import flatten_axtree_to_str, flatten_dom_to_str, prune_html
 
+# Import the AgentLogger class
+import sys
+import os
+# Add the project root to the path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from rl_training.agents.agent_logger_class import AgentLogger
+
+# Configure logging with more detailed output
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Handling Screenshots
@@ -53,6 +73,24 @@ class DemoAgent(Agent):
             "axtree_txt": flatten_axtree_to_str(obs["axtree_object"]),
             "pruned_html": prune_html(flatten_dom_to_str(obs["dom_object"])),
         }
+        
+    def reset(self):
+        """Called when the environment is reset"""
+        super().reset()
+        # Reset action history
+        self.action_history = []
+        
+    def close(self):
+        """Called when the agent is being closed"""
+        # Complete the agent logger session if available
+        if hasattr(self, 'agent_logger') and self.agent_logger is not None:
+            try:
+                session_id = self.agent_logger.complete()
+                print(f"Agent logger session completed with ID: {session_id}")
+            except Exception as e:
+                logger.error(f"Failed to complete agent logger session: {e}")
+                
+        super().close()
 
     def __init__(
         self,
@@ -72,38 +110,78 @@ class DemoAgent(Agent):
         self.system_message_handling = system_message_handling
 
         if not (use_html or use_axtree):
-            raise ValueError(f"Either use_html or use_axtree must be set to True.")
+            raise ValueError("Either use_html or use_axtree must be set to True.")
 
         from openai import OpenAI
         import os
 
-        # Initialize OpenAI client for GPT-4o
-        self.client = OpenAI(base_url=os.getenv('OPENAI_API_BASE'))
+        # Initialize OpenAI client for GPT-4o with API key
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            logger.warning("OPENAI_API_KEY not found in environment, using a dummy key")
+            openai_api_key = "sk-dummy-key-for-testing"
+
+        self.client = OpenAI(api_key=openai_api_key, base_url=os.getenv('OPENAI_API_BASE'))
         self.model_name = "gpt-4o"  # Always use GPT-4o regardless of input model_name
         
-        # Define function to query OpenAI models
-        def query_model(system_msgs, user_msgs):
-            if self.system_message_handling == "combined":
-                # Combine system and user messages into a single user message
-                combined_content = ""
-                if system_msgs:
-                    combined_content += system_msgs[0]["text"] + "\n\n"
-                for msg in user_msgs:
-                    if msg["type"] == "text":
-                        combined_content += msg["text"] + "\n"
-                response = self.client.chat.completions.create(
-                    model=self.model_name,
-                    messages=[{"role": "user", "content": combined_content}],
-                )
+        # Initialize the agent logger for Multion API logging
+        try:
+            # Get API key from environment variables
+            api_key = os.getenv("MULTION_API_KEY")
+            if not api_key:
+                logger.warning("MULTION_API_KEY not found in environment variables")
+                self.agent_logger = None
             else:
-                response = self.client.chat.completions.create(
-                    model=self.model_name,
-                    messages=[
-                        {"role": "system", "content": system_msgs},
-                        {"role": "user", "content": user_msgs},
-                    ],
+                # Initialize the agent logger with a descriptive prompt
+                initial_prompt = f"Agent using {self.model_name} for browsergym interaction"
+                self.agent_logger = AgentLogger(prompt=initial_prompt, api_key=api_key)
+                print(f"Agent logger initialized with session ID: {self.agent_logger.SESSION_ID}")
+                
+                # Log an initial event
+                self.agent_logger.log_step(
+                    {"initialization": "Agent initialized", "model": self.model_name},
+                    {"status": "ready", "chat_mode": self.chat_mode, "screenshot_enabled": self.use_screenshot}
                 )
-            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Failed to initialize agent logger: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            self.agent_logger = None
+        
+        # Define function to query OpenAI models (with simulation for testing)
+        def query_model(system_msgs, user_msgs):
+            if openai_api_key.startswith("sk-dummy"):
+                # Simulate a model response for testing
+                # Silently use simulated response without logging
+                return "```click(\"1\")```"
+            
+            try:
+                if self.system_message_handling == "combined":
+                    # Combine system and user messages into a single user message
+                    combined_content = ""
+                    if system_msgs:
+                        combined_content += system_msgs[0]["text"] + "\n\n"
+                    for msg in user_msgs:
+                        if msg["type"] == "text":
+                            combined_content += msg["text"] + "\n"
+                    response = self.client.chat.completions.create(
+                        model=self.model_name,
+                        messages=[{"role": "user", "content": combined_content}],
+                    )
+                else:
+                    response = self.client.chat.completions.create(
+                        model=self.model_name,
+                        messages=[
+                            {"role": "system", "content": system_msgs},
+                            {"role": "user", "content": user_msgs},
+                        ],
+                    )
+                return response.choices[0].message.content
+            except Exception as e:
+                logger.error(f"Error querying OpenAI model: {str(e)}")
+                # Return a fallback action for testing
+                return "```send_msg_to_user(\"I encountered an error.\")```"
+                
         self.query_model = query_model
 
         self.action_set = HighLevelActionSet(
@@ -327,12 +405,48 @@ class DemoAgent(Agent):
                         f"Unknown message type {repr(message['type'])} in the task goal."
                     )
         full_prompt_txt = "\n".join(prompt_text_strings)
-        logger.info(full_prompt_txt)
+        # Don't log the full prompt text to keep console output clean
+        # logger.info(full_prompt_txt)
 
         # query model using the abstraction function
         action = self.query_model(system_msgs, user_msgs)
 
         self.action_history.append(action)
+        
+        # Log this step through the Multion API
+        if hasattr(self, 'agent_logger') and self.agent_logger is not None:
+            try:
+                # Create a structured representation of inputs
+                inputs = {
+                    "prompt": full_prompt_txt[:500] + "..." if len(full_prompt_txt) > 500 else full_prompt_txt,
+                    "observation": {
+                        "num_chat_messages": len(obs.get("chat_messages", [])),
+                        "has_screenshot": "screenshot" in obs and obs["screenshot"] is not None,
+                        "has_axtree": "axtree_object" in obs and obs["axtree_object"] is not None,
+                        "has_html": "dom_object" in obs and obs["dom_object"] is not None,
+                        "goal": str(obs.get("goal_object", ""))[:100] + "..." if obs.get("goal_object") and len(str(obs["goal_object"])) > 100 else str(obs.get("goal_object", "")),
+                        "last_action": obs.get("last_action", ""),
+                        "last_action_error": obs.get("last_action_error", ""),
+                    }
+                }
+                
+                # Create a structured representation of outputs
+                outputs = {
+                    "action": action,
+                    "action_type": action.split("(")[0] if "(" in action else "unknown"
+                }
+                
+                # Extract action type for a cleaner summary
+                action_type = action.split("(")[0] if "(" in action else "unknown"
+                action_args = action.split("(", 1)[1].rstrip(")") if "(" in action else ""
+                
+                # Log the step with Multion API
+                self.agent_logger.log_step(inputs, outputs)
+                
+                # Only log a summary of the action to the console
+                print(f"Step {self.agent_logger.step_count}: {action_type} {action_args[:30]}{'...' if len(action_args) > 30 else ''}")
+            except Exception as e:
+                logger.error(f"Failed to log step to Multion API: {e}")
 
         return action, {}
 
@@ -364,7 +478,7 @@ class DemoAgentArgs(AbstractAgentArgs):
 
 
 # Example creating and using the DemoAgent
-def run_demo_agent(model_name="gpt-4o", headless=False, leaderboard=False, run_id=None):    
+def run_demo_agent(model_name="gpt-4o", headless=False, leaderboard=False, run_id=None, task_name="webclones.omnizon-1"):    
     # Create the agent arguments with the specified parameters
     agent_args = DemoAgentArgs(
         model_name=model_name,

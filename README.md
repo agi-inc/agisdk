@@ -24,14 +24,12 @@ playwright install --force
 # Set your OpenAI API key (required for evaluation)
 export OPENAI_API_KEY="your-api-key"
 ```
+To test it out, run:
+```bash
+python starter.py
+```
 
 ## Quick Start
-
-After installing the package, you can run the example script in the `example/starter.py` file. Just run:
-
-```bash
-python example/starter.py
-```
 
 Here's a simple example to get you started for benchmarking an AI agent on the REAL Bench environment:
 

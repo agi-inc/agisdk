@@ -4,9 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agisdk"
-version = "0.1.15"
+version = "0.1.17"
 authors = [
     {name = "Diego Caples", email = "diego@theagi.company"},
+    {name = "Prannay Hebbar", email = "prannay@theagi.company"}
 ]
 description = "AGI SDK - tools for building and evaluating AI web agents"
 readme = "README.md"

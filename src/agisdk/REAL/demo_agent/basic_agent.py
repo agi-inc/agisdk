@@ -44,6 +44,28 @@ class DemoAgent(Agent):
             "axtree_txt": flatten_axtree_to_str(obs["axtree_object"]),
             "pruned_html": prune_html(flatten_dom_to_str(obs["dom_object"])),
         }
+        
+    def close(self):
+        """Called when the agent is being closed"""
+        # Print a summary of the interaction
+        print(f"\n==== Agent Session Summary ====")
+        print(f"Total actions: {len(self.action_history)}")
+        
+        # Evaluate success if available
+        if hasattr(self, 'last_observation') and self.last_observation:
+            success = self.last_observation.get('success', None)
+            if success is not None:
+                print(f"Success: {success}")
+                print(f"Reward: {self.last_observation.get('reward', 0)}")
+        
+        print(f"Session completed")
+        print(f"=============================\n")
+        
+        super().close()
+        
+    def update_last_observation(self, obs):
+        """Store the last observation for metrics"""
+        self.last_observation = obs
 
     def __init__(
         self,
@@ -274,8 +296,17 @@ class DemoAgent(Agent):
         # self.action_set = PythonActionSet())
 
         self.action_history = []
+        self.last_observation = None
 
     def get_action(self, obs: dict) -> tuple[str, dict]:
+        # Print task start information if this is the first action
+        if len(self.action_history) == 0:
+            goal_str = str(obs.get("goal_object", ""))
+            print(f"\n==== Starting New Task ====")
+            print(f"Task: {goal_str}")
+            print(f"Model: {self.model_name}")
+            print(f"===========================\n")
+            
         system_msgs = []
         user_msgs = []
 
@@ -438,6 +469,10 @@ class DemoAgent(Agent):
             )
 
             if obs["last_action_error"]:
+                # Log error to console
+                print(f"Error: {str(obs['last_action_error'])[:100]}...")
+                
+                # Add error to message
                 user_msgs.append(
                     {
                         "type": "text",
@@ -482,12 +517,25 @@ class DemoAgent(Agent):
                         f"Unknown message type {repr(message['type'])} in the task goal."
                     )
         full_prompt_txt = "\n".join(prompt_text_strings)
-        logger.info(full_prompt_txt)
+        # Don't log the full prompt - too verbose
+        # logger.info(full_prompt_txt)
 
         # query model using the abstraction function
         action = self.query_model(system_msgs, user_msgs)
 
+        # Extract action type for a cleaner log message
+        action_type = action.split("(")[0] if "(" in action else "unknown"
+        action_args = action.split("(", 1)[1].rstrip(")") if "(" in action else ""
+
+        # Log concise action summary to console
+        goal_snippet = str(obs.get("goal_object", ""))[:30].replace("\n", " ")
+        step_num = len(self.action_history) + 1
+        print(f"Task: {goal_snippet}... | Step {step_num} | Action: {action_type} {action_args[:30]}{'...' if len(action_args) > 30 else ''}")
+
         self.action_history.append(action)
+        
+        # Store observation for metrics
+        self.update_last_observation(obs)
 
         return action, {}
 
