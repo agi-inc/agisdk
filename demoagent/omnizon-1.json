@@ -1,0 +1,23 @@
+{
+  "id": "omnizon-1",
+  "goal": "Search for \"laptop\" using the search bar and display the first product in the results.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app/"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer mention or describe the first product (VILVA Portable-Monitor-for-Laptop) that appears in the search results for 'laptop'?"
+    }
+  ],
+  "points": 1,
+  "config": {}
+} 

@@ -92,13 +92,50 @@ class AgentLogger:
             json=prompt_event
         )
     
-    def log_step(self, inputs, outputs):
+    def log_llm_prompt(self, user_prompt, system_prompt, model_config, dom_content=None, url=None, task=None):
+        """
+        Log an LLM prompt sent to any model
+        
+        Args:
+            user_prompt: The user prompt sent to the model
+            system_prompt: The system prompt sent to the model
+            model_config: The model configuration used
+            dom_content: String containing the Accessibility Tree of the current page
+            url: String containing the current URL
+            task: String containing the task description
+            
+        Returns:
+            None
+        """
+        # Simple implementation that works with the existing log_step
+        model_name = model_config.get("model_name", "unknown")
+        provider = model_config.get("model_provider", "unknown")
+        
+        # Structure inputs in the new format
+        inputs = {
+            "dom": dom_content if dom_content else "# Current page Accessibility Tree",
+            "url": url if url else "",
+            "user_query": user_prompt,
+            "task": task if task else "# Task",
+            "system_messages": [system_prompt] if system_prompt else []
+        }
+        
+        # Model metadata can be passed in outputs or metadata
+        outputs = {"model": model_name, "provider": provider}
+        
+        # Reuse the existing log_step method
+        self.log_step(inputs, outputs)
+    
+    def log_step(self, inputs, outputs, dom_content=None, url=None, task=None):
         """
         Log a single step of the agent trajectory
         
         Args:
             inputs: Dict or string containing step inputs
             outputs: Dict or string containing step outputs
+            dom_content: String containing the Accessibility Tree of the current page
+            url: String containing the current URL
+            task: String containing the task description
         
         Returns:
             None
@@ -107,7 +144,28 @@ class AgentLogger:
         
         # Convert to dict format if string
         if isinstance(inputs, str):
-            inputs = {"msg": inputs}
+            structured_inputs = {
+                "dom": dom_content if dom_content else "# Current page Accessibility Tree",
+                "url": url if url else "",
+                "user_query": inputs,
+                "task": task if task else "# Task",
+                "system_messages": []
+            }
+        else:
+            # If inputs is already a dictionary, we check if it follows our structure
+            if not all(key in inputs for key in ["dom", "url", "user_query", "task", "system_messages"]):
+                # Create the structured format from the provided inputs
+                structured_inputs = {
+                    "dom": dom_content if dom_content else inputs.get("dom", "# Current page Accessibility Tree"),
+                    "url": url if url else inputs.get("url", ""),
+                    "user_query": inputs.get("msg", inputs.get("query", "")),
+                    "task": task if task else inputs.get("task", "# Task"),
+                    "system_messages": inputs.get("system_messages", [])
+                }
+            else:
+                # Already in the desired format
+                structured_inputs = inputs
+                
         if isinstance(outputs, str):
             outputs = {"msg": outputs}
             
@@ -117,7 +175,7 @@ class AgentLogger:
             "session_id": self.SESSION_ID,
             "start_time": start_time,
             "latency": 100,
-            "inputs": inputs,
+            "inputs": structured_inputs,
             "outputs": {"message": outputs} if isinstance(outputs, str) else outputs,
             "metadata": {"step": self.step_count, "browser": "chrome"},
             "run_id": self.runid,
@@ -166,12 +224,5 @@ class AgentLogger:
 # Example usage
 if __name__ == "__main__":
     # Using the class-based approach
-    logger = AgentLogger("Search for python tutorials")
-    
-    logger.log_step({"msg":"Navigate to google.com"}, {"msg": "Loaded google.com"})
-    logger.log_step({"msg":"Search for python tutorials"}, {"msg": "Results loaded"})
-    logger.log_step({"msg":"Click on the first result"}, {"msg": "Navigated to tutorial page"})
-    logger.log_step({"msg":"Read the tutorial"}, {"msg": "Tutorial read"})
-    
     session_id = logger.complete()
     print(f"Logged trajectory with session ID: {session_id}")

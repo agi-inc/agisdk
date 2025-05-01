@@ -1,0 +1,36 @@
+{
+  "id": "udriver-1",
+  "goal": "Book a ride from Fitness Urbano to Pacific Cafe",
+  "website": {
+    "id": "udriver",
+    "name": "UDriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://evals-udriver.vercel.app/"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct pickup location",
+      "type": "jmespath",
+      "expected_value": "Fitness Urbano",
+      "query": "differences.currentTrips.added.\"6\".pickup.name"
+    },
+    {
+      "description": "correct destination",
+      "type": "jmespath",
+      "expected_value": "Pacific Cafe",
+      "query": "differences.currentTrips.added.\"6\".destination.name"
+    },
+    {
+      "description": "correct car type",
+      "type": "jmespath",
+      "expected_value": "UdriverX",
+      "query": "differences.currentTrips.added.\"6\".car.type"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}
