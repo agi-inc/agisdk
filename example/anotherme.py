@@ -4,7 +4,7 @@ from typing import Dict, Tuple, Optional
 from agisdk import REAL
 
 
-class MyCustomAgent(REAL.Agent):
+class AmeAgent(REAL.Agent):
     def __init__(self) -> None:
         super().__init__()
         self.steps = 0
@@ -39,19 +39,19 @@ class MyCustomAgent(REAL.Agent):
             return agent_action, {}
 
 @dataclasses.dataclass
-class MyCustomAgentArgs(REAL.AbstractAgentArgs):
-    agent_name: str = "MyCustomAgent"
+class AmeAgentArgs(REAL.AbstractAgentArgs):
+    agent_name: str = "AmeAgent"
     
     def make_agent(self):
-        return MyCustomAgent()
+        return AmeAgent()
 
 
 # Example creating and using a custom agent
-def run_custom_agent():
+def run():
     # Create harness with custom agent
     harness = REAL.harness(
-        agentargs=MyCustomAgentArgs(),
-        headless=False,
+        agentargs=AmeAgentArgs(),
+        headless=True,
     )
     
     # Run the task
@@ -59,4 +59,4 @@ def run_custom_agent():
     return results
 
 if __name__ == "__main__":
-    results = run_custom_agent()
+    results = run()
