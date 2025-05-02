@@ -72,9 +72,18 @@ def run_agent(model_config, task_config, experiment_config, return_training_data
             # Log action to Multion API if logger is available
             if "logger" in model_config and model_config["logger"] is not None:
                 try:
+                    # Get DOM content from observation
+                    dom_content = observation['axtree'] if 'axtree' in observation else "# Current page Accessibility Tree"
+                    
+                    # Get task information
+                    task_desc = task_config['goal'] if 'goal' in task_config else "# Task"
+                    
                     model_config["logger"].log_step(
                         {"step": observation['step_number'], "action_input": prompt[:1000] + "..." if len(prompt) > 1000 else prompt},
-                        {"action": action}
+                        {"action": action},
+                        dom_content=dom_content,
+                        url=task_config['website']['url'],
+                        task=task_desc
                     )
                 except Exception as e:
                     logging.warning(f"Failed to log action to Multion API: {e}")
@@ -126,14 +135,20 @@ if __name__ == "__main__":
         
     # Initialize the Multion logger
     from agent_logger_class import AgentLogger
-    # Use environment variable for API key
-    agent_logger = AgentLogger("Agent execution starting", api_key=os.environ.get("MULTION_API_KEY", ""))
     
-    logging.info("Agent execution starting...")
-    
+    # Load task config
     with open('/Users/pran-ker/Developer/agisdk/demoagent/udriver-1.json', 'r') as f:
         task_config = json.load(f)
         logging.info(f"Task config loaded: {task_config['id']}")
+    
+    # Get the URL and task info from task config
+    url = task_config['website']['url']
+    task_goal = task_config['goal']  # "Book a ride from Fitness Urbano to Pacific Cafe"
+    
+    # Use environment variable for API key
+    agent_logger = AgentLogger(task_goal, api_key=os.environ.get("MULTION_API_KEY", ""), url=url)
+    
+    logging.info("Agent execution starting...")
     
     # OpenAI model
     model_config = {
@@ -179,7 +194,10 @@ if __name__ == "__main__":
             {
                 "evaluation": eval_data,
                 "action_history": action_history if action_history else []
-            }
+            },
+            dom_content="# Final Results",
+            url=task_config['website']['url'],
+            task=task_config['goal']
         )
         
         # Finalize the logging session

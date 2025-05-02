@@ -1,0 +1,175 @@
+{
+  "id": "09dc0c0b-8015-43ef-b193-15f3266485b9",
+  "created_at": "2025-05-01T22:45:02.238000Z",
+  "updated_at": "2025-05-01T22:45:02.373000Z",
+  "scenario": {
+    "prompt": "Agent execution starting"
+  },
+  "run_id": "15c174c8-fc42-4c6a-92c1-c613f899c852",
+  "agent_id": "research-agent",
+  "agent_params": {
+    "type": "research"
+  },
+  "browser_config": {
+    "browser": "chrome",
+    "headless": false
+  },
+  "user_id": "user-123",
+  "source": "agent-logger",
+  "tags": [
+    "research-agent"
+  ],
+  "to_delete": false,
+  "versioned_agent_id": null,
+  "events": [
+    {
+      "id": "cma5yerhh00rprf085yrpnqc7",
+      "created_at": "2025-05-01T22:46:00.082000Z",
+      "updated_at": "2025-05-01T22:46:00.101000Z",
+      "inputs": {
+        "status": "complete"
+      },
+      "outputs": {
+        "status": "complete"
+      },
+      "start_time": 1746139560082.0,
+      "latency": 0.0,
+      "type": "AGENT_COMPLETE",
+      "trace": null,
+      "metadata": {
+        "browser": "chrome"
+      },
+      "session_id": "09dc0c0b-8015-43ef-b193-15f3266485b9",
+      "session": null,
+      "agent_event_feedback": null
+    },
+    {
+      "id": "cma5ydo4x066k6uju7tb33am4",
+      "created_at": "2025-05-01T22:45:09.137000Z",
+      "updated_at": "2025-05-01T22:45:09.105000Z",
+      "inputs": {
+        "step": 1,
+        "action_input": "# Task\nBook a ride from Fitness Urbano to Pacific Cafe\n\n# Current page Accessibility Tree\nRootWebArea 'Earn Money by Driving or Get a Ride Now | Udriver', focusable='True', focused='True', url='https://evals-udriver.vercel.app/'\n StaticText 'This website is a non-commercial clone created solely for educational and testing purposes and is not affiliated with, endorsed by, or associated with any companies it may resemble.'\n [47] LineBreak '\n'\n StaticText 'All trademarks, logos, and content are the property of their respective owners and are used here for academic purposes only, with no intent to infringe on intellectual property rights.'\n [49] button 'close', invalid='false', focusable='True'\n [53] sectionheader 'Main Navigation'\n  [55] generic 'Home'\n   [56] heading 'Udriver', level='5'\n    StaticText 'Udriver'\n  [59] link 'Navigate to Ride', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [60] heading 'Ride', level='6'\n    StaticText 'Ride'\n  [63] link 'Navigate to Drive'..."
+      },
+      "outputs": {
+        "action": "fill('108', 'Fitness Urbano')"
+      },
+      "start_time": 1746139509137.0,
+      "latency": 100.0,
+      "type": "AGENT_RESPONSE",
+      "trace": null,
+      "metadata": {
+        "step": 1,
+        "browser": "chrome"
+      },
+      "session_id": "09dc0c0b-8015-43ef-b193-15f3266485b9",
+      "session": null,
+      "agent_event_feedback": null
+    },
+    {
+      "id": "cma5ydrx308pd6g4tl9jm46oq",
+      "created_at": "2025-05-01T22:45:13.980000Z",
+      "updated_at": "2025-05-01T22:45:14.007000Z",
+      "inputs": {
+        "step": 2,
+        "action_input": "# Task\nBook a ride from Fitness Urbano to Pacific Cafe\n\n# Current page Accessibility Tree\nRootWebArea 'Earn Money by Driving or Get a Ride Now | Udriver', focusable='True', focused='True', url='https://evals-udriver.vercel.app/'\n StaticText 'This website is a non-commercial clone created solely for educational and testing purposes and is not affiliated with, endorsed by, or associated with any companies it may resemble.'\n [47] LineBreak '\n'\n StaticText 'All trademarks, logos, and content are the property of their respective owners and are used here for academic purposes only, with no intent to infringe on intellectual property rights.'\n [49] button 'close', invalid='false', focusable='True'\n [53] sectionheader 'Main Navigation'\n  [55] generic 'Home'\n   [56] heading 'Udriver', level='5'\n    StaticText 'Udriver'\n  [59] link 'Navigate to Ride', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [60] heading 'Ride', level='6'\n    StaticText 'Ride'\n  [63] link 'Navigate to Drive'..."
+      },
+      "outputs": {
+        "action": "click('136')"
+      },
+      "start_time": 1746139513980.0,
+      "latency": 100.0,
+      "type": "AGENT_RESPONSE",
+      "trace": null,
+      "metadata": {
+        "step": 2,
+        "browser": "chrome"
+      },
+      "session_id": "09dc0c0b-8015-43ef-b193-15f3266485b9",
+      "session": null,
+      "agent_event_feedback": null
+    },
+    {
+      "id": "cma5ydvrm066l6ujudir1q1sy",
+      "created_at": "2025-05-01T22:45:19.024000Z",
+      "updated_at": "2025-05-01T22:45:18.994000Z",
+      "inputs": {
+        "step": 3,
+        "action_input": "# Task\nBook a ride from Fitness Urbano to Pacific Cafe\n\n# Current page Accessibility Tree\nRootWebArea 'Earn Money by Driving or Get a Ride Now | Udriver', focusable='True', focused='True', url='https://evals-udriver.vercel.app/'\n [53] sectionheader 'Main Navigation'\n  [55] generic 'Home'\n   [56] heading 'Udriver', level='5'\n    StaticText 'Udriver'\n  [59] link 'Navigate to Ride', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [60] heading 'Ride', level='6'\n    StaticText 'Ride'\n  [63] link 'Navigate to Drive', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [64] heading 'Drive', level='6'\n    StaticText 'Drive'\n  [67] link 'Navigate to Business', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [68] heading 'Business', level='6'\n    StaticText 'Business'\n  [71] link 'Navigate to Udriver Eats', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [72] heading 'Udriver Eats', level='6'\n    StaticText 'Udriver Eats'\n  [75] link 'Navigate ..."
+      },
+      "outputs": {
+        "action": "fill('118', 'Pacific Cafe')"
+      },
+      "start_time": 1746139519024.0,
+      "latency": 100.0,
+      "type": "AGENT_RESPONSE",
+      "trace": null,
+      "metadata": {
+        "step": 3,
+        "browser": "chrome"
+      },
+      "session_id": "09dc0c0b-8015-43ef-b193-15f3266485b9",
+      "session": null,
+      "agent_event_feedback": null
+    },
+    {
+      "id": "cma5ydzh302em5ja21y1tdogj",
+      "created_at": "2025-05-01T22:45:23.771000Z",
+      "updated_at": "2025-05-01T22:45:23.800000Z",
+      "inputs": {
+        "step": 4,
+        "action_input": "# Task\nBook a ride from Fitness Urbano to Pacific Cafe\n\n# Current page Accessibility Tree\nRootWebArea 'Earn Money by Driving or Get a Ride Now | Udriver', focusable='True', focused='True', url='https://evals-udriver.vercel.app/'\n [53] sectionheader 'Main Navigation'\n  [55] generic 'Home'\n   [56] heading 'Udriver', level='5'\n    StaticText 'Udriver'\n  [59] link 'Navigate to Ride', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [60] heading 'Ride', level='6'\n    StaticText 'Ride'\n  [63] link 'Navigate to Drive', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [64] heading 'Drive', level='6'\n    StaticText 'Drive'\n  [67] link 'Navigate to Business', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [68] heading 'Business', level='6'\n    StaticText 'Business'\n  [71] link 'Navigate to Udriver Eats', focusable='True', url='https://evals-udriver.vercel.app/#'\n   [72] heading 'Udriver Eats', level='6'\n    StaticText 'Udriver Eats'\n  [75] link 'Navigate ..."
+      },
+      "outputs": {
+        "action": "click('121')"
+      },
+      "start_time": 1746139523771.0,
+      "latency": 100.0,
+      "type": "AGENT_RESPONSE",
+      "trace": null,
+      "metadata": {
+        "step": 4,
+        "browser": "chrome"
+      },
+      "session_id": "09dc0c0b-8015-43ef-b193-15f3266485b9",
+      "session": null,
+      "agent_event_feedback": null
+    },
+    {
+      "id": "cma5yerdi066m6ujuyr9m2yoz",
+      "created_at": "2025-05-01T22:45:59.986000Z",
+      "updated_at": "2025-05-01T22:45:59.959000Z",
+      "inputs": {
+        "status": "completed",
+        "task_id": "udriver-1"
+      },
+      "outputs": {
+        "evaluation": {
+          "reward": 0.0,
+          "message": "Task not completed successfully.",
+          "success": false
+        },
+        "action_history": [
+          "fill('108', 'Fitness Urbano')",
+          "click('136')",
+          "fill('118', 'Pacific Cafe')",
+          "click('121')"
+        ]
+      },
+      "start_time": 1746139559986.0,
+      "latency": 100.0,
+      "type": "AGENT_RESPONSE",
+      "trace": null,
+      "metadata": {
+        "step": 5,
+        "browser": "chrome"
+      },
+      "session_id": "09dc0c0b-8015-43ef-b193-15f3266485b9",
+      "session": null,
+      "agent_event_feedback": null
+    }
+  ],
+  "email": "prannay@theagi.company",
+  "name": null,
+  "title": null
+}

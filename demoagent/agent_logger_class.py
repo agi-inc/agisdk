@@ -12,7 +12,7 @@ class AgentLogger:
     Class for logging agent trajectories to Multion API
     """
     
-    def __init__(self, prompt, api_key=None, email="prannay@theagi.company"):
+    def __init__(self, prompt, api_key=None, email="prannay@theagi.company", url=None):
         """
         Initialize an agent logger session
         
@@ -20,6 +20,7 @@ class AgentLogger:
             prompt: Initial input prompt as string
             api_key: Multion API key
             email: User email for session
+            url: Website URL to include in scenario data
         """
         # Configuration
         self.BASE_URL = "https://api.multion.ai"
@@ -28,6 +29,7 @@ class AgentLogger:
         self.prompt = prompt
         self.email = email
         self.step_count = 0
+        self.url = url
         
         if api_key is None:
             self.api_key = os.getenv("MULTION_API_KEY")
@@ -48,7 +50,7 @@ class AgentLogger:
         session_data = {
             "email": self.email,
             "session_id": self.SESSION_ID,
-            "scenario": {"prompt": self.prompt},
+            "scenario": {"url": self.url, "user_query": self.query},
             "source": "agent-logger",
             "run_id": self.runid,
             "agent_id": "research-agent",
