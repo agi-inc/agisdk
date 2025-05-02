@@ -7,8 +7,16 @@ from browsergym_sync import BrowserController
 from agent_utils import get_agent_action
 from evaluation_utils import evaluate, check_completion
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Configure logging with increased capacity
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    # Add a file handler to store complete logs
+    handlers=[
+        logging.FileHandler("agent_prompts.log", mode='w'),  # Write to file
+        logging.StreamHandler()  # Also output to console
+    ]
+)
 
 def run_agent(model_config, task_config, experiment_config, return_training_data=False, verbose=False):
     
@@ -80,7 +88,7 @@ def run_agent(model_config, task_config, experiment_config, return_training_data
                     
                     model_config["logger"].log_step(
                         {"step": observation['step_number'], "action_input": prompt[:1000] + "..." if len(prompt) > 1000 else prompt},
-                        {"action": action},
+                        {"result": action},
                         dom_content=dom_content,
                         url=task_config['website']['url'],
                         task=task_desc
@@ -123,10 +131,10 @@ def run_agent(model_config, task_config, experiment_config, return_training_data
 if __name__ == "__main__":
     from agisdk.REAL.tasks import all_tasks as tasks
     
-    # Log the system prompt
-    # with open(os.path.join(os.path.dirname(__file__), "SYSTEM_PROMPT.md"), "r") as f:
-    #     system_prompt = f.read()
-    #     #logging.info(f"System Prompt:\n{system_prompt}")
+    # Read the system prompt
+    with open(os.path.join(os.path.dirname(__file__), "SYSTEM_PROMPT.md"), "r") as f:
+        system_prompt = f.read()
+        logging.info(f"System Prompt:\n{system_prompt}")
     
     # Log the actions documentation
     with open(os.path.join(os.path.dirname(__file__), "ACTIONS.md"), "r") as f:
@@ -137,7 +145,7 @@ if __name__ == "__main__":
     from agent_logger_class import AgentLogger
     
     # Load task config
-    with open('/Users/pran-ker/Developer/agisdk/demoagent/udriver-1.json', 'r') as f:
+    with open('/Users/pran-ker/Developer/agisdk/demoagent/omnizon-1.json', 'r') as f:
         task_config = json.load(f)
         logging.info(f"Task config loaded: {task_config['id']}")
     
@@ -145,8 +153,15 @@ if __name__ == "__main__":
     url = task_config['website']['url']
     task_goal = task_config['goal']  # "Book a ride from Fitness Urbano to Pacific Cafe"
     
-    # Use environment variable for API key
+    # Create the agent logger with the system prompt as user_query
     agent_logger = AgentLogger(task_goal, api_key=os.environ.get("MULTION_API_KEY", ""), url=url)
+    
+    # Set the system_prompt to the scenario_user_query attribute before session is created
+    agent_logger.scenario_user_query = system_prompt
+    
+    # Initialize the session with the updated scenario_user_query
+    agent_logger._create_session()
+    agent_logger._log_start_event()
     
     logging.info("Agent execution starting...")
     
@@ -163,7 +178,7 @@ if __name__ == "__main__":
     
     # Run experiment
     experiment_config = {
-        "max_steps": 4,
+        "max_steps": 24,
         "show_generic": False,
         "run_id": "0",
         "task_id": "1"
@@ -193,7 +208,7 @@ if __name__ == "__main__":
             {"task_id": task_config['id'], "status": "completed"},
             {
                 "evaluation": eval_data,
-                "action_history": action_history if action_history else []
+                "result": action_history if action_history else []
             },
             dom_content="# Final Results",
             url=task_config['website']['url'],

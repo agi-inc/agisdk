@@ -19,17 +19,57 @@ def register_provider(provider_name: str):
 
 @register_provider("openai")
 def query_openai(user_prompt: str, system_prompt: str, model_config: Dict) -> str:
+    max_retries = 3
+    retry_delay = 2  # seconds
+    
+    # Validate API key
     api_key = model_config.get("openai_api_key", os.environ.get("OPENAI_API_KEY"))
-    client = openai.OpenAI(api_key=api_key)
-    response = client.chat.completions.create(
-        model=model_config["model_name"],
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        **model_config['response_kwargs']
+    if not api_key:
+        logging.error("OpenAI API key is missing. Please set the OPENAI_API_KEY environment variable.")
+        return "[ERROR: OpenAI API key is missing. Please set the OPENAI_API_KEY environment variable.]"
+    
+    # Set up the client with timeout and max_retries
+    client = openai.OpenAI(
+        api_key=api_key,
+        timeout=60.0,  # Increase timeout to 60 seconds
     )
-    return response.choices[0].message.content
+    
+    # Try with retries
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model=model_config["model_name"],
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                **model_config['response_kwargs']
+            )
+            return response.choices[0].message.content
+        
+        except openai.APIConnectionError as e:
+            logging.warning(f"OpenAI API connection error (attempt {attempt+1}/{max_retries}): {str(e)}")
+            if attempt < max_retries - 1:
+                logging.info(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                retry_delay *= 2  # Exponential backoff
+            else:
+                logging.error(f"Failed to connect to OpenAI API after {max_retries} attempts: {str(e)}")
+                return f"[ERROR: Failed to connect to OpenAI API after {max_retries} attempts. Please check your internet connection.]"
+        
+        except openai.RateLimitError as e:
+            logging.warning(f"OpenAI API rate limit exceeded (attempt {attempt+1}/{max_retries}): {str(e)}")
+            if attempt < max_retries - 1:
+                logging.info(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                retry_delay *= 2  # Exponential backoff
+            else:
+                logging.error(f"Rate limit exceeded after {max_retries} attempts: {str(e)}")
+                return "[ERROR: OpenAI API rate limit exceeded. Please try again later.]"
+        
+        except Exception as e:
+            logging.error(f"Unexpected error when calling OpenAI API: {str(e)}")
+            return f"[ERROR: {str(e)}]"
 
 @register_provider("anthropic")
 def query_anthropic(user_prompt: str, system_prompt: str, model_config: Dict) -> str:
@@ -86,28 +126,46 @@ def query_human(user_prompt: str, system_prompt: str, model_config: Dict) -> str
     
 def llm_query(user_prompt: str, system_prompt: str, model_config: Dict) -> str:
     """Dispatch query to the appropriate provider based on model configuration."""
-    # Log the model call details
-    logging.info(f"Model call to {model_config['model_provider']} - {model_config['model_name']}")
-    
-    # Log the full prompts
-    logging.info(f"User prompt: {user_prompt}")
-    logging.info(f"System prompt: {system_prompt}")
-    
-    # Don't log prompts to Multion API at all
-    # Only log locally for debugging
-    pass
-    
-    model_provider = model_config["model_provider"]
-    query_func = PROVIDER_REGISTRY.get(model_provider)
-    if not query_func:
-        raise ValueError(f"Unknown model provider: {model_provider}")
-    
-    response = query_func(user_prompt, system_prompt, model_config)
-    
-    # Log full response
-    logging.info(f"Model response: {response}")
-    
-    return response
+    try:
+        # Log the model call details
+        logging.info(f"Model call to {model_config['model_provider']} - {model_config['model_name']}")
+        
+        # Log the full prompts with increased length
+        log_truncation_limit = 5000  # Increased from 500 to 5000 characters
+        logged_user_prompt = user_prompt[:log_truncation_limit] + "..." if len(user_prompt) > log_truncation_limit else user_prompt
+        logged_system_prompt = system_prompt[:log_truncation_limit] + "..." if len(system_prompt) > log_truncation_limit else system_prompt
+        logging.info(f"User prompt: {logged_user_prompt}")
+        logging.info(f"System prompt: {logged_system_prompt}")
+        
+        # Get the appropriate query function
+        model_provider = model_config["model_provider"]
+        query_func = PROVIDER_REGISTRY.get(model_provider)
+        
+        if not query_func:
+            error_msg = f"Unknown model provider: {model_provider}"
+            logging.error(error_msg)
+            return f"[ERROR: {error_msg}]"
+        
+        # Call the provider-specific function
+        try:
+            response = query_func(user_prompt, system_prompt, model_config)
+            
+            # Log response with increased length
+            logged_response = response[:log_truncation_limit] + "..." if len(response) > log_truncation_limit else response
+            logging.info(f"Model response: {logged_response}")
+            
+            return response
+            
+        except Exception as e:
+            error_msg = f"Error calling {model_provider} API: {str(e)}"
+            logging.error(error_msg)
+            return f"[ERROR: {error_msg}]"
+            
+    except Exception as e:
+        # Catch any other unexpected errors
+        error_msg = f"Unexpected error in llm_query: {str(e)}"
+        logging.error(error_msg)
+        return f"[ERROR: {error_msg}]"
 
 if __name__ == "__main__":
     model_config = {

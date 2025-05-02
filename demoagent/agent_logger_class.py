@@ -30,6 +30,7 @@ class AgentLogger:
         self.email = email
         self.step_count = 0
         self.url = url
+        self.scenario_user_query = ""  # Default to empty, can be updated before _create_session is called
         
         if api_key is None:
             self.api_key = os.getenv("MULTION_API_KEY")
@@ -41,21 +42,21 @@ class AgentLogger:
             "X_MULTION_API_KEY": self.api_key
         }
         
-        # Initialize the session
-        self._create_session()
-        self._log_start_event()
+        # Don't automatically initialize the session - allow caller to set scenario_user_query first
+        # self._create_session()
+        # self._log_start_event()
         
     def _create_session(self):
         """Create the initial agent session"""
         session_data = {
             "email": self.email,
             "session_id": self.SESSION_ID,
-            "scenario": {"url": self.url, "user_query": self.query},
+            "scenario": {"url": self.url, "user_query": self.scenario_user_query},
             "source": "agent-logger",
             "run_id": self.runid,
             "agent_id": "research-agent",
             "agent_params": {"type": "research"},
-            "browser_config": {"browser": "chrome", "headless": False},
+            "browser_config": {"source": "chrome", "headless": False},
             "user_id": "user-123",
             "to_delete": False,
             "created_at": getnow(),
@@ -80,9 +81,15 @@ class AgentLogger:
             "session_id": self.SESSION_ID,
             "start_time": start_time,
             "latency": 0,
-            "inputs": {"prompt": self.prompt},
+            "inputs": {
+                "dom": "# Current page Accessibility Tree",
+                "url": self.url if self.url else "",
+                "user_query": self.scenario_user_query if self.scenario_user_query else self.prompt,
+                "task": "# Task",
+                "system_messages": []
+            },
             "outputs": {},
-            "metadata": {"browser": "chrome"},
+            "metadata": {"source": "chrome"},
             "run_id": self.runid,
             "created_at": getnow(),
             "updated_at": getnow(),
@@ -144,6 +151,9 @@ class AgentLogger:
         """
         self.step_count += 1
         
+        # Set a high truncation limit for logging (10MB)
+        truncation_limit = 10 * 1024 * 1024  # 10MB in characters
+        
         # Convert to dict format if string
         if isinstance(inputs, str):
             structured_inputs = {
@@ -179,7 +189,7 @@ class AgentLogger:
             "latency": 100,
             "inputs": structured_inputs,
             "outputs": {"message": outputs} if isinstance(outputs, str) else outputs,
-            "metadata": {"step": self.step_count, "browser": "chrome"},
+            "metadata": {"step": self.step_count, "source": "chrome"},
             "run_id": self.runid,
             "created_at": getnow(),
             "updated_at": getnow(),
@@ -208,7 +218,7 @@ class AgentLogger:
             "latency": 0,
             "inputs": {"status": "complete"},
             "outputs": {"status": "complete"},
-            "metadata": {"browser": "chrome"},
+            "metadata": {"source": "chrome"},
             "run_id": self.runid,
             "created_at": getnow(),
             "updated_at": getnow(),
