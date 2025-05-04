@@ -110,7 +110,7 @@ class DemoAgent(Agent):
         self.system_message_handling = system_message_handling
 
         if not (use_html or use_axtree):
-            raise ValueError(f"Either use_html or use_axtree must be set to True.")
+            raise ValueError("Either use_html or use_axtree must be set to True.")
 
         from openai import OpenAI
         import os
@@ -120,8 +120,8 @@ class DemoAgent(Agent):
         if not openai_api_key:
             logger.warning("OPENAI_API_KEY not found in environment, using a dummy key")
             openai_api_key = "sk-dummy-key-for-testing"
-            
-        self.client = OpenAI(api_key=openai_api_key)
+
+        self.client = OpenAI(api_key=openai_api_key, base_url=os.getenv('OPENAI_API_BASE'))
         self.model_name = "gpt-4o"  # Always use GPT-4o regardless of input model_name
         
         # Initialize the agent logger for Multion API logging

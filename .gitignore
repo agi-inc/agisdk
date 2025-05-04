@@ -6,7 +6,7 @@ learnstagehand
 udrive
 build
 .trash
-# Environment variables
 .env
 *.env
 .env.*
+*.egg-info/

@@ -12,8 +12,7 @@ async def scrape_content(page):
     print(content)
 
 def generate_from_model(model: str = "gpt4o", prompt: str = ""):
-    client = OpenAI()
-    openai_api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(base_url=os.getenv('OPENAI_API_BASE'), api_key=os.getenv("OPENAI_API_KEY"))
     response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
