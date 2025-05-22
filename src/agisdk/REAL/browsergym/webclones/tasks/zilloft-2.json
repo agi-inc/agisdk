@@ -1,6 +1,6 @@
 {
   "id": "zilloft-2",
-  "goal": "Filter the listings in San Francisco to show only homes with 3 bedrooms and 2 bathrooms. How many listings are displayed?",
+  "goal": "Filter the listings in San Francisco to show only homes with exactly 3 bedrooms and 2 bathrooms. How many listings are displayed?",
   "website": {
     "id": "zilloft",
     "name": "Zilloft",
