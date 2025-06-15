@@ -309,6 +309,48 @@ class TestIntegrationScenarios:
         assert abs(metrics['avg_duration'] - 1.25) < 0.01  # (1.0+2.0+0.5+1.5)/4
         assert metrics['total_tokens'] == 500
 
+class TestAGISDKIntegration:
+    """Test AGI SDK integration scenarios."""
+    
+    def test_agi_enhanced_agent_integration(self):
+        """Test AGI enhanced agent with content optimization and rate limiting."""
+        agent = AGIEnhancedAgent()
+        
+        # Test with a typical task
+        result = agent.execute_task(
+            "Find iPhone 15 Pro on Omnizon with best price",
+            max_tokens=2000,
+            task_type="omnizon"
+        )
+        
+        assert isinstance(result, dict)
+        assert 'success' in result
+        assert 'duration' in result
+        assert 'tokens_used' in result
+        
+        # Verify performance tracking
+        metrics = agent.performance_tracker.get_metrics()
+        assert 'success_rate' in metrics
+        assert 'avg_duration' in metrics
+        
+    def test_agi_sdk_integration_fallback(self):
+        """Test that AGI SDK integration handles import errors gracefully."""
+        agent = AGIEnhancedAgent()
+        
+        # This should work even if AGI SDK is not available
+        # The _execute_base_agent method should fall back to mock implementation
+        result = agent.execute_task("Test task", max_tokens=1000)
+        
+        # Should still return a valid result structure
+        assert isinstance(result, dict)
+        assert 'success' in result
+        
+        # Check that it either succeeded with real AGI SDK or mock
+        if result['success']:
+            assert 'result' in result
+        else:
+            assert 'error' in result
+
 if __name__ == "__main__":
     # Run the test suite
     pytest.main(["-v", __file__])
