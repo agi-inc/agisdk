@@ -1,34 +1,28 @@
 {
   "id": "topwork-1",
-  "goal": "Create a new job post for a Frontend Developer with expertise in React and TypeScript, specifying project details such as estimated duration, required skills, and budget.",
+  "goal": "Remove existing job posting on Mobile App UI/UX Design",
   "website": {
     "id": "topwork",
     "name": "TopWork",
     "similarTo": "Upwork",
     "previewImage": "/websitePreviews/topwork_preview.jpg",
-    "url": "https://evals-topwork.vercel.app"
+    "url": "https://real-topwork.vercel.app/"
   },
-  "difficulty": "medium",
+  "difficulty": "easy",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "description": "correct job title",
-      "type": "jmespath",
-      "expected_value": "Frontend Developer",
-      "query": "jobsDiff.added.\"0\".title"
-    },
-    {
-      "description": "includes React skill",
+      "description": "Job deletion action was performed",
       "type": "jmespath",
       "expected_value": true,
-      "query": "contains(jobsDiff.added.\"0\".skills, 'React')"
+      "query": "jobs.deleteJobStatus == 'success' || ui.jobDeleted == true"
     },
     {
-      "description": "includes TypeScript skill",
+      "description": "Confirmation dialog for job deletion was shown",
       "type": "jmespath",
       "expected_value": true,
-      "query": "contains(jobsDiff.added.\"0\".skills, 'TypeScript')"
+      "query": "ui.showDeleteConfirm == true || ui.confirmationDialogOpen == true"
     }
   ],
   "points": 1,

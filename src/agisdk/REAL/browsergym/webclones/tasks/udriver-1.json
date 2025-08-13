@@ -1,34 +1,52 @@
 {
   "id": "udriver-1",
-  "goal": "Book a ride from Fitness Urbano to Pacific Cafe",
+  "goal": "1000 Chestnut St to 1030 Post St apartment book a cab such that 5 people can fit.",
   "website": {
     "id": "udriver",
     "name": "UDriver",
     "similarTo": "Uber",
     "previewImage": "/websitePreviews/udriver_preview.jpg",
-    "url": "https://evals-udriver.vercel.app"
+    "url": "https://real-udriver.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "description": "correct pickup location",
+      "description": "Trip was booked successfully (exists in currentTrips)",
       "type": "jmespath",
-      "expected_value": "Fitness Urbano",
-      "query": "differences.currentTrips.added.\"6\".pickup.name"
+      "expected_value": true,
+      "query": "length(currentTrips[?pickup.name == '1000 Chestnut Street Apartments' && destination.name == '1030 Post Street Apartments']) > `0`"
     },
     {
-      "description": "correct destination",
+      "description": "Correct pickup address (1000 Chestnut St)",
       "type": "jmespath",
-      "expected_value": "Pacific Cafe",
-      "query": "differences.currentTrips.added.\"6\".destination.name"
+      "expected_value": "1000 Chestnut Street Apartments",
+      "query": "currentTrips[0].pickup.name"
     },
     {
-      "description": "correct car type",
+      "description": "Correct destination address (1030 Post St)",
       "type": "jmespath",
-      "expected_value": "UdriverX",
-      "query": "differences.currentTrips.added.\"6\".car.type"
+      "expected_value": "1030 Post Street Apartments",
+      "query": "currentTrips[0].destination.name"
+    },
+    {
+      "description": "Car can fit 5+ people (UdriverXL with 6 seats)",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "currentTrips[0].car.seats >= `5`"
+    },
+    {
+      "description": "UdriverXL car type was selected",
+      "type": "jmespath",
+      "expected_value": "UdriverXL",
+      "query": "currentTrips[0].car.type"
+    },
+    {
+      "description": "Trip price is $25.41",
+      "type": "jmespath",
+      "expected_value": 25.41,
+      "query": "currentTrips[0].car.finalPrice"
     }
   ],
   "points": 1,

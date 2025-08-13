@@ -1,30 +1,28 @@
 {
   "id": "networkin-1",
-  "goal": "Create a new text post for the feed with a professional update about AI trends in 2025, mentioning three key advancements and their impact on the job market.",
+  "goal": "Follow Y combinator, and then forward it to your friend John.",
   "website": {
     "id": "networkin",
-    "name": "Networkin",
+    "name": "NetworkIn",
     "similarTo": "LinkedIn",
     "previewImage": "/websitePreviews/networkin_preview.jpg",
-    "url": "https://evals-networkin.vercel.app"
+    "url": "https://real-networkin.vercel.app/"
   },
-  "difficulty": "medium",
+  "difficulty": "easy",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "possible": true,
-      "description": "at least one post added",
+      "description": "Following action was completed",
       "type": "jmespath",
       "expected_value": true,
-      "query": "length(feedPostsDiff.added) >= `1`"
+      "query": "company.followStatus == 'followed' || company.isFollowing == true"
     },
     {
-      "possible": true,
-      "description": "post contains AI mention",
+      "description": "Forward action was initiated",
       "type": "jmespath",
       "expected_value": true,
-      "query": "contains(feedPostsDiff.added[0].description, 'AI')"
+      "query": "ui.showShareDialog == true || ui.shareDialogOpen == true"
     }
   ],
   "points": 1,

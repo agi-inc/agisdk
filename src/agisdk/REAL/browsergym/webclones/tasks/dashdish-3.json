@@ -1,21 +1,46 @@
 {
   "id": "dashdish-3",
-  "goal": "How many restaurants in the \"Light & fresh\" category offer delivery?",
+  "goal": "Order Spicy Miso Ramen from Marufuku Ramen with standard delivery. Preferences make it extra spicy.",
   "website": {
     "id": "dashdish",
     "name": "DashDish",
     "similarTo": "Doordash",
     "previewImage": "/websitePreviews/dashdish_preview.jpg",
-    "url": "https://evals-dashdish.vercel.app"
+    "url": "https://real-dashdish.vercel.app/"
   },
   "difficulty": "medium",
-  "challengeType": "retrieval",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
-      "expected_value": true,
-      "rubric": "Does the answer indicate that 5 restaurants in the \"Light & fresh\" category offer delivery?"
+      "description": "Order contains Spicy Miso Ramen",
+      "type": "jmespath",
+      "expected_value": "Spicy Miso Ramen",
+      "query": "cart.foodOrders[0].cartItems[0].name"
+    },
+    {
+      "description": "Order is from Marufuku Ramen",
+      "type": "jmespath",
+      "expected_value": "Marufuku Ramen",
+      "query": "cart.foodOrders[0].cartItems[0].restaurantName"
+    },
+    {
+      "description": "Standard delivery option selected",
+      "type": "jmespath",
+      "expected_value": "Standard",
+      "query": "cart.foodOrders[0].checkoutDetails.shipping.deliveryOption"
+    },
+    {
+      "description": "Extra spicy preference was added",
+      "type": "jmespath",
+      "expected_value": "make it extra spicy",
+      "query": "cart.foodOrders[0].cartItems[0].preferences"
+    },
+    {
+      "description": "Drop off option set to leave at door",
+      "type": "jmespath",
+      "expected_value": "Leave it at my door",
+      "query": "cart.foodOrders[0].checkoutDetails.shipping.dropOffOption"
     }
   ],
   "points": 1,

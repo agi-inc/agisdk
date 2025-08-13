@@ -1,46 +1,28 @@
 {
   "id": "topwork-2",
-  "goal": "Create a job posting for a Backend Developer specializing in Python, Django, and Flask to develop a high-performance web application. Include project details such as required skills (PostgreSQL, Docker, AWS, CI/CD), estimated project timeline, and budget.",
+  "goal": "Look for any messages in notifications, and reply back letting them know you would be free in the next wednesday morning.",
   "website": {
     "id": "topwork",
     "name": "TopWork",
     "similarTo": "Upwork",
     "previewImage": "/websitePreviews/topwork_preview.jpg",
-    "url": "https://evals-topwork.vercel.app"
+    "url": "https://real-topwork.vercel.app/"
   },
-  "difficulty": "medium",
-  "challengeType": "action",
+  "difficulty": "easy",
+  "challengeType": "search",
   "possible": true,
   "evals": [
     {
-      "description": "correct job title",
-      "type": "jmespath",
-      "expected_value": "Backend Developer",
-      "query": "jobsDiff.added.\"0\".title"
-    },
-    {
-      "description": "includes Python skill",
+      "description": "Message reply interface was used",
       "type": "jmespath",
       "expected_value": true,
-      "query": "contains(jobsDiff.added.\"0\".skills, 'Python')"
+      "query": "ui.showReplyDialog == true || messages.replyDialogOpen == true"
     },
     {
-      "description": "includes Django skill",
+      "description": "Reply was successfully sent",
       "type": "jmespath",
       "expected_value": true,
-      "query": "contains(jobsDiff.added.\"0\".skills, 'Django')"
-    },
-    {
-      "description": "includes Flask skill",
-      "type": "jmespath",
-      "expected_value": true,
-      "query": "contains(jobsDiff.added.\"0\".skills, 'Flask')"
-    },
-    {
-      "description": "includes PostgreSQL skill",
-      "type": "jmespath",
-      "expected_value": true,
-      "query": "contains(jobsDiff.added.\"0\".skills, 'PostgreSQL')"
+      "query": "messages.replyStatus == 'sent' || messages.replySent == true"
     }
   ],
   "points": 1,

@@ -1,23 +1,40 @@
 {
   "id": "gomail-2",
-  "goal": "Mark the first email in the Inbox as \"read\".",
+  "goal": "Reply to Jane Smith's email about the project deadline extension",
   "website": {
     "id": "gomail",
     "name": "GoMail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://evals-gomail.vercel.app"
+    "url": "https://real-gomail.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "possible": true,
-      "description": "email marked as read",
+      "description": "Reply recipient is Jane Smith",
+      "type": "jmespath",
+      "expected_value": "jane.smith@example.com",
+      "query": "goMail_mails.emails[?isReply==`true`] | [0].to[0]"
+    },
+    {
+      "description": "Reply content contains OOO message",
+      "type": "jmespath",
+      "expected_value": "OOO",
+      "query": "goMail_mails.emails[?isReply==`true`] | [0].content"
+    },
+    {
+      "description": "Reply is marked as sent",
       "type": "jmespath",
       "expected_value": true,
-      "query": "differences.emails.updated[0].isRead"
+      "query": "goMail_mails.emails[?isReply==`true`] | [0].sent"
+    },
+    {
+      "description": "Reply has correct thread ID",
+      "type": "jmespath",
+      "expected_value": "thread_2",
+      "query": "goMail_mails.emails[?isReply==`true`] | [0].threadId"
     }
   ],
   "points": 1,

@@ -1,21 +1,46 @@
 {
   "id": "omnizon-1",
-  "goal": "Search for \"laptop\" using the search bar and display the first product in the results.",
+  "goal": "Can you buy a gift basket for my wife make sure the total cost with taxes is below $22, in the earliest possible time. Add a gift receipt as well.",
   "website": {
     "id": "omnizon",
     "name": "Omnizon",
     "similarTo": "Amazon",
     "previewImage": "/websitePreviews/omnizon_preview.jpg",
-    "url": "https://evals-omnizon.vercel.app"
+    "url": "https://real-omnizon.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "Order was completed successfully",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the answer mention or describe the first product (VILVA Portable-Monitor-for-Laptop) that appears in the search results for 'laptop'?"
+      "query": "length(\"persist:root\".order.orders) > `0`"
+    },
+    {
+      "description": "Order total is below $22 as requested",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "order.orders[0].total < `22`"
+    },
+    {
+      "description": "Gift receipt was added to the item",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "order.orders[0].items[0].giftReceipt"
+    },
+    {
+      "description": "Search was performed for gift items",
+      "type": "jmespath",
+      "expected_value": "gift",
+      "query": "filter.searchQuery"
+    },
+    {
+      "description": "Earliest delivery option was selected",
+      "type": "jmespath",
+      "expected_value": "Jul 19, 2024",
+      "query": "order.orders[0].selected_delivery"
     }
   ],
   "points": 1,

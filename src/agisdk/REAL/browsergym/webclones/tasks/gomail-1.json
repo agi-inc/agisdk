@@ -1,22 +1,31 @@
 {
   "id": "gomail-1",
-  "goal": "How many unread emails are in the Inbox?",
+  "goal": "Send an email to Emily Johnson, asking her when she will be free. and send it.",
   "website": {
     "id": "gomail",
     "name": "GoMail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://evals-gomail.vercel.app"
+    "url": "https://real-gomail.vercel.app/"
   },
-  "difficulty": "easy",
-  "challengeType": "retrieval",
+  "difficulty": "medium",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "possible": true,
-      "type": "llm_boolean",
+      "query": "email.emails[?id==`1754926335819`] | [0].sent",
       "expected_value": true,
-      "rubric": "Does the answer reflect that there are 17 unread emails in the Inbox?"
+      "description": "Email was sent successfully"
+    },
+    {
+      "query": "email.emails[?id==`1754926335819`] | [0].from",
+      "expected_value": "fede.lopez@gmail.com",
+      "description": "Email sender is fede.lopez@gmail.com"
+    },
+    {
+      "query": "email.emails[?from=='fede.lopez@gmail.com' && contains(to, 'emily.johnson@example.com') && sent==`true`] | length(@)",
+      "expected_value": 1,
+      "description": "Email exists in emails array with correct sender, recipient and sent status"
     }
   ],
   "points": 1,

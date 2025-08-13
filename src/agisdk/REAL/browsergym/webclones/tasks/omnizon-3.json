@@ -1,21 +1,46 @@
 {
   "id": "omnizon-3",
-  "goal": "Scroll through the homepage, click on the \"Headphones\" category card, and retrieve all product listings within that category.",
+  "goal": "Write a review for VILVA Portable-Monitor, which gives it 5 stars. And mention that this is one of the best monitors for gaming.",
   "website": {
     "id": "omnizon",
     "name": "Omnizon",
     "similarTo": "Amazon",
     "previewImage": "/websitePreviews/omnizon_preview.jpg",
-    "url": "https://evals-omnizon.vercel.app"
+    "url": "https://real-omnizon.vercel.app/"
   },
-  "difficulty": "easy",
-  "challengeType": "retrieval",
+  "difficulty": "medium",
+  "challengeType": "search",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "A review was created successfully",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the answer list multiple headphone products from the Headphones category, including their names and basic details?"
+      "query": "length(\"persist:root\".review.userCreatedReviews) > `0`"
+    },
+    {
+      "description": "Review has 5 stars as requested",
+      "type": "jmespath",
+      "expected_value": 5,
+      "query": "review.userCreatedReviews[0].rating"
+    },
+    {
+      "description": "Review mentions gaming as requested",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(review.userCreatedReviews[0].comment, 'gaming')"
+    },
+    {
+      "description": "Review mentions it's one of the best monitors",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(review.userCreatedReviews[0].comment, 'best monitors')"
+    },
+    {
+      "description": "Review is for the correct product (VILVA Portable Monitor - product ID 9)",
+      "type": "jmespath",
+      "expected_value": 9,
+      "query": "review.userCreatedReviews[0].productId"
     }
   ],
   "points": 1,

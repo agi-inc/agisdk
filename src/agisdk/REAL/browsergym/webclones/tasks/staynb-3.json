@@ -1,21 +1,46 @@
 {
   "id": "staynb-3",
-  "goal": "How much more expensive is the most expensive stay compared to the cheapest one? Please provide just the dollar amount difference.",
+  "goal": "Create a new wishlist called June trip, with 3-4 places which are by the sea",
   "website": {
     "id": "staynb",
     "name": "StayNB",
     "similarTo": "Airbnb",
     "previewImage": "/websitePreviews/staynb_preview.jpg",
-    "url": "https://evals-staynb.vercel.app"
+    "url": "https://real-staynb.vercel.app/"
   },
-  "difficulty": "easy",
-  "challengeType": "retrieval",
+  "difficulty": "medium",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "A wishlist was created successfully",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the answer contain the price difference of $982?"
+      "query": "length(wishlist.wishlists) > `0`"
+    },
+    {
+      "description": "Wishlist name is 'June Trip'",
+      "type": "jmespath",
+      "expected_value": "June Trip",
+      "query": "wishlist.wishlists[0].name"
+    },
+    {
+      "description": "Wishlist contains at least 3 places",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "length(wishlist.wishlists[0].stays) >= `3`"
+    },
+    {
+      "description": "Wishlist contains seaside-related properties (checking for ocean/sea/lake names)",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "wishlist.wishlists[0].stays[?contains(to_lower(name), 'ocean') || contains(to_lower(name), 'sea') || contains(to_lower(name), 'lake') || contains(to_lower(name), 'river')].name | length(@) > `0`"
+    },
+    {
+      "description": "Wishlist statistics show it was created",
+      "type": "jmespath",
+      "expected_value": 1,
+      "query": "wishlist.stats.totalWishlists"
     }
   ],
   "points": 1,

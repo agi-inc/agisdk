@@ -1,21 +1,22 @@
 {
   "id": "opendining-2",
-  "goal": "Click on the restaurant named \"Yellowy Bistro\" and tell me its description, menu, and reviews.",
+  "goal": "Set a notification when a table for 2 people becomes available at Fancy Lights Bistro on Jul 18, 2024 around 3:00 PM.",
   "website": {
     "id": "opendining",
     "name": "OpenDining",
     "similarTo": "OpenTable",
     "previewImage": "/websitePreviews/opendining_preview.jpg",
-    "url": "https://evals-opendining.vercel.app"
+    "url": "https://real-opendining.vercel.app/"
   },
   "difficulty": "easy",
-  "challengeType": "retrieval-action",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "Notification was set up",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the answer include the Yellowy Bistro's description mentioning 'bright and cheerful bistro' or 'sunny decor', list menu items such as 'Linguine Carbonara' or 'Grilled Salmon', and mention review ratings that are approximately 4.2-4.8 overall?"
+      "query": "length(notification.notifications) > `0` || notification.currentNotification != null"
     }
   ],
   "points": 1,

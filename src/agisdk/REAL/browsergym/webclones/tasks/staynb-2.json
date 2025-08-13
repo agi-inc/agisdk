@@ -1,22 +1,58 @@
 {
   "id": "staynb-2",
-  "goal": "Click on one of the stays displayed on the homepage and book it for a family of 4 (2 adults and 2 children). For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "goal": "Search for the best rated place to stay in Boston, which has a Balcony. Book it for 2 adults, pay part of it now and pay later with gpay.",
   "website": {
     "id": "staynb",
     "name": "StayNB",
     "similarTo": "Airbnb",
     "previewImage": "/websitePreviews/staynb_preview.jpg",
-    "url": "https://evals-staynb.vercel.app"
+    "url": "https://real-staynb.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
-  "description": "booking doesn't work",
   "evals": [
     {
+      "description": "Booking was completed successfully",
       "type": "jmespath",
-      "expected_value": "4 Guests",
-      "query": "bookingDetailsDiff.added.\"0\".guests"
+      "expected_value": true,
+      "query": "length(booking.bookingDetails) > `0`"
+    },
+    {
+      "description": "Guest count is set to 2 adults",
+      "type": "jmespath",
+      "expected_value": 2,
+      "query": "booking.bookingDetails[0].guests.Adults"
+    },
+    {
+      "description": "No children were included in the booking",
+      "type": "jmespath",
+      "expected_value": 0,
+      "query": "booking.bookingDetails[0].guests.Children"
+    },
+    {
+      "description": "Payment method is set to Google Pay",
+      "type": "jmespath",
+      "expected_value": "Google Pay",
+      "query": "booking.bookingDetails[0].payWith"
+    },
+    {
+      "description": "Pay later option was selected",
+      "type": "jmespath",
+      "expected_value": "pay-later",
+      "query": "booking.bookingDetails[0].pay_when"
+    },
+    {
+      "description": "Booked property is located in Boston",
+      "type": "jmespath",
+      "expected_value": "Boston",
+      "query": "booking.bookingDetails[0].stay.city"
+    },
+    {
+      "description": "A reservation ID was generated",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "booking.bookingDetails[0].reservationId != null"
     }
   ],
   "points": 1,

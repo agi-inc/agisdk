@@ -1,36 +1,26 @@
 {
   "id": "gomail-3",
-  "goal": "Compose a new email to jonathan.smith@example.com with the subject \"Meeting Notes\" and body \"Please find the meeting notes attached.\"",
+  "goal": "Give all emails from AWS a label called AWS.",
   "website": {
     "id": "gomail",
     "name": "GoMail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://evals-gomail.vercel.app"
+    "url": "https://real-gomail.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "possible": true,
-      "type": "jmespath",
-      "expected_value": "jonathan.smith@example.com",
-      "query": "differences.emails.added[0].to[0]"
+      "query": "settings.customLabels[?label=='AWS'] | [0].label",
+      "expected_value": "AWS",
+      "description": "AWS custom label exists"
     },
     {
-      "possible": true,
-      "description": "correct subject",
-      "type": "jmespath",
-      "expected_value": "Meeting Notes",
-      "query": "differences.emails.added[0].subject"
-    },
-    {
-      "possible": true,
-      "description": "correct email content",
-      "type": "jmespath",
-      "expected_value": "<p>Please find the meeting notes attached.</p>",
-      "query": "differences.emails.added[0].content"
+      "query": "email.emails[?contains(from, 'aws') || contains(from, 'amazon.com')] | length(@)",
+      "expected_value": 3,
+      "description": "Found 3 AWS emails"
     }
   ],
   "points": 1,

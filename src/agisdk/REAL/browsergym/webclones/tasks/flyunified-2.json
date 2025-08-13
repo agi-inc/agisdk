@@ -1,0 +1,42 @@
+{
+  "id": "flyunified-2",
+  "goal": "Book me a round-trip flight from Providence (Rhode Island) to Indianapolis, departing on December 5th, 2024 at 08:00 and returning on December 9th at 995\nSex: Female\nSeat Selection: Yes (Window seat)\nPayment: Credit Card (378342143523967), Exp: 06/26, security code: 345 Address: 456 Elm St, Miami, FL, 33101, USA, Phone: 555-987-6543, Email: janesmith@example.com.",
+  "website": {
+    "id": "flyunified",
+    "name": "FlyUnified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/flyunified_preview.jpg",
+    "url": "https://real-flyunified.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct departure city",
+      "type": "jmespath",
+      "expected_value": "Providence",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct destination city",
+      "type": "jmespath",
+      "expected_value": "Indianapolis",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.to.destination.city"
+    },
+    {
+      "description": "correct return departure city",
+      "type": "jmespath",
+      "expected_value": "Indianapolis",
+      "query": "differences.bookedFlights.added.\"0\".flight.returnFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct return destination city",
+      "type": "jmespath",
+      "expected_value": "Providence",
+      "query": "differences.bookedFlights.added.\"0\".flight.returnFlight.info.to.destination.city"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

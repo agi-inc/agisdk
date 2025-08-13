@@ -1,21 +1,28 @@
 {
   "id": "opendining-1",
-  "goal": "Browse the list of restaurants in the \"Available for lunch now\" section and display the names of all available options.",
+  "goal": "Search for the best rated Italian restaurants and book for two people, at the closest date.",
   "website": {
     "id": "opendining",
     "name": "OpenDining",
     "similarTo": "OpenTable",
     "previewImage": "/websitePreviews/opendining_preview.jpg",
-    "url": "https://evals-opendining.vercel.app"
+    "url": "https://real-opendining.vercel.app/"
   },
   "difficulty": "easy",
-  "challengeType": "retrieval-action",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "Review was written for Evening Delight",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the answer include at least five of these restaurant names: The Royal Dine, Vintage Bites, Evening Delight, River View Caf\u00e9, Fancy Lights Bistro, Bar Central, Spacious Eats, Yellowy Bistro, Crowded Corner, Expensive Taste, Ocean Breeze, Bistro Soleil?"
+      "query": "length(review.reviews) > `0` || review.currentReview != null"
+    },
+    {
+      "description": "Review was submitted successfully",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "review.reviewSubmitted == true || review.reviews[0].submitted == true"
     }
   ],
   "points": 1,

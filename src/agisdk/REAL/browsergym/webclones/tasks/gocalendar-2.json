@@ -1,21 +1,28 @@
 {
   "id": "gocalendar-2",
-  "goal": "Switch to the \"Month\" view and list all events displayed for July 2024",
+  "goal": "Can you clear the schedule for Friday, and then schedule an event from 9 AM to 3 PM, and called \"Doctor's appointment\"",
   "website": {
     "id": "gocalendar",
     "name": "GoCalendar",
     "similarTo": "Google Calendar",
     "previewImage": "/websitePreviews/gocalendar_preview.jpg",
-    "url": "https://evals-gocalendar.vercel.app"
+    "url": "https://real-gocalendar.vercel.app/"
   },
   "difficulty": "easy",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "Friday events were cleared (fewer events on July 19, 2024)",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the answer accurately list all events displayed for July 2024 including Team Standup Meeting, Client Call, Team Brainstorming Session, Morning Walk, Team Workshop, Lunch with Boss, Project Sync, Customer Feedback Session, Team Collaboration Work, Morning Coffee with sister, Team Check-In, Lunch with Marketing Team, Breakfast Metting with Client, Team Progress Check, and Client Presentation?"
+      "query": "length(calendar.deletedEvents) > `0`"
+    },
+    {
+      "description": "Event duration is 6 hours (9 AM to 3 PM)",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "calendar.myEvents[?contains(title, 'Doctor')] | [0].end != [0].start"
     }
   ],
   "points": 1,

@@ -1,37 +1,28 @@
 {
   "id": "networkin-3",
-  "goal": "Write a post inviting users to a networking event, including details about the event's purpose, date, and target audience.",
+  "goal": "Set a job post for an AI researcher, the company is AGI Inc.",
   "website": {
     "id": "networkin",
-    "name": "Networkin",
+    "name": "NetworkIn",
     "similarTo": "LinkedIn",
     "previewImage": "/websitePreviews/networkin_preview.jpg",
-    "url": "https://evals-networkin.vercel.app"
+    "url": "https://real-networkin.vercel.app/"
   },
-  "difficulty": "medium",
-  "challengeType": "action",
+  "difficulty": "easy",
+  "challengeType": "search",
   "possible": true,
   "evals": [
     {
-      "possible": true,
-      "description": "at least one post added",
+      "description": "Job posting dialog was opened",
       "type": "jmespath",
       "expected_value": true,
-      "query": "length(feedPostsDiff.added) >= `1`"
+      "query": "ui.showJobPostDialog == true || ui.jobPostDialogOpen == true"
     },
     {
-      "possible": true,
-      "description": "post contains event mention",
+      "description": "Job post was successfully submitted",
       "type": "jmespath",
       "expected_value": true,
-      "query": "contains(feedPostsDiff.added[0].description, 'event') || contains(feedPostsDiff.added[0].description, 'Event')"
-    },
-    {
-      "possible": true,
-      "description": "post contains network mention",
-      "type": "jmespath",
-      "expected_value": true,
-      "query": "contains(feedPostsDiff.added[0].description, 'network') || contains(feedPostsDiff.added[0].description, 'Network')"
+      "query": "company.jobPostStatus == 'posted' || ui.jobPostSubmitted == true"
     }
   ],
   "points": 1,

@@ -1,51 +1,51 @@
 {
-  "id": "fly-unified-9",
-  "goal": "Book me a flight from San Francisco to Chicago in Basic Economy on December 18th at 10:00. Ensure no seat selection is made.\nPassenger: David Lee\nDate of Birth: 07/22/1985\nSex: Male\nSeat Selection: No\nPayment: Credit Card (9999 8888 7777), Exp: 03/30, Address: 987 Cedar St, Chicago, IL, 60601, USA, Phone: 555-987-1234, Email: davidlee@example.com.",
+  "id": "flyunified-1",
+  "goal": "Find the cheapest Economy flight from Charlotte to Norfolk on December 10th, and book it if it departs before noon. Tell me what time the flight departs and whether you booked it.\nPassenger: Sarah White\nDate of Birth: 04/10/1990\nSex: Female\nSeat Selection: No\nPayment: Credit Card (2222 3333 4444), Exp: 08/29, Security: 244 Address: 654 Maple St, Boston, MA, 02108, USA, Phone: 555-654-3210, Email: sarahwhite@example.com.",
   "website": {
-    "id": "fly-unified",
-    "name": "Fly Unified",
+    "id": "flyunified",
+    "name": "FlyUnified",
     "similarTo": "United Airlines",
-    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
-    "url": "https://evals-fly-unified.vercel.app"
+    "previewImage": "/websitePreviews/flyunified_preview.jpg",
+    "url": "https://real-flyunified.vercel.app/"
   },
-  "difficulty": "hard",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
       "description": "correct departure city",
       "type": "jmespath",
-      "expected_value": "San Francisco",
+      "expected_value": "Charlotte",
       "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.destination.city"
     },
     {
       "description": "correct destination city",
       "type": "jmespath",
-      "expected_value": "Chicago",
+      "expected_value": "Norfolk",
       "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.to.destination.city"
     },
     {
       "description": "correct passenger first name",
       "type": "jmespath",
-      "expected_value": "David",
+      "expected_value": "Sarah",
       "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].firstName"
     },
     {
       "description": "correct passenger last name",
       "type": "jmespath",
-      "expected_value": "Lee",
+      "expected_value": "White",
       "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].lastName"
     },
     {
-      "description": "correct fare type (Basic Economy)",
+      "description": "correct fare type (Economy)",
       "type": "jmespath",
-      "expected_value": "Basic Economy",
+      "expected_value": "Economy",
       "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.selectedPrice.type"
     },
     {
-      "description": "correct departure time (10:00 AM)",
+      "description": "correct departure time (before noon)",
       "type": "jmespath",
-      "expected_value": "2024-12-18T18:00:00.000Z",
+      "expected_value": "2024-12-10T16:00:00.000Z",
       "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.segments[0].departureTime"
     }
   ],
