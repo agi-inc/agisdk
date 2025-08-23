@@ -1,22 +1,47 @@
 {
   "id": "dashdish-3",
-  "goal": "How many restaurants in the \"Light & fresh\" category offer delivery?",
+  "goal": "Order Spicy Miso Ramen from Marufuku Ramen with standard delivery. Preferences make it extra spicy. Use the existing payment method",
   "website": {
     "id": "dashdish",
     "name": "DashDish",
     "similarTo": "Doordash",
     "previewImage": "/websitePreviews/dashdish_preview.jpg",
-    "url": "https://evals-dashdish.vercel.app"
+    "url": "https://real-dashdish-gi5fci3go-real-sites.vercel.app/"
   },
   "difficulty": "medium",
-  "challengeType": "retrieval",
+  "challengeType": "action",
   "possible": true,
   "evals": [
-    {
-      "type": "llm_boolean",
-      "expected_value": true,
-      "rubric": "Does the answer indicate that 5 restaurants in the \"Light & fresh\" category offer delivery?"
-    }
+      {
+        "description": "The ordered item is Spicy Miso Ramen",
+        "type": "jmespath",
+        "query": "cart.foodOrders[0].cartItems[0].name",
+        "expected_value": "Spicy Miso Ramen"
+      },
+      {
+        "description": "The size of the ramen is Large",
+        "type": "jmespath",
+        "query": "cart.foodOrders[0].cartItems[0].size",
+        "expected_value": "Large"
+      },
+      {
+        "description": "The preference contains the word 'spicy'",
+        "type": "jmespath",
+        "query": "contains(cart.foodOrders[0].cartItems[0].preferences, 'spicy')",
+        "expected_value": true
+      },
+      {
+        "description": "The order was placed from Marufuku Ramen",
+        "type": "jmespath",
+        "query": "cart.foodOrders[0].cartItems[0].restaurantName",
+        "expected_value": "Marufuku Ramen"
+      },
+      {
+        "description": "The quantity of the ordered item is 1",
+        "type": "jmespath",
+        "query": "cart.foodOrders[0].cartItems[0].quantity",
+        "expected_value": 1
+      }
   ],
   "points": 1,
   "config": {}

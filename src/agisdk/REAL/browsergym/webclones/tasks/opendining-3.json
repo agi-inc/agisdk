@@ -1,46 +1,58 @@
 {
   "id": "opendining-3",
-  "goal": "Book a table at \"The Royal Dine\" for a party of 4 on July 20, 2024, at 7 PM. For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "goal": "Save the Evening Delight, and write a review giving it 5 stars, saying the food is amazing. Add Rahul as the name for the review.",
   "website": {
     "id": "opendining",
     "name": "OpenDining",
     "similarTo": "OpenTable",
     "previewImage": "/websitePreviews/opendining_preview.jpg",
-    "url": "https://evals-opendining.vercel.app"
+    "url": "https://real-opendining-jgapr7f1u-real-sites.vercel.app/"
   },
   "difficulty": "easy",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "description": "booking was made",
+      "description": "The restaurant is saved.",
       "type": "jmespath",
-      "expected_value": true,
-      "query": "bookingDetailsDiff.added.\"0\" != null"
+      "query": "contains(savedRestaurants.savedRestaurants, '81c94d5b-47b1-4d3f-bc48-e2cbebbc2d0f')",
+      "expected_value": true
     },
     {
-      "description": "correct restaurant selected",
+      "description": "A review was successfully submitted.",
       "type": "jmespath",
-      "expected_value": "The Royal Dine",
-      "query": "bookingDetailsDiff.added.\"0\".restaurant.name"
+      "query": "length(review.reviews)",
+      "expected_value": 1
     },
     {
-      "description": "correct reservation time",
+      "description": "The review was submitted by 'Rahul'.",
       "type": "jmespath",
-      "expected_value": "7:00 PM",
-      "query": "bookingDetailsDiff.added.\"0\".time"
+      "query": "review.reviews[0].name",
+      "expected_value": "Rahul"
     },
     {
-      "description": "correct reservation date",
+      "description": "The overall rating is 5 stars.",
       "type": "jmespath",
-      "expected_value": true,
-      "query": "contains(bookingDetailsDiff.added.\"0\".date, '2024-07-20')"
+      "query": "review.reviews[0].Overall",
+      "expected_value": 5
     },
     {
-      "description": "phone number provided",
+      "description": "The food rating is 5 stars.",
       "type": "jmespath",
-      "expected_value": true,
-      "query": "bookingDetailsDiff.added.\"0\".tel != null && length(bookingDetailsDiff.added.\"0\".tel) > `5`"
+      "query": "review.reviews[0].Food",
+      "expected_value": 5
+    },
+    {
+      "description": "The service rating is 5 stars.",
+      "type": "jmespath",
+      "query": "review.reviews[0].Service",
+      "expected_value": 5
+    },
+    {
+      "description": "The ambience rating is 5 stars.",
+      "type": "jmespath",
+      "query": "review.reviews[0].Ambience",
+      "expected_value": 5
     }
   ],
   "points": 1,

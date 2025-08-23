@@ -1,0 +1,55 @@
+{
+  "id": "flyunified-2",
+  "goal": "Book me a round-trip flight from Providence (Rhode Island) to Indianapolis, departing on December 5th, 2024 at 08:00 and returning on December 9th at 14:00.\nPassenger: Jane Smith\nDate of Birth: 07/15/1985\nSex: Female\nSeat Selection: Yes (Window seat)\nPayment: Credit Card (378342143523967), Exp: 06/26, security code: 345 Address: 456 Elm St, Miami, FL, 33101, USA, Phone: 555-987-6543, Email: janesmith@example.com.",
+  "website": {
+    "id": "flyunified",
+    "name": "FlyUnified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/flyunified_preview.jpg",
+    "url": "https://real-flyunified-1h7062fu6-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+      {
+        "description": "Departure airport is Providence (PVD).",
+        "type": "jmespath",
+        "query": "booking.bookingFlight.from.code",
+        "expected_value": "PVD"
+      },
+      {
+        "description": "Arrival airport is Indianapolis (IND).",
+        "type": "jmespath",
+        "query": "booking.bookingFlight.to.code",
+        "expected_value": "IND"
+      },
+      {
+        "description": "Trip type is correctly set to round-trip.",
+        "type": "jmespath",
+        "query": "booking.bookingFlight.tripType",
+        "expected_value": "roundtrip"
+      },
+      {
+        "description": "Departure date is on December 5, 2024.",
+        "type": "jmespath",
+        "query": "starts_with(booking.selectedFlights[0].from.date, '2024-12-05')",
+        "expected_value": true
+      },
+      {
+        "description": "Passenger's first name is correctly entered as Jane.",
+        "type": "jmespath",
+        "query": "values(ui.forms.travelerForm)[0].travelers[0].firstName",
+        "expected_value": "Jane"
+      },
+      {
+        "description": "The number of adult travelers is one.",
+        "type": "jmespath",
+        "query": "booking.bookingFlight.travelers[?label=='Adults'].count | [0]",
+        "expected_value": 1
+      }
+    
+  ],
+  "points": 1,
+  "config": {}
+}

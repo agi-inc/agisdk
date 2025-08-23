@@ -1,22 +1,22 @@
 {
   "id": "udriver-3",
-  "goal": "What's the cheapest ride price from Pacific Catch on Chestnut back home to 333 Fremont?",
+  "goal": "Look into past rides details, the one Avis Car rental",
   "website": {
     "id": "udriver",
     "name": "UDriver",
     "similarTo": "Uber",
     "previewImage": "/websitePreviews/udriver_preview.jpg",
-    "url": "https://evals-udriver.vercel.app"
+    "url": "https://real-udriver-mq40485kr-real-sites.vercel.app/"
   },
   "difficulty": "easy",
-  "challengeType": "retrieval-action",
+  "challengeType": "action",
   "possible": true,
-  "description": "eval not implemented yet",
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "Specific trip details were displayed",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the answer reflect that the cheapest ride price is equivalant to $28.50?"
+      "query": "ui.selectedTripId != null || ui.viewingTripDetails == true"
     }
   ],
   "points": 1,

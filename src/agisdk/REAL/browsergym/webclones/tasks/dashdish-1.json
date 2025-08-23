@@ -1,21 +1,21 @@
 {
   "id": "dashdish-1",
-  "goal": "What are the first three restaurants listed on the homepage?",
+  "goal": "What restaurants are over 4.7 ratings and under 30 minutes delivery?",
   "website": {
     "id": "dashdish",
     "name": "DashDish",
     "similarTo": "Doordash",
     "previewImage": "/websitePreviews/dashdish_preview.jpg",
-    "url": "https://evals-dashdish.vercel.app"
+    "url": "https://real-dashdish-gi5fci3go-real-sites.vercel.app/"
   },
   "difficulty": "easy",
-  "challengeType": "retrieval",
+  "challengeType": "search",
   "possible": true,
   "evals": [
     {
       "type": "llm_boolean",
       "expected_value": true,
-      "rubric": "Does the answer include \"Gambinos New York Subs\", \"Wingstop\", and \"Man vs Fries\" as the first three restaurants?"
+      "rubric": "Does the answer include \"Lers Ros Thai\" and \"Wise Sons Jewish Deli\"?"
     }
   ],
   "points": 1,

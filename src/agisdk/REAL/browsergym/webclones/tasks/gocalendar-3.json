@@ -1,28 +1,33 @@
 {
   "id": "gocalendar-3",
-  "goal": "Delete the event titled \"Breakfast Meeting with Client\" scheduled for July 19, 2024",
+  "goal": "Create a new calendar called as \"College\", and put an event on 21th July, 9AM for half an hour called \"Study plan\".",
   "website": {
     "id": "gocalendar",
     "name": "GoCalendar",
     "similarTo": "Google Calendar",
     "previewImage": "/websitePreviews/gocalendar_preview.jpg",
-    "url": "https://evals-gocalendar.vercel.app"
+    "url": "https://real-gocalendar-fdlath9fs-real-sites.vercel.app/"
   },
   "difficulty": "easy",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "description": "correct delete event title",
-      "type": "jmespath",
-      "expected_value": "Breakfast Meeting with Client",
-      "query": "(eventsDiff.deleted.*.title)[0]"
+      "description": "A calendar named 'College' was created",
+      "type": "jmespath", 
+      "query": "length(calendar.myCalendars[?name=='College'])",
+      "expected_value": 1
     },
     {
-      "description": "correct deleted start time",
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does it create an event on 21th July, 9AM for half an hour called \"Study plan\"?"
+    },
+    {
+      "description": "An event named 'Study plan' was created and saved",
       "type": "jmespath",
-      "expected_value": "2024-07-19T17:00:00.000Z",
-      "query": "(eventsDiff.deleted.*.start)[0]"
+      "query": "length(calendar.myEvents[?title=='Study plan'])",
+      "expected_value": 1
     }
   ],
   "points": 1,

@@ -1,25 +1,39 @@
 {
   "id": "gomail-2",
-  "goal": "Mark the first email in the Inbox as \"read\".",
+  "goal": "Reply to Jane Smith's email about the project deadline extension",
   "website": {
     "id": "gomail",
     "name": "GoMail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://evals-gomail.vercel.app"
+    "url": "https://real-gomail-afsi76rbl-real-sites.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
-  "evals": [
-    {
-      "possible": true,
-      "description": "email marked as read",
-      "type": "jmespath",
-      "expected_value": true,
-      "query": "differences.emails.updated[0].isRead"
-    }
-  ],
+  "evals":
+    [
+      {
+        "description": "A reply has been added to Jane Smith's email thread",
+        "type": "jmespath",
+        "query": "length(email.emails[?id=='2'].replies | [0])",
+        "expected_value": 1
+      },
+      {
+        "description": "The reply was sent to Jane Smith",
+        "type": "jmespath",
+        "query": "email.emails[?id=='2'].replies | [0] | [0].to",
+        "expected_value": [
+          "jane.smith@example.com"
+        ]
+      },
+      {
+        "description": "The original email thread from Jane Smith remains selected",
+        "type": "jmespath",
+        "query": "email.selectedEmailId",
+        "expected_value": "2"
+      }
+    ],
   "points": 1,
   "config": {}
 }

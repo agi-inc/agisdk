@@ -1,22 +1,34 @@
 {
   "id": "networkin-2",
-  "goal": "Summarize the last five posts on the homepage feed, providing a brief description of each and identifying any recurring themes.",
+  "goal": "Like and connect with and add a note saying \"Like your post and I can help you in more research\"",
   "website": {
     "id": "networkin",
-    "name": "Networkin",
+    "name": "NetworkIn",
     "similarTo": "LinkedIn",
     "previewImage": "/websitePreviews/networkin_preview.jpg",
-    "url": "https://evals-networkin.vercel.app"
+    "url": "https://real-networkin-kff8uyl10-real-sites.vercel.app/"
   },
-  "difficulty": "medium",
-  "challengeType": "retrieval",
+  "difficulty": "easy",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "possible": true,
-      "type": "llm_boolean",
+      "description": "Post was liked",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "The answer should be a summary of the 5 most recent posts, containing descriptions of each post and identifying recurring themes."
+      "query": "ui.likeStatus == true || ui.isLiked == true"
+    },
+    {
+      "description": "Connection request was sent",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "ui.connectionStatus == 'sent' || ui.isConnecting == true"
+    },
+    {
+      "description": "Connect dialog was opened with note",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "ui.showConnectDialog == true || ui.connectDialogOpen == true"
     }
   ],
   "points": 1,

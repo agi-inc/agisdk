@@ -1,21 +1,28 @@
 {
   "id": "zilloft-1",
-  "goal": "Search for homes in San Francisco with a price range of $500,000 to $750,000. How many listings are displayed?",
+  "goal": "Contact the team of the agent with the most number of reviews with the email test@agi.com and the message Hey please get back to me",
   "website": {
     "id": "zilloft",
     "name": "Zilloft",
     "similarTo": "Zillow",
     "previewImage": "/websitePreviews/zilloft_preview.jpg",
-    "url": "https://evals-zilloft.vercel.app"
+    "url": "https://real-zilloft-kkbrzv5sq-real-sites.vercel.app/"
   },
   "difficulty": "easy",
-  "challengeType": "retrieval",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
-      "expected_value": true,
-      "rubric": "Does the answer correctly state that there are 8 listings displayed for homes in San Francisco with a price range of $500,000 to $750,000?"
+      "description": "Contact agent form has data",
+      "type": "jmespath",
+      "expected_value": "test@agi.com",
+      "query": "tourRequests.contactAgentList[0].contactAgentData.formValues.email"
+    },
+    {
+      "description": "Contact message was provided",
+      "type": "jmespath",
+      "expected_value": "Hey please get back to me",
+      "query": "tourRequests.contactAgentList[0].contactAgentData.formValues.message"
     }
   ],
   "points": 1,

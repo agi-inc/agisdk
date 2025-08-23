@@ -1,0 +1,43 @@
+{
+  "id": "flyunified-1",
+  "goal": "Find the cheapest Economy flight from Charlotte to Norfolk on December 10th. Tell me what time the flight departs and whether you booked it.\nPassenger: Sarah White\nDate of Birth: 04/10/1990\nSex: Female\nSeat Selection: No\nPayment: Credit Card (2222 3333 4444), Exp: 08/29, Security: 244 Address: 654 Maple St, Boston, MA, 02108, USA, Phone: 555-654-3210, Email: sarahwhite@example.com.",
+  "website": {
+    "id": "flyunified",
+    "name": "FlyUnified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/flyunified_preview.jpg",
+    "url": "https://real-flyunified-1h7062fu6-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+      {
+        "description": "The selected flight's departure city is Charlotte.",
+        "type": "jmespath",
+        "query": "booking.selectedFlights[0].from.destination.city",
+        "expected_value": "Charlotte"
+      },
+      {
+        "description": "The selected flight's destination city is Norfolk.",
+        "type": "jmespath",
+        "query": "booking.selectedFlights[0].to.destination.city",
+        "expected_value": "Norfolk"
+      },
+      {
+        "description": "The selected flight departs on Dec 10.",
+        "type": "jmespath",
+        "query": "booking.selectedFlights[0].from.date",
+        "expected_value": "2024-12-10T19:50:02.000Z"
+      },
+      {
+        "description": "The selected cabin class for the flight is Economy.",
+        "type": "jmespath",
+        "query": "booking.selectedFlights[0].selectedPrice.type",
+        "expected_value": "Economy"
+      }
+    
+  ],
+  "points": 1,
+  "config": {}
+}

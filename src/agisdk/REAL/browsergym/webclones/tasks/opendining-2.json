@@ -1,21 +1,45 @@
 {
   "id": "opendining-2",
-  "goal": "Click on the restaurant named \"Yellowy Bistro\" and tell me its description, menu, and reviews.",
+  "goal": "Set a notification when a table for 2 people becomes available at Fancy Lights Bistro on Jul 18, 2024 around 3:00 PM",
   "website": {
     "id": "opendining",
     "name": "OpenDining",
     "similarTo": "OpenTable",
     "previewImage": "/websitePreviews/opendining_preview.jpg",
-    "url": "https://evals-opendining.vercel.app"
+    "url": "https://real-opendining-jgapr7f1u-real-sites.vercel.app/"
   },
   "difficulty": "easy",
-  "challengeType": "retrieval-action",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
+      "description": "A notification has been successfully created.",
+      "type": "jmespath",
+      "query": "length(notification.notifications)",
+      "expected_value": 1
+    },
+    {
+      "description": "The notification is for 'Fancy Lights Bistro'.",
+      "type": "jmespath",
+      "query": "notification.notifications[0].restaurantName",
+      "expected_value": "Fancy Lights Bistro"
+    },
+    {
+      "description": "The notification is set for the correct party size.",
+      "type": "jmespath",
+      "query": "notification.notifications[0].guests",
+      "expected_value": "2 people"
+    },
+    {
+      "description": "The notification is set for the correct time.",
+      "type": "jmespath",
+      "query": "notification.notifications[0].time",
+      "expected_value": "3:00 PM"
+    },
+    {
       "type": "llm_boolean",
       "expected_value": true,
-      "rubric": "Does the answer include the Yellowy Bistro's description mentioning 'bright and cheerful bistro' or 'sunny decor', list menu items such as 'Linguine Carbonara' or 'Grilled Salmon', and mention review ratings that are approximately 4.2-4.8 overall?"
+      "rubric": "Does the answer mention that the notification is set for the correct time of Jul 18, 2024 around 3:00 PM?"
     }
   ],
   "points": 1,

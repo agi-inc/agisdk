@@ -1,22 +1,46 @@
 {
   "id": "staynb-2",
-  "goal": "Click on one of the stays displayed on the homepage and book it for a family of 4 (2 adults and 2 children). For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "goal": "Search for the best rated place to stay in Boston, which has a Balcony and for 2 adults. Complete the booking for 5 December 2024 to 10 December 2024 and payment using the option to Pay part now, part later and use the option to pay later with credit.",
   "website": {
     "id": "staynb",
     "name": "StayNB",
     "similarTo": "Airbnb",
     "previewImage": "/websitePreviews/staynb_preview.jpg",
-    "url": "https://evals-staynb.vercel.app"
+    "url": "https://real-staynb-c8ipswbyg-real-sites.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
-  "description": "booking doesn't work",
   "evals": [
     {
+      "description": "Booking was completed successfully",
       "type": "jmespath",
-      "expected_value": "4 Guests",
-      "query": "bookingDetailsDiff.added.\"0\".guests"
+      "expected_value": true,
+      "query": "length(booking.bookingDetails) > `0`"
+    },
+    {
+      "description": "Number of adults in the search bar is set to 2.",
+      "type": "jmespath",
+      "query": "ui.searchbar.guestCounts.Adults",
+      "expected_value": 2
+    },
+    {
+      "description": "The payment method is set to 'Credit'.",
+      "type": "jmespath",
+      "query": "ui.bookingPage.payWith",
+      "expected_value": "Credit"
+    },
+    {
+      "description": "Booked property is located in Boston",
+      "type": "jmespath",
+      "expected_value": "Boston",
+      "query": "booking.bookingDetails[0].stay.city"
+    },
+    {
+      "description": "A reservation ID was generated",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "booking.bookingDetails[0].reservationId != null"
     }
   ],
   "points": 1,

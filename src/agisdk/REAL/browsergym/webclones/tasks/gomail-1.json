@@ -1,22 +1,27 @@
 {
   "id": "gomail-1",
-  "goal": "How many unread emails are in the Inbox?",
+  "goal": "Send an email to Emily Johnson, asking her if she will be free at 8AM. and send it.",
   "website": {
     "id": "gomail",
     "name": "GoMail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://evals-gomail.vercel.app"
+    "url": "https://real-gomail-afsi76rbl-real-sites.vercel.app/"
   },
-  "difficulty": "easy",
-  "challengeType": "retrieval",
+  "difficulty": "medium",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "possible": true,
       "type": "llm_boolean",
       "expected_value": true,
-      "rubric": "Does the answer reflect that there are 17 unread emails in the Inbox?"
+      "rubric": "Does the answer mention that ask her whether she will be free at 8AM?"
+    },
+    {
+        "description": "The email is marked as sent in the state.",
+        "type": "jmespath",
+        "query": "email.emails[-1].sent",
+        "expected_value": true
     }
   ],
   "points": 1,

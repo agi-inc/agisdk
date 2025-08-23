@@ -1,40 +1,45 @@
 {
   "id": "gocalendar-1",
-  "goal": "Create a new event titled \"Team Meeting\" on July 19, 2024, from 2 PM to 2:30 PM, and include \"Conference Room A\" as the location",
+  "goal": "Create an event on 17th July, 2024, wednesday 9AM called 'Sync with Emily', add a Google Meet and make sure Emily is added. In the description add 'Marketing updates' and set the notifications for 5 minutes before.",
   "website": {
     "id": "gocalendar",
     "name": "GoCalendar",
     "similarTo": "Google Calendar",
     "previewImage": "/websitePreviews/gocalendar_preview.jpg",
-    "url": "https://evals-gocalendar.vercel.app"
+    "url": "https://real-gocalendar-fdlath9fs-real-sites.vercel.app/"
   },
-  "difficulty": "medium",
+  "difficulty": "easy",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "description": "correct event title",
+      "description": "An event named 'Sync with Emily' was created and saved",
       "type": "jmespath",
-      "expected_value": "Team Meeting",
-      "query": "(eventsDiff.added.*.title)[0]"
+      "query": "length(calendar.myEvents[?title=='Sync with Emily'])",
+      "expected_value": 1
     },
     {
-      "description": "correct start time",
+      "description": "The event has the correct description 'Marketing updates'",
       "type": "jmespath",
-      "expected_value": "2024-07-19T21:00:00.000Z",
-      "query": "(eventsDiff.added.*.start)[0]"
+      "query": "calendar.myEvents[?title=='Sync with Emily'] | [0].description",
+      "expected_value": "Marketing updates"
     },
     {
-      "description": "correct end time",
+      "description": "The event has a Google Meet link (hasMeeting is true)",
       "type": "jmespath",
-      "expected_value": "2024-07-19T21:30:00.000Z",
-      "query": "(eventsDiff.added.*.end)[0]"
+      "query": "calendar.myEvents[?title=='Sync with Emily'] | [0].hasMeeting",
+      "expected_value": true
     },
     {
-      "description": "correct location",
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the event include Emily as a guest and set notification for 5 minutes before?"
+    },
+    {
+      "description": "The event is scheduled for July 17th, 2024 at 9AM",
       "type": "jmespath",
-      "expected_value": "Conference Room A",
-      "query": "(eventsDiff.added.*.location)[0]"
+      "query": "calendar.myEvents[?title=='Sync with Emily'] | [0].start",
+      "expected_value": "2024-07-17T09:00:00.000Z"
     }
   ],
   "points": 1,

@@ -1,34 +1,46 @@
 {
   "id": "udriver-1",
-  "goal": "Book a ride from Fitness Urbano to Pacific Cafe",
+  "goal": "1000 Chestnut St to 1030 Post St apartment book a cab such that 5 people can fit. Use the exisitng payment method.",
   "website": {
     "id": "udriver",
     "name": "UDriver",
     "similarTo": "Uber",
     "previewImage": "/websitePreviews/udriver_preview.jpg",
-    "url": "https://evals-udriver.vercel.app"
+    "url": "https://real-udriver-mq40485kr-real-sites.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "description": "correct pickup location",
+      "description": "The pickup location is set to 1000 Chestnut Street Apartments.",
       "type": "jmespath",
-      "expected_value": "Fitness Urbano",
-      "query": "differences.currentTrips.added.\"6\".pickup.name"
+      "query": "ride.trip.pickup.name",
+      "expected_value": "1000 Chestnut Street Apartments"
     },
     {
-      "description": "correct destination",
+      "description": "The destination is set to 1030 Post Street Apartments.",
       "type": "jmespath",
-      "expected_value": "Pacific Cafe",
-      "query": "differences.currentTrips.added.\"6\".destination.name"
+      "query": "ride.trip.destination.name",
+      "expected_value": "1030 Post Street Apartments"
     },
     {
-      "description": "correct car type",
+      "description": "The selected car type is UdriverXL, suitable for a larger group.",
       "type": "jmespath",
-      "expected_value": "UdriverX",
-      "query": "differences.currentTrips.added.\"6\".car.type"
+      "query": "ride.trip.car.type",
+      "expected_value": "UdriverXL"
+    },
+    {
+      "description": "The current trip status is 'in progress'.",
+      "type": "jmespath",
+      "query": "ride.trip.status",
+      "expected_value": "in progress"
+    },
+    {
+      "description": "The payment method selected for the ride is 'Udriver Credits'.",
+      "type": "jmespath",
+      "query": "ride.selectedPaymentMethod.displayName",
+      "expected_value": "Udriver Credits"
     }
   ],
   "points": 1,

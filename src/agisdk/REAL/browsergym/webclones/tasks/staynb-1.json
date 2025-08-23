@@ -1,21 +1,65 @@
 {
   "id": "staynb-1",
-  "goal": "Can you book any stay for July 1st to July 16th 2024?",
+  "goal": "Look at the best place in New York to stay from October 13-18th for two adults and kid, and we have a dog with us. Pay with my paypal.",
   "website": {
     "id": "staynb",
-    "name": "Staynb",
+    "name": "StayNB",
     "similarTo": "Airbnb",
     "previewImage": "/websitePreviews/staynb_preview.jpg",
-    "url": "https://evals-staynb.vercel.app"
+    "url": "https://real-staynb-c8ipswbyg-real-sites.vercel.app/"
   },
-  "difficulty": "easy",
+  "difficulty": "medium",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "Booking was completed successfully",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the response indicate that it's not possible to book a stay for July 1st to July 16th specifically because the date range is not available?"
+      "query": "length(booking.bookingDetails) > `0`"
+    },
+    {
+      "description": "Search destination was set to New York",
+      "type": "jmespath",
+      "expected_value": "New York",
+      "query": "search.appliedDestination"
+    },
+    
+    {
+      "description": "Check-in date contains October 13th, 2024",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(booking.bookingDetails[0].checkin, '2024-10-13')"
+    },
+    {
+      "description": "Check-out date contains October 18th, 2024",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(booking.bookingDetails[0].checkout, '2024-10-18')"
+    },
+    {
+      "description": "Guest count includes 2 adults",
+      "type": "jmespath",
+      "expected_value": 2,
+      "query": "booking.bookingDetails[0].guests.Adults"
+    },
+    {
+      "description": "Guest count includes 1 child",
+      "type": "jmespath",
+      "expected_value": 1,
+      "query": "booking.bookingDetails[0].guests.Children"
+    },
+    {
+      "description": "Payment method is set to PayPal",
+      "type": "jmespath",
+      "expected_value": "Paypal",
+      "query": "booking.bookingDetails[0].payWith"
+    },
+    {
+      "description": "Booked property is located in New York",
+      "type": "jmespath",
+      "expected_value": "New York",
+      "query": "booking.bookingDetails[0].stay.city"
     }
   ],
   "points": 1,

@@ -1,21 +1,28 @@
 {
   "id": "udriver-2",
-  "goal": "What was the name of the Thai restaurant I last got a ride to?",
+  "goal": "Lakeshore Plaza to Windsor Hotel book a comfort trip, add more credits if needed but use the udriver credits",
   "website": {
     "id": "udriver",
     "name": "UDriver",
     "similarTo": "Uber",
     "previewImage": "/websitePreviews/udriver_preview.jpg",
-    "url": "https://evals-udriver.vercel.app"
+    "url": "https://real-udriver-mq40485kr-real-sites.vercel.app/"
   },
   "difficulty": "easy",
-  "challengeType": "retrieval",
+  "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
+      "description": "UDriver credits were used for payment",
+      "type": "jmespath",
       "expected_value": true,
-      "rubric": "Does the answer reflect that the last Thai restaurant visted was 'Phat Thai'?"
+      "query": "ride.paymentMethod == 'udriver-credits' || ride.useCredits == true"
+    },
+    {
+      "description": "Credits were added to account if needed",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "user.creditBalance > `0` || user.creditsAdded == true"
     }
   ],
   "points": 1,

@@ -1,21 +1,46 @@
 {
   "id": "gocalendar-2",
-  "goal": "Switch to the \"Month\" view and list all events displayed for July 2024",
+  "goal": "Can you clear all events scheduled for Friday, and then create an event from 9 AM to 3 PM, and called \"Doctor's appointment\"",
   "website": {
     "id": "gocalendar",
     "name": "GoCalendar",
     "similarTo": "Google Calendar",
     "previewImage": "/websitePreviews/gocalendar_preview.jpg",
-    "url": "https://evals-gocalendar.vercel.app"
+    "url": "https://real-gocalendar-fdlath9fs-real-sites.vercel.app/"
   },
   "difficulty": "easy",
   "challengeType": "action",
   "possible": true,
   "evals": [
     {
-      "type": "llm_boolean",
-      "expected_value": true,
-      "rubric": "Does the answer accurately list all events displayed for July 2024 including Team Standup Meeting, Client Call, Team Brainstorming Session, Morning Walk, Team Workshop, Lunch with Boss, Project Sync, Customer Feedback Session, Team Collaboration Work, Morning Coffee with sister, Team Check-In, Lunch with Marketing Team, Breakfast Metting with Client, Team Progress Check, and Client Presentation?"
+      "description": "All Friday events were deleted (4 events from July 19th)",
+      "type": "jmespath",
+      "query": "length(calendar.deletedEvents[?starts_with(start, '2024-07-19')])",
+      "expected_value": 4
+    },
+    {
+      "description": "No events remain on Friday, July 19th",
+      "type": "jmespath",
+      "query": "length(calendar.myEvents[?starts_with(start, '2024-07-19')])",
+      "expected_value": 0
+    },
+    {
+      "description": "A new event called \"Doctor's appointment\" was created",
+      "type": "jmespath",
+      "query": "length(calendar.myEvents[?title==\"Doctor's appointment\"])",
+      "expected_value": 1
+    },
+    {
+      "description": "The Doctor's appointment runs from 9 AM to 3 PM (6 hours duration)",
+      "type": "jmespath",
+      "query": "calendar.myEvents[?title==\"Doctor's appointment\"] | [0].start",
+      "expected_value": "2024-07-19T09:00:00.000Z"
+    },
+    {
+      "description": "The Doctor's appointment ends at 3 PM",
+      "type": "jmespath",
+      "query": "calendar.myEvents[?title==\"Doctor's appointment\"] | [0].end",
+      "expected_value": "2024-07-19T15:00:00.000Z"
     }
   ],
   "points": 1,
