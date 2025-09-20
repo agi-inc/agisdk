@@ -59,7 +59,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
     def get_task_id(cls):
         return cls.task_id
 
-    def __init__(self, seed: int, task_id: str, run_id: str = None, api_key: str = None, model_id_name: str = None, run_name: str = None) -> None:
+    def __init__(self, seed: int, task_id: str, run_id: str = None, api_key: str = None, model_id_name: str = None, run_name: str = None, use_audio: bool = False) -> None:
         """
         Args:
             seed: Random seed for the task.
@@ -76,7 +76,8 @@ class AbstractWebCloneTask(AbstractBrowserTask):
 
         self.seed = seed
         self.task_id = task_id
-        self.task_config = TaskConfig(self.task_id)
+        self.use_audio = use_audio
+        self.task_config = TaskConfig(self.task_id, use_audio=use_audio)
         if not self.task_config.is_valid_config():
             raise ValueError(f"Invalid task configuration for task ID: {self.task_id}")
             
