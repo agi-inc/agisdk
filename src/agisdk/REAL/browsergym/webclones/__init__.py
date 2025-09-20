@@ -11,3 +11,13 @@ for task_id in task_config.TASKS:
         base.AbstractWebCloneTask,
         task_kwargs={"task_id": task_id}
     )
+
+# Register audio tasks if available
+for task_id in task_config.AUDIO_TASKS:
+    gym_id = f"audio.{task_id}"
+    # Register audio tasks with audio prefix
+    register_task(
+        gym_id,
+        base.AbstractWebCloneTask,
+        task_kwargs={"task_id": task_id, "use_audio": True}
+    )

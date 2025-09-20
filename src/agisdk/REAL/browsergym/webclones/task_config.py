@@ -12,7 +12,19 @@ from dataclasses import dataclass, asdict
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 TASK_DIR = os.path.join(CURRENT_DIR, "tasks")
+AUDIO_TASK_DIR = os.path.join(CURRENT_DIR, "audio_tasks")
 TASKS = [task.split(".")[0] for task in os.listdir(TASK_DIR)]
+
+# Get all audio tasks
+AUDIO_TASKS = []
+if os.path.exists(AUDIO_TASK_DIR):
+    for category in os.listdir(AUDIO_TASK_DIR):
+        category_path = os.path.join(AUDIO_TASK_DIR, category)
+        if os.path.isdir(category_path):
+            for task_id in os.listdir(category_path):
+                task_path = os.path.join(category_path, task_id)
+                if os.path.isdir(task_path) and os.path.exists(os.path.join(task_path, "task.json")):
+                    AUDIO_TASKS.append(task_id)
 
 @dataclass
 class Eval:
@@ -72,7 +84,7 @@ class Task:
         return asdict(self)
 
 class TaskConfig:
-    def __init__(self, input_source: str, is_path: bool = False) -> None:
+    def __init__(self, input_source: str, is_path: bool = False, use_audio: bool = False) -> None:
         # Check if the input is a file path or an ID
         if os.path.exists(input_source) and input_source.endswith('.json'):
             # It's a file path
@@ -81,6 +93,7 @@ class TaskConfig:
         else:
             # It's an ID
             self.id = input_source
+            self.use_audio = use_audio or (self.id in AUDIO_TASKS)
             self.config_json = self.load_from_id(self.id)
         
         # Validate configuration first
@@ -108,10 +121,41 @@ class TaskConfig:
         :param id: The id of the task.
         :return: The task configuration as a dictionary.
         """
+        # First check regular tasks
         path = os.path.join(TASK_DIR, f"{id}.json")
-        if not os.path.exists(path):
+        if os.path.exists(path):
+            config = self.from_json_file(path)
+        # Then check audio tasks
+        elif hasattr(self, 'use_audio') and self.use_audio:
+            config = self.load_audio_task(id)
+        elif id in AUDIO_TASKS:
+            config = self.load_audio_task(id)
+        else:
             raise FileNotFoundError(f"Task configuration file not found: {path}")
-        return self.from_json_file(path)
+        return config
+
+    def load_audio_task(self, id: str) -> Dict[str, Any]:
+        """
+        Load an audio task configuration.
+        :param id: The id of the audio task.
+        :return: The task configuration with audio file paths.
+        """
+        # Find the task in audio_tasks subdirectories
+        for category in os.listdir(AUDIO_TASK_DIR):
+            category_path = os.path.join(AUDIO_TASK_DIR, category)
+            if os.path.isdir(category_path):
+                task_path = os.path.join(category_path, id)
+                task_json_path = os.path.join(task_path, "task.json")
+                if os.path.exists(task_json_path):
+                    config = self.from_json_file(task_json_path)
+                    # Add audio file paths to config
+                    config['audio_files'] = {}
+                    for lang in ['english', 'french', 'german', 'hindi', 'japanese']:
+                        audio_file = os.path.join(task_path, f"{lang}.mp3")
+                        if os.path.exists(audio_file):
+                            config['audio_files'][lang] = audio_file
+                    return config
+        raise FileNotFoundError(f"Audio task configuration not found: {id}")
 
     def from_json_file(self, file_path: str) -> Dict[str, Any]:
         """
