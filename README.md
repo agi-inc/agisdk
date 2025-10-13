@@ -4,10 +4,10 @@
 
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2504.11543">📄 Paper</a> • 
-  <a href="https://www.theagi.company/blog/introducing-real-bench">📝 Blog</a> • 
-  <a href="https://www.theagi.company">🏢 AGI Inc</a> • 
-  <a href="https://www.realevals.xyz">🏆 Leaderboard</a>
+  <a href="https://arxiv.org/abs/2504.11543">📄 Paper</a> •
+  <a href="https://www.theagi.company/blog/introducing-real-bench">📝 Blog</a> •
+  <a href="https://www.theagi.company">🏢 AGI Inc</a> •
+  <a href="https://www.realevals.ai">🏆 Leaderboard</a>
 </p>
 
 
@@ -35,8 +35,8 @@
 
 It powers [REAL Bench](https://realevals.xyz) — the first high-fidelity benchmark for AI agents navigating modern websites like Amazon, DoorDash, Airbnb, and more.
 
-🔹 **Train agents** to browse and interact with real apps  
-🔹 **Benchmark agents** with robust, standardized tasks  
+🔹 **Train agents** to browse and interact with real apps
+🔹 **Benchmark agents** with robust, standardized tasks
 🔹 **Submit to the leaderboard** and see how your agents stack up!
 
 > **TL;DR**: Go from “idea” to “benchmarked agent” in <60 seconds
@@ -229,6 +229,36 @@ REAL.harness(
     results_dir="./results"           # Where to store results
 )
 ```
+
+## 🏆 Submitting to the REAL Leaderboard
+
+1. **Create an API key** – use the leaderboard portal (Account → API Keys) to generate a key tied to your Supabase user.
+2. **Mint a run ID**
+   - **From the portal UI:** open the Profile page, click **Create Run**, pick your model, and copy the `run_id` that appears in the runs table.
+   - **From the API (same endpoint the SDK uses):**
+   ```bash
+   curl "https://www.realevals.ai/api/runKey?api_key=<API_KEY>&model_name=<MODEL_NAME>&run_name=<RUN_NAME>"
+   ```
+   The JSON response returns `newRunId`. If want to use a different domain, set `REAL_API_BASE=https://…` before running the SDK to override the default domain.
+3. **Run the harness in leaderboard mode**:
+   ```python
+   harness = REAL.harness(
+       model="gpt-4o",
+       task_type="omnizon",
+       leaderboard=True,
+       api_key="<API_KEY>",
+       run_name="<RUN_NAME>",
+       model_id_name="<MODEL_NAME>",
+       run_id="<newRunId>",
+   )
+   harness.run()
+   ```
+   The harness sets `RUNID` so each clone posts results to the REAL API. Use `force_refresh=True` or delete cached runs in `example/results/` when you need a fresh submission.
+4. **Inspect the submission** – either open the leaderboard UI or call
+   ```
+   https://web-eval-leaderboard.vercel.app/api/getRunTask?api_key=<API_KEY>&display_name=<RUN_NAME>&task_id=<TASK_ID>
+   ```
+   to fetch stored results (use bare task IDs such as `omnizon-1`; inside the SDK you reference tasks with the `webclones.` prefix).
 
 
 ## 🤝 Contributing

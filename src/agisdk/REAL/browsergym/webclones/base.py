@@ -29,7 +29,9 @@ def get_run_id_from_api(api_key: str, model_id_name: str, run_name: str):
         encoded_run_name = urllib.parse.quote(run_name)
         
         # Construct the API URL
-        url = f"https://www.realevals.xyz/api/runKey?api_key={api_key}&model_name={encoded_model_id_name}&run_name={encoded_run_name}"
+        # Prefer the REAL_API_BASE env override to support domain migrations (e.g., realevals.ai)
+        base_url = os.getenv("REAL_API_BASE", "https://www.realevals.ai")
+        url = f"{base_url.rstrip('/')}/api/runKey?api_key={api_key}&model_name={encoded_model_id_name}&run_name={encoded_run_name}"
         
         # Make the request
         response = requests.get(url, timeout=10)
@@ -206,9 +208,20 @@ class AbstractWebCloneTask(AbstractBrowserTask):
                     # URL encode the response for safety 
                     import urllib.parse
                     encoded_response = urllib.parse.quote(model_response)
-                    self.background_page.goto(self.url + "/submit?retrieved_answer=" + encoded_response)
+                    response = self.background_page.goto(
+                        self.url + "/submit?retrieved_answer=" + encoded_response
+                    )
+                    if response is None:
+                        print("Warning: No response received when submitting to leaderboard at realevals.")
+                    else:
+                        status = response.status
+                        if status is not None and status >= 400:
+                            status_text = response.status_text or "Unknown status"
+                            print(
+                                f"Warning: Leaderboard submission returned HTTP {status} ({status_text}) "
+                                f"from realevals."
+                            )
                 except Exception as e:
                     print(f"Warning: Failed to submit response to server: {e}")
                     
         return reward, done, message, info
-

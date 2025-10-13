@@ -72,6 +72,26 @@ Designed for cases where the agent needs to own its own browser. This example de
 python nova.py
 ```
 
+## Submitting Examples to the REAL Leaderboard
+
+1. **Create an API key** inside the portal (Profile → API Keys).
+2. **Get a run ID**:
+   - From the portal UI: Profile → Create Run, then copy the `run_id` from the runs table.
+   - Or via the API:
+     ```bash
+     curl "https://www.realevals.ai/api/runKey?api_key=<API_KEY>&model_name=<MODEL>&run_name=<RUN>"
+     ```
+     The `newRunId` field in the response is your run identifier. You can override the base domain by setting `REAL_API_BASE=https://...` before running the SDK.
+3. **Set environment variables** so the examples submit automatically:
+   ```bash
+   export REAL_API_KEY=<API_KEY>
+   export REAL_RUN_ID=<newRunId>
+   export REAL_MODEL_NAME=<MODEL>
+   export REAL_RUN_NAME=<RUN>
+   ```
+   Skip these variables if you want to run locally without submitting.
+4. Run the example (e.g., `python leaderboard_example.py`). The harness uses those values, sets `RUNID`, and the clone will forward results to the leaderboard. Inside the SDK reference tasks as `webclones.omnizon-1`; when querying portal APIs use the bare id (`omnizon-1`).
+
 ## Harness Configuration
 
 Most examples use the REAL harness, which accepts various configuration parameters:
@@ -92,7 +112,7 @@ REAL.harness(
     # Browser configuration
     headless=False,                   # Whether to show the browser
     max_steps=25,                     # Maximum number of steps
-    
+
     # Observation options
     use_html=False,                   # Include HTML in observations
     use_axtree=True,                  # Include accessibility tree
