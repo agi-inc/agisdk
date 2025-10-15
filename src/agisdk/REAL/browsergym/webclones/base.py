@@ -77,8 +77,11 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         super().__init__(seed)
 
         self.seed = seed
-        self.task_id = task_id
-        self.task_config = TaskConfig(self.task_id)
+        self.requested_task_id = task_id
+        self.task_config = TaskConfig(self.requested_task_id)
+        self.task_id = getattr(self.task_config, "task_slug", task_id)
+        self.task_version = getattr(self.task_config, "version", None)
+        self.canonical_task_id = getattr(self.task_config, "canonical_id", self.task_id)
         if not self.task_config.is_valid_config():
             raise ValueError(f"Invalid task configuration for task ID: {self.task_id}")
             
@@ -126,7 +129,8 @@ class AbstractWebCloneTask(AbstractBrowserTask):
                 self.url = os.environ["WEBCLONE_URL"]
             else:
                 raise ValueError("Provide a WebClones base URL or set it up as WEBCLONES_URL env var.")
-        rich_logger.info(f"⚙️ Initialized {self.task_id} task.")
+        display_task_id = self.canonical_task_id or self.task_id
+        rich_logger.info(f"⚙️ Initialized {display_task_id} task.")
         rich_logger.info(f"🎯 Goal: {self.goal}")
 
     def setup(self, page: playwright.sync_api.Page) -> tuple[str, dict]:

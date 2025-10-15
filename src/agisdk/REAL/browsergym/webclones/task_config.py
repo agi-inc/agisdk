@@ -3,16 +3,95 @@ This module provides functionality to load and manage task configurations.
 """
 
 import json
-from typing import List, Dict, Any
+from typing import Dict, Any, Optional, Tuple
 import requests
 import os
 
-from typing import Dict, Any, Optional
 from dataclasses import dataclass, asdict
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-TASK_DIR = os.path.join(CURRENT_DIR, "tasks")
-TASKS = [task.split(".")[0] for task in os.listdir(TASK_DIR)]
+DEFAULT_VERSION = "v2"
+SUPPORTED_VERSIONS = ("v2",)
+
+
+def _build_version_dirs() -> Dict[str, str]:
+    dirs: Dict[str, str] = {}
+    for version in SUPPORTED_VERSIONS:
+        version_dir = os.path.join(CURRENT_DIR, version)
+        tasks_dir = os.path.join(version_dir, "tasks")
+        if os.path.isdir(tasks_dir):
+            dirs[version] = version_dir
+    if DEFAULT_VERSION not in dirs:
+        raise FileNotFoundError(f"Default task version '{DEFAULT_VERSION}' is missing.")
+    return dirs
+
+
+VERSION_DIRS = _build_version_dirs()
+
+
+def _tasks_for_version(version: str) -> list[str]:
+    if version not in VERSION_DIRS:
+        raise ValueError(f"Unknown task version '{version}'")
+    tasks_dir = os.path.join(VERSION_DIRS[version], "tasks")
+    task_files = [
+        task[:-5] for task in os.listdir(tasks_dir) if task.endswith(".json")
+    ]
+    return sorted(task_files)
+
+
+TASKS_BY_VERSION = {version: _tasks_for_version(version) for version in VERSION_DIRS}
+
+
+CANONICAL_TASK_IDS = sorted(
+    {f"{version}.{slug}" for version, tasks in TASKS_BY_VERSION.items() for slug in tasks}
+)
+
+
+LEGACY_TASK_IDS = sorted({slug for tasks in TASKS_BY_VERSION.values() for slug in tasks})
+
+
+TASKS = sorted(set(LEGACY_TASK_IDS) | set(CANONICAL_TASK_IDS))
+
+
+def _resolve_task_reference(task_ref: str) -> Tuple[str, str]:
+    if not TASKS:
+        raise ValueError("No tasks available for WebClones.")
+
+    reference = (task_ref or DEFAULT_VERSION).strip()
+    version = DEFAULT_VERSION
+    remainder = reference
+
+    if "." in reference:
+        potential_version, rest = reference.split(".", 1)
+        if potential_version in VERSION_DIRS:
+            version = potential_version
+            remainder = rest
+        else:
+            remainder = reference
+    elif reference in VERSION_DIRS:
+        version = reference
+        remainder = ""
+
+    tasks = TASKS_BY_VERSION.get(version, [])
+    if not tasks:
+        raise ValueError(f"No tasks found for version '{version}'")
+
+    if remainder == "":
+        return version, tasks[0]
+
+    if remainder in tasks:
+        return version, remainder
+
+    if "-" not in remainder:
+        prefix_matches = [task for task in tasks if task.startswith(f"{remainder}-")]
+        if prefix_matches:
+            return version, prefix_matches[0]
+
+    # Legacy fallback (no version provided)
+    if "." not in reference and reference in tasks:
+        return version, reference
+
+    raise FileNotFoundError(f"Task reference '{task_ref}' could not be resolved.")
 
 @dataclass
 class Eval:
@@ -75,15 +154,31 @@ class Task:
 
 class TaskConfig:
     def __init__(self, input_source: str, is_path: bool = False) -> None:
+        self.version = DEFAULT_VERSION
+        self.task_slug = ""
+        self.base_dir = ""
+        self.tasks_dir = ""
+        self.eval_scripts_dir = ""
+        self.canonical_id = ""
+
         # Check if the input is a file path or an ID
         if os.path.exists(input_source) and input_source.endswith('.json'):
             # It's a file path
-            self.config_json = self.from_json_file(input_source)
-            self.id = self.config_json.get('id', '')
+            abs_path = os.path.abspath(input_source)
+            self.config_json = self.from_json_file(abs_path)
+            self.task_slug = os.path.splitext(os.path.basename(abs_path))[0]
+            rel_parts = os.path.relpath(abs_path, CURRENT_DIR).split(os.sep)
+            maybe_version = rel_parts[0] if rel_parts else DEFAULT_VERSION
+            if maybe_version in VERSION_DIRS:
+                self._set_version_paths(maybe_version)
+            else:
+                self._set_version_paths(DEFAULT_VERSION)
+            self.canonical_id = f"{self.version}.{self.task_slug}"
         else:
             # It's an ID
-            self.id = input_source
-            self.config_json = self.load_from_id(self.id)
+            self.config_json = self.load_from_id(input_source)
+
+        self.id = self.canonical_id if self.canonical_id else input_source
         
         # Validate configuration first
         if not self.is_valid_config():
@@ -111,13 +206,25 @@ class TaskConfig:
         # Create Task instance with the eval instance
         self.task = Task(evals=eval_instances, start_url=url, **config_without_eval_and_url)
     
-    def load_from_id(self, id: str) -> Dict[str, Any]:
+    def _set_version_paths(self, version: str) -> None:
+        if version not in VERSION_DIRS:
+            raise ValueError(f"Unknown task version '{version}'")
+        self.version = version
+        self.base_dir = VERSION_DIRS[version]
+        self.tasks_dir = os.path.join(self.base_dir, "tasks")
+        self.eval_scripts_dir = os.path.join(self.base_dir, "eval_scripts")
+
+    def load_from_id(self, task_ref: str) -> Dict[str, Any]:
         """
         Load the task configuration from a JSON file given a task ID.
         :param id: The id of the task.
         :return: The task configuration as a dictionary.
         """
-        path = os.path.join(TASK_DIR, f"{id}.json")
+        version, task_slug = _resolve_task_reference(task_ref)
+        self._set_version_paths(version)
+        self.task_slug = task_slug
+        self.canonical_id = f"{self.version}.{self.task_slug}"
+        path = os.path.join(self.tasks_dir, f"{task_slug}.json")
         if not os.path.exists(path):
             raise FileNotFoundError(f"Task configuration file not found: {path}")
         return self.from_json_file(path)

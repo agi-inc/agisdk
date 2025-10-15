@@ -22,8 +22,12 @@ class WebCloneEvaluator:
         self.task_config = task_config
         
         # Get the directory where eval scripts are located
-        # Use absolute path to be safe in Ray workers
-        self.eval_scripts_dir = Path(__file__).parent.resolve() / "eval_scripts"
+        default_scripts_dir = Path(__file__).parent.resolve() / "v2" / "eval_scripts"
+        configured_dir = getattr(self.task_config, "eval_scripts_dir", None)
+        if configured_dir:
+            self.eval_scripts_dir = Path(configured_dir).resolve()
+        else:
+            self.eval_scripts_dir = default_scripts_dir
         
         # Verify the directory exists (helps catch deployment issues early)
         if not self.eval_scripts_dir.exists():
