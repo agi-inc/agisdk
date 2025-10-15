@@ -24,14 +24,16 @@ class Eval:
     :param reference_answer: The reference answer for the task
     :param query: The JMESPath query to evaluate
     :param description: A description of the evaluation
+    :param script: The Python script filename for subprocess-based evaluation
     """
-    type: str
-    expected_value: str
+    type: str = ""
+    expected_value: str = ""
     state_variable_path: str = ""
     rubric: str = ""
     query: str = ""
     description: str = ""
     possible: bool = True
+    script: str = ""
 
     
 
@@ -89,7 +91,14 @@ class TaskConfig:
         
         # Create Eval instance
         eval_configs = self.config_json['evals']
-        eval_instances = [Eval(**eval_config) for eval_config in eval_configs]
+        eval_instances = []
+        for eval_config in eval_configs:
+            # Check if this is a script-based eval
+            if 'script' in eval_config and eval_config['script']:
+                # Set type to 'script' for subprocess-based evaluation
+                if 'type' not in eval_config or not eval_config['type']:
+                    eval_config['type'] = 'script'
+            eval_instances.append(Eval(**eval_config))
 
         # Fetch url
         url = self.config_json['website']['url']
