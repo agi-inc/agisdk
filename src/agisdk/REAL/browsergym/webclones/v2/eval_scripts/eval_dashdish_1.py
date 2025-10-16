@@ -61,7 +61,7 @@ def verify(data):
         price = get_item_price(it)
         if price is None:
             return False
-        if price >= 30.0:
+        if price >= 60.0:
             return False
     return True
 

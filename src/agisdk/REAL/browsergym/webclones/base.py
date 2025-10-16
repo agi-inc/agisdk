@@ -173,6 +173,48 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             raise ValueError(error_message)
         return env_state_json
 
+    def _is_v2_task(self) -> bool:
+        """
+        Determine if this is a v2 task.
+        Checks multiple indicators:
+        1. Task version attribute
+        2. Task name contains '-v2' or '_v2'
+        3. Task is loaded from v2/tasks/ directory
+        4. Task config has version field
+        """
+        # Check version attribute
+        if hasattr(self, 'task_version') and self.task_version:
+            if str(self.task_version).lower() in ('v2', '2', '2.0'):
+                return True
+        
+        # Check task config for version field
+        if hasattr(self, 'task_config') and hasattr(self.task_config, 'task'):
+            if hasattr(self.task_config.task, 'version'):
+                version = str(self.task_config.task.version).lower()
+                if version in ('v2', '2', '2.0'):
+                    return True
+        
+        # Check if task is from v2 directory
+        # Tasks in v2/tasks/ are v2 tasks even without -v2 suffix
+        if hasattr(self, 'requested_task_id'):
+            # Check if this is a webclones task (they're all in v2/tasks/ now)
+            if 'webclones' in self.requested_task_id.lower():
+                return True  # All webclones tasks use v2 evaluation
+        
+        # Check task ID for v2 suffix (explicit naming)
+        if hasattr(self, 'task_id'):
+            task_id_lower = self.task_id.lower()
+            if '-v2' in task_id_lower or '_v2' in task_id_lower or task_id_lower.endswith('v2'):
+                return True
+        
+        # Check canonical task ID
+        if hasattr(self, 'canonical_task_id'):
+            canonical_lower = self.canonical_task_id.lower()
+            if '-v2' in canonical_lower or '_v2' in canonical_lower or canonical_lower.endswith('v2'):
+                return True
+        
+        return False
+
 
     def validate(
         self, 
@@ -191,33 +233,144 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             response = assistant_messages[1]['message']
         if done:
             env_state_json = self.get_finish_json(timeout=timeout)
+            
+            # LOCAL EVALUATION (always runs for immediate feedback)
             reward, _, message, info = self.evaluator.evaluate(env_state_json, model_response)
             message = "Task completed!" if done else "Task still in progress"
             info = {"env_state": env_state_json}
+            info["local_reward"] = reward  # Track local evaluation result
+            
             if model_response is None or model_response == "":
                 model_response = "Done"
+            
+            # Check if this is a leaderboard submission
+            is_leaderboard = getattr(self, 'run_id', '0') != '0'
+            is_v2_task = self._is_v2_task()
                 
-            # Only submit to the server if a run_id was provided
-            # This sends the agent's answer to the leaderboard server
-            if getattr(self, 'run_id', '0') != '0':
-                try:
-                    # URL encode the response for safety 
-                    import urllib.parse
-                    encoded_response = urllib.parse.quote(model_response)
-                    response = self.background_page.goto(
-                        self.url + "/submit?retrieved_answer=" + encoded_response
-                    )
-                    if response is None:
-                        print("Warning: No response received when submitting to leaderboard at realevals.")
-                    else:
-                        status = response.status
-                        if status is not None and status >= 400:
-                            status_text = response.status_text or "Unknown status"
-                            print(
-                                f"Warning: Leaderboard submission returned HTTP {status} ({status_text}) "
-                                f"from realevals."
+            # Handle leaderboard submissions
+            if is_leaderboard:
+                if is_v2_task:
+                    # V2 TASK: Send to Railway for server-side evaluation and leaderboard submission
+                    railway_api_base = os.getenv("RAILWAY_API_BASE")
+                    if railway_api_base:
+                        try:
+                            railway_url = f"{railway_api_base.rstrip('/')}/evaluate"
+                            
+                            # Prepare task config for Railway API
+                            task_config_dict = {
+                                'evals': self.task_config.task.config.get('evals', []),
+                                'points': self.task_config.task.config.get('points', 1.0),
+                            }
+                            
+                            payload = {
+                                "env_state": env_state_json,
+                                "model_response": model_response,
+                                "task_config": task_config_dict,
+                                "llm": os.getenv("EVAL_LLM", "gpt-4.1"),
+                                "run_id": self.run_id,
+                                "task_id": self.task_id,
+                                "leaderboard_api_url": os.getenv("LEADERBOARD_API_URL")
+                            }
+                            
+                            logger.info(f"🚂 V2 Task: Sending to Railway for evaluation and leaderboard submission...")
+                            
+                            # Send to Railway (Railway will evaluate AND submit to leaderboard)
+                            railway_response = requests.post(
+                                railway_url, 
+                                json=payload, 
+                                timeout=30
                             )
-                except Exception as e:
-                    print(f"Warning: Failed to submit response to server: {e}")
+                            
+                            if railway_response.status_code == 200:
+                                railway_result = railway_response.json()
+                                railway_reward = railway_result.get('reward', 0.0)
+                                info["railway_reward"] = railway_reward
+                                info["railway_verified"] = True
+                                info["leaderboard_submitted"] = railway_result.get('leaderboard_submitted', False)
+                                logger.info(f"✅ Railway evaluation complete: reward={railway_reward}")
+                                
+                                # Warn if local and railway results don't match
+                                if reward != railway_reward:
+                                    logger.warning(f"⚠️ Evaluation mismatch! Local: {reward}, Railway: {railway_reward}")
+                            else:
+                                logger.error(f"❌ Railway returned status {railway_response.status_code}")
+                                info["railway_verified"] = False
+                                info["leaderboard_submitted"] = False
+                                
+                        except requests.exceptions.Timeout:
+                            logger.error("❌ Railway request timed out")
+                            info["railway_verified"] = False
+                            info["leaderboard_submitted"] = False
+                        except Exception as e:
+                            logger.error(f"❌ Failed to send to Railway: {e}")
+                            info["railway_verified"] = False
+                            info["leaderboard_submitted"] = False
+                    else:
+                        logger.error("❌ RAILWAY_API_BASE not set for v2 task leaderboard submission")
+                        info["railway_verified"] = False
+                        info["leaderboard_submitted"] = False
+                
+              
+                    # NON-V2 TASK: Use old behavior (optional Railway verification + webclones submit)
+                    railway_api_base = os.getenv("RAILWAY_API_BASE")
+                    if railway_api_base:
+                        try:
+                            railway_url = f"{railway_api_base.rstrip('/')}/evaluate"
+                            
+                            task_config_dict = {
+                                'evals': self.task_config.task.config.get('evals', []),
+                                'points': self.task_config.task.config.get('points', 1.0),
+                            }
+                            
+                            payload = {
+                                "env_state": env_state_json,
+                                "model_response": model_response,
+                                "task_config": task_config_dict,
+                                "llm": os.getenv("EVAL_LLM", "gpt-4.1"),
+                                "run_id": self.run_id,
+                                "task_id": self.task_id
+                            }
+                            
+                            logger.info(f"🚂 Sending to Railway for verification...")
+                            
+                            railway_response = requests.post(
+                                railway_url, 
+                                json=payload, 
+                                timeout=10
+                            )
+                            
+                            if railway_response.status_code == 200:
+                                railway_result = railway_response.json()
+                                railway_reward = railway_result.get('reward', 0.0)
+                                info["railway_reward"] = railway_reward
+                                info["railway_verified"] = True
+                                logger.info(f"✅ Railway verification complete: reward={railway_reward}")
+                                
+                                if reward != railway_reward:
+                                    logger.warning(f"⚠️ Evaluation mismatch! Local: {reward}, Railway: {railway_reward}")
+                            else:
+                                logger.warning(f"⚠️ Railway returned status {railway_response.status_code}")
+                                info["railway_verified"] = False
+                                
+                        except Exception as e:
+                            logger.warning(f"⚠️ Railway verification failed: {e}")
+                            info["railway_verified"] = False
+                    
+                    # Submit to webclones /submit endpoint (old behavior for non-v2)
+                    try:
+                        import urllib.parse
+                        encoded_response = urllib.parse.quote(model_response)
+                        response = self.background_page.goto(
+                            self.url + "/submit?retrieved_answer=" + encoded_response
+                        )
+                        if response is None:
+                            print("Warning: No response received when submitting to leaderboard")
+                        else:
+                            status = response.status
+                            if status is not None and status >= 400:
+                                status_text = response.status_text or "Unknown status"
+                                print(f"Warning: Leaderboard submission returned HTTP {status} ({status_text})")
+                    except Exception as e:
+                        print(f"Warning: Failed to submit response to server: {e}")
                     
         return reward, done, message, info

@@ -428,7 +428,8 @@ class harness:
             List of task names formatted as 'webclones.{task_type}-{task_id}'
         """
         # Use a relative path that works in both editable and installed modes
-        tasks_dir = Path(__file__).parent / "browsergym" / "webclones" / "tasks"
+        # Point to v2/tasks directory which contains the actual task JSON files
+        tasks_dir = Path(__file__).parent / "browsergym" / "webclones" / "v2" / "tasks"
         
         # Get all JSON files in the main tasks directory (excluding the alt subdirectory)
         json_files = [f for f in glob.glob(f"{tasks_dir}/*.json") if "/alt/" not in f]
