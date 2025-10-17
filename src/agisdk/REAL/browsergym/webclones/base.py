@@ -252,14 +252,25 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             payload["eval_scripts"] = script_names
         return payload
 
+    def _build_env_state_payload(self, env_state_json: dict) -> dict:
+        """Extract the diff-only sections required for remote evaluation."""
+        try:
+            return {
+                "initialfinaldiff": env_state_json["initialfinaldiff"],
+                "differences": env_state_json["differences"],
+            }
+        except KeyError as exc:
+            missing_key = exc.args[0]
+            raise KeyError(f"Env state missing required diff section: {missing_key}") from exc
+
     def _submit_script_leaderboard(
-        self, env_state_json: dict, model_response: str, info: dict, local_reward: float
+        self, env_state_payload: dict, model_response: str, info: dict, local_reward: float
     ) -> None:
         """Submit results for script-based tasks to the external evaluation service."""
         logger.info("Preparing Railway submission for script-based task")
         railway_url = f"{RAILWAY_API_BASE.rstrip('/')}/evaluate"
         payload = {
-            "env_state": env_state_json,
+            "env_state": env_state_payload,
             "model_response": model_response,
             "task_config": self._build_task_config_payload(),
             "run_id": self.run_id,
@@ -340,6 +351,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         logger.debug(f"Validation called. done={done}, leaderboard_run={getattr(self, 'run_id', '0')}")
         if done:
             env_state_json = self.get_finish_json(timeout=timeout)
+            env_state_payload = self._build_env_state_payload(env_state_json)
             reward, _, message, info = self.evaluator.evaluate(env_state_json, model_response)
             message = "Task completed!" if done else "Task still in progress"
             info = {"env_state": env_state_json, "local_reward": reward}
@@ -350,7 +362,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             if is_leaderboard_submission:
                 if self._has_script_eval():
                     logger.debug("Detected script eval; using Railway submission path")
-                    self._submit_script_leaderboard(env_state_json, model_response, info, reward)
+                    self._submit_script_leaderboard(env_state_payload, model_response, info, reward)
                 else:
                     logger.debug("No script eval; using legacy submit endpoint")
                     self._submit_standard_leaderboard(model_response)
