@@ -191,9 +191,9 @@ class WebCloneEvaluator:
     def evaluate(self, env_state: dict = None, model_response: str = None):
         results = []
         # Display environment state using Rich logging
-        rich_logger.info("🌍 Environment State:")
-        env_state_str = json.dumps(env_state, indent=4)
-        rich_logger.print(f"[dim]{env_state_str}[/dim]")
+        # rich_logger.info("🌍 Environment State:")
+        # env_state_str = json.dumps(env_state, indent=4)
+        # rich_logger.print(f"[dim]{env_state_str}[/dim]")
         
         for i, eval in enumerate(self.task_config.get_evals()):
             if eval.type == "script":

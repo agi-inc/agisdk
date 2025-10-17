@@ -228,9 +228,11 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         assistant_messages = [m for m in chat_messages if m["role"] == "assistant"]
         model_response = assistant_messages[-1]['message']
         response = None
+       
         if len(assistant_messages)>1:
             done = True
             response = assistant_messages[1]['message']
+        print("done", done)
         if done:
             env_state_json = self.get_finish_json(timeout=timeout)
             
@@ -249,7 +251,9 @@ class AbstractWebCloneTask(AbstractBrowserTask):
                 
             # Handle leaderboard submissions
             if is_leaderboard:
+                print("is_leaderboard", is_leaderboard)
                 if is_v2_task:
+                    print("is_v2_task", is_v2_task)
                     # V2 TASK: Send to Railway for server-side evaluation and leaderboard submission
                     railway_api_base = os.getenv("RAILWAY_API_BASE")
                     if railway_api_base:
@@ -257,9 +261,10 @@ class AbstractWebCloneTask(AbstractBrowserTask):
                             railway_url = f"{railway_api_base.rstrip('/')}/evaluate"
                             
                             # Prepare task config for Railway API
+                            # Note: evals and points are direct attributes of task, not in task.config
                             task_config_dict = {
-                                'evals': self.task_config.task.config.get('evals', []),
-                                'points': self.task_config.task.config.get('points', 0.0),
+                                'evals': [e.to_json() for e in self.task_config.task.evals],
+                                'points': self.task_config.task.points,
                             }
                             
                             payload = {
@@ -318,8 +323,8 @@ class AbstractWebCloneTask(AbstractBrowserTask):
                             railway_url = f"{railway_api_base.rstrip('/')}/evaluate"
                             
                             task_config_dict = {
-                                'evals': self.task_config.task.config.get('evals', []),
-                                'points': self.task_config.task.config.get('points', 1.0),
+                                'evals': [e.to_json() for e in self.task_config.task.evals],
+                                'points': self.task_config.task.points,
                             }
                             
                             payload = {
