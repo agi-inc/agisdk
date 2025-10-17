@@ -28,6 +28,10 @@ except ImportError:
 # Import the necessary browsergym components
 from agisdk.REAL.browsergym.experiments import Agent, AbstractAgentArgs, EnvArgs, ExpArgs, get_exp_result
 from agisdk.REAL.demo_agent.basic_agent import DemoAgentArgs
+from agisdk.REAL.browsergym.webclones.task_config import (
+    DEFAULT_VERSION as WEBCLONE_DEFAULT_VERSION,
+    VERSION_DIRS as WEBCLONE_VERSION_DIRS,
+)
 
 # Ray remote actor for distributed task execution
 if RAY_AVAILABLE:
@@ -114,7 +118,7 @@ if RAY_AVAILABLE:
         success = exp_record.get('cum_reward', 0) == 1
         reward = exp_record.get('cum_reward', 0)
         
-        # Extract task_id from task_name (e.g., "omnizon-1" from "webclones.omnizon-1")
+        # Extract task_id from canonical task name (e.g., "omnizon-1" from "v2.omnizon-1")
         task_id = task_name.split('.', 1)[1] if '.' in task_name else task_name
         
         rich_logger.task_complete(success, reward, elapsed_time, task_id)
@@ -133,6 +137,7 @@ class harness:
         model: str = None,
         agentargs: AbstractAgentArgs = None,
         task_name: str = None,
+        task_version: str = WEBCLONE_DEFAULT_VERSION,
         task_type: str = None,
         task_id: int = None,
         leaderboard: bool = False,
@@ -163,7 +168,8 @@ class harness:
         Args:
             model: Name of the AI model to use (e.g., "gpt-4o", "gpt-5", "gpt-5-mini", "gpt-5-nano")
             agentargs: Arguments for a custom agent (if not using a built-in model)
-            task_name: Specific task name to run (e.g., "webclones.omnizon-1")
+            task_name: Specific task name to run (e.g., "v2.omnizon-1")
+            task_version: Version identifier when task_name is provided without a version (default "v2")
             task_type: Task type to run (e.g., "omnizon")
             task_id: Specific task ID within a task type
             leaderboard: Whether to submit results to a leaderboard
@@ -205,6 +211,8 @@ class harness:
                 logger.warning("system_message_handling parameter is ignored when using custom agentargs")
             self.agent_args = agentargs
         elif model is not None:
+            if isinstance(model, str) and model.strip() == "":
+                raise ValueError("Model name must be a non-empty string. Provide a supported model or pass custom agentargs.")
             # Validate system_message_handling parameter if provided
             if system_message_handling is not None:
                 valid_values = ["separate", "combined"]
@@ -280,7 +288,11 @@ class harness:
             logger.warning("Leaderboard submission is enabled but run_id is not provided. Please provide a run_id or api_key, model_id_name and run_name.")
         
         # Store task selection parameters
-        self.task_name = task_name
+        self.task_version = (task_version or WEBCLONE_DEFAULT_VERSION).strip()
+        if self.task_version not in WEBCLONE_VERSION_DIRS:
+            raise ValueError(f"Unknown task version '{self.task_version}'")
+
+        self.task_name = self._canonicalize_task_name(task_name) if task_name else None
         self.task_type = task_type
         self.task_id = task_id
         
@@ -299,6 +311,9 @@ class harness:
         Returns:
             Dictionary of results indexed by task name
         """
+        if tasks is not None:
+            tasks = [self._canonicalize_task_name(t) for t in tasks]
+
         # Determine which tasks to run if not explicitly provided
         if tasks is None:
             if self.task_name:
@@ -374,7 +389,7 @@ class harness:
         # Group results by task type
         task_type_results = {}
         for task_name, record in results.items():
-            # Extract task type (e.g., "omnizon" from "webclones.omnizon-1")
+            # Extract task type (e.g., "omnizon" from "v2.omnizon-1")
             task_full_name = task_name.split('.')[1] if '.' in task_name else task_name
             parts = task_full_name.split('-')
             
@@ -412,7 +427,8 @@ class harness:
         task_id: Optional[int] = None,
         sample_size: Optional[int] = None,
         random_seed: int = 42,
-        include_impossible: bool = False
+        include_impossible: bool = False,
+        task_version: Optional[str] = None,
     ) -> List[str]:
         """
         Get tasks based on filtering criteria.
@@ -423,62 +439,80 @@ class harness:
             sample_size: Number of tasks to sample (after filtering by task_type)
             random_seed: Seed for random sampling
             include_impossible: Whether to include tasks marked as impossible
+            task_version: Override version to source tasks from (defaults to harness task_version)
             
         Returns:
-            List of task names formatted as 'webclones.{task_type}-{task_id}'
+            List of canonical task names formatted as '<version>.<task_name>'
         """
-        # Use a relative path that works in both editable and installed modes
-        tasks_dir = Path(__file__).parent / "browsergym" / "webclones" / "tasks"
-        
-        # Get all JSON files in the main tasks directory (excluding the alt subdirectory)
-        json_files = [f for f in glob.glob(f"{tasks_dir}/*.json") if "/alt/" not in f]
-        
-        filtered_tasks = []
-        for f in json_files:
-            # If including all tasks, add all files
+        version = (task_version or self.task_version or WEBCLONE_DEFAULT_VERSION).strip()
+        if version not in WEBCLONE_VERSION_DIRS:
+            raise ValueError(f"Unknown task version '{version}'")
+
+        tasks_dir = Path(WEBCLONE_VERSION_DIRS[version]) / "tasks"
+        json_files = sorted(tasks_dir.glob("*.json"))
+
+        filtered_paths = []
+        for path in json_files:
             if include_impossible:
-                filtered_tasks.append(f)
+                filtered_paths.append(path)
                 continue
-                
-            # Otherwise filter out impossible tasks
-            with open(f, 'r') as file:
-                try:
+            try:
+                with path.open("r", encoding="utf-8") as file:
                     task_data = json.load(file)
-                    # Only include tasks where "possible" is not explicitly set to false
-                    if task_data.get('possible', True):
-                        filtered_tasks.append(f)
-                except json.JSONDecodeError:
-                    # Skip files with invalid JSON
-                    continue
-        
-        # Extract task names without extension
-        task_names = [os.path.basename(f).replace('.json', '') for f in filtered_tasks]
-        
-        # Filter by task type if specified
+                if task_data.get("possible", True):
+                    filtered_paths.append(path)
+            except json.JSONDecodeError:
+                continue
+
+        task_names = [p.stem for p in filtered_paths]
+
         if task_type:
-            task_names = [t for t in task_names if t.startswith(f"{task_type}-") or 
-                          (('-' in t) and t.split('-')[:-1] == task_type.split('-'))]
-        
-        # Filter by specific task ID if specified
+            task_names = [
+                name for name in task_names
+                if name.startswith(f"{task_type}-")
+            ]
+
         if task_type and task_id is not None:
             specific_task = f"{task_type}-{task_id}"
             if specific_task in task_names:
-                return [f"webclones.{specific_task}" for _ in range(self.sample_tasks)]
-            else:
-                raise ValueError(f"Task {specific_task} not found")
-        
-        # Sample tasks if requested
-        if sample_size is not None and sample_size > 0:
-            if sample_size >= len(task_names):
-                # If sample size is larger than available tasks, use all tasks
-                pass
-            else:
-                random.seed(random_seed)
-                task_names = random.sample(task_names, sample_size)
-        
-        # Format task names for browsergym
-        return [f"webclones.{name}" for name in sorted(task_names) for _ in range(self.sample_tasks)]
-    
+                canonical = f"{version}.{specific_task}"
+                return [canonical for _ in range(self.sample_tasks)]
+            raise ValueError(f"Task {specific_task} not found in version {version}")
+
+        if sample_size is not None and sample_size > 0 and sample_size < len(task_names):
+            random.seed(random_seed)
+            task_names = random.sample(task_names, sample_size)
+
+        return [
+            f"{version}.{name}"
+            for name in sorted(task_names)
+            for _ in range(self.sample_tasks)
+        ]
+
+    def _canonicalize_task_name(self, task_name: str) -> str:
+        if task_name is None:
+            raise ValueError("Task name must be provided.")
+
+        cleaned = task_name.strip()
+        if not cleaned:
+            raise ValueError("Task name cannot be empty.")
+
+        if cleaned.startswith("webclones."):
+            cleaned = cleaned.split(".", 1)[1]
+        if cleaned.startswith("browsergym/"):
+            cleaned = cleaned.split("/", 1)[1]
+
+        if "." in cleaned:
+            version, name = cleaned.split(".", 1)
+            if version not in WEBCLONE_VERSION_DIRS:
+                raise ValueError(f"Unknown task version '{version}'")
+            return f"{version}.{name}"
+
+        version = self.task_version or WEBCLONE_DEFAULT_VERSION
+        if version not in WEBCLONE_VERSION_DIRS:
+            raise ValueError(f"Unknown task version '{version}'")
+        return f"{version}.{cleaned}"
+
     def _run_tasks(
         self,
         tasks: List[str],
@@ -763,7 +797,7 @@ class harness:
         success = exp_record.get('cum_reward', 0) == 1
         reward = exp_record.get('cum_reward', 0)
         
-        # Extract task_id from task_name (e.g., "omnizon-1" from "webclones.omnizon-1")
+        # Extract task_id from task_name (e.g., "omnizon-1" from "v2.omnizon-1")
         task_id = task_name.split('.', 1)[1] if '.' in task_name else task_name
         
         rich_logger.task_complete(success, reward, elapsed_time, task_id)

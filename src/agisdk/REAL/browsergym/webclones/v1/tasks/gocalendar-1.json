@@ -1,0 +1,43 @@
+{
+  "id": "gocalendar-1",
+  "goal": "Create a new event titled \"Team Meeting\" on July 19, 2024, from 2 PM to 2:30 PM, and include \"Conference Room A\" as the location",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct event title",
+      "type": "jmespath",
+      "expected_value": "Team Meeting",
+      "query": "(eventsDiff.added.*.title)[0]"
+    },
+    {
+      "description": "correct start time",
+      "type": "jmespath",
+      "expected_value": "2024-07-19T21:00:00.000Z",
+      "query": "(eventsDiff.added.*.start)[0]"
+    },
+    {
+      "description": "correct end time",
+      "type": "jmespath",
+      "expected_value": "2024-07-19T21:30:00.000Z",
+      "query": "(eventsDiff.added.*.end)[0]"
+    },
+    {
+      "description": "correct location",
+      "type": "jmespath",
+      "expected_value": "Conference Room A",
+      "query": "(eventsDiff.added.*.location)[0]"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

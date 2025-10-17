@@ -1,0 +1,50 @@
+{
+  "id": "topwork-4",
+  "goal": "Create a job post for a UI/UX Designer with expertise in Figma, Sketch, and Adobe Creative Suite, including project details, timeline, and required skills (Wireframing, Prototyping, Responsive Design).",
+  "website": {
+    "id": "topwork",
+    "name": "TopWork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://evals-topwork.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "description": "adding custom skills doesn't seem to work",
+  "evals": [
+    {
+      "description": "correct job title",
+      "type": "jmespath",
+      "expected_value": "UI/UX Designer",
+      "query": "jobsDiff.added.\"0\".title"
+    },
+    {
+      "description": "includes Figma skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Figma')"
+    },
+    {
+      "description": "includes Sketch skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Sketch')"
+    },
+    {
+      "description": "includes Wireframing skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Wireframing')"
+    },
+    {
+      "description": "includes Prototyping skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Prototyping')"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

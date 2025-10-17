@@ -1,0 +1,40 @@
+{
+  "id": "gomail-8",
+  "goal": "Clear all emails from \"GitHub\" in the inbox to trash.",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://evals-gomail.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "description": "specific GitHub email (id 3) moved to trash",
+      "type": "jmespath",
+      "expected_value": "3",
+      "query": "differences.emails.updated[0].id"
+    },
+    {
+      "possible": true,
+      "description": "email is in trash",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "differences.emails.updated[0].trash"
+    },
+    {
+      "possible": true,
+      "description": "exactly one email updated",
+      "type": "jmespath",
+      "expected_value": 1,
+      "query": "length(differences.emails.updated)"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

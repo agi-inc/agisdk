@@ -7,6 +7,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import asyncio
 import threading
 
+from agisdk.REAL.browsergym.webclones.task_config import TaskConfig, DEFAULT_VERSION
+from agisdk.REAL.browsergym.webclones.evaluate import WebCloneEvaluator
+
 # Global browser storage per thread
 worker_browsers = {}
 
@@ -118,11 +121,8 @@ async def run_task(task: dict, run_id: str, llm_model) -> dict:
                 env_state = await pre_element.inner_text()
                 env_state_json = json.loads(env_state)
                 
-                # Import and run evaluation
-                from agisdk.REAL.browsergym.webclones.task_config import TaskConfig
-                from agisdk.REAL.browsergym.webclones.evaluate import WebCloneEvaluator
-                
-                task_config = TaskConfig(tid)
+                task_version = task.get("version", DEFAULT_VERSION)
+                task_config = TaskConfig(tid, task_version)
                 evaluator = WebCloneEvaluator(task_config=task_config)
                 reward, done, message, info = evaluator.evaluate(
                     env_state=env_state_json, 

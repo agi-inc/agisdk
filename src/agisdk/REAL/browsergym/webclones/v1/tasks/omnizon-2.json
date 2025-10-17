@@ -1,0 +1,41 @@
+{
+  "id": "omnizon-2",
+  "goal": "Search for \"smartphones\" using the search bar, add the first two to your cart, view the details of the third product, click on \"Buy Now,\" and proceed through the checkout process.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "3 products in cart",
+      "type": "jmespath",
+      "expected_value": 3,
+      "query": "length(orderDetailsDiff.added.\"0\".order.cart)"
+    },
+    {
+      "type": "jmespath",
+      "description": "products are smartphones",
+      "expected_value": [
+        "21",
+        "22",
+        "23"
+      ],
+      "query": "sort_by(orderDetailsDiff.added.\"0\".order.cart, &id)[].id"
+    },
+    {
+      "type": "jmespath",
+      "description": "1 of each product",
+      "expected_value": true,
+      "query": "length(orderDetailsDiff.added.\"0\".order.cart[?quantity != `1`]) == `0`"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

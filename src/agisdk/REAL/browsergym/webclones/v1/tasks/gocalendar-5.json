@@ -1,0 +1,49 @@
+{
+  "id": "gocalendar-5",
+  "goal": "Create an event titled \"Brainstorming Session\" for July 22, 2024, from 11 AM to 12 PM, add three guests (\"Alexa Richardson\" \"James Anderson\" and \"Sophie Taylor\"), and include a video meeting",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct event title",
+      "type": "jmespath",
+      "expected_value": "Brainstorming Session",
+      "query": "(eventsDiff.added.*.title)[0]"
+    },
+    {
+      "description": "correct start time",
+      "type": "jmespath",
+      "expected_value": "2024-07-22T18:00:00.000Z",
+      "query": "(eventsDiff.added.*.start)[0]"
+    },
+    {
+      "description": "correct end time",
+      "type": "jmespath",
+      "expected_value": "2024-07-22T19:00:00.000Z",
+      "query": "(eventsDiff.added.*.end)[0]"
+    },
+    {
+      "description": "has video meeting",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "(eventsDiff.added.*.hasMeeting)[0]"
+    },
+    {
+      "description": "includes all required guests",
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the event include all three guests: Alexa Richardson, James Anderson, and Sophie Taylor?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

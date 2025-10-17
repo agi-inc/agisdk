@@ -1,0 +1,29 @@
+{
+  "id": "gocalendar-6",
+  "goal": "Assign a sage color code to the \"Personal\" calendar and a peacock color code to the \"Work\" calendar",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Has the 'Personal' calendar been changed to a sage color?"
+    },
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Has the 'Work' calendar been changed to a peacock color?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "udriver-3",
+  "goal": "Book me a ride from Alchemist Bar and Lounge to El Corazon Gallery.",
+  "website": {
+    "id": "udriver",
+    "name": "UDriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_3.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

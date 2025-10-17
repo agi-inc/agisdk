@@ -1,0 +1,22 @@
+{
+  "id": "staynb-9",
+  "goal": "book a stay in los angeles with wifi under 600$ nightly for the dates september 1st to 3rd.",
+  "website": {
+    "id": "staynb",
+    "name": "StayNB",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_9.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}
