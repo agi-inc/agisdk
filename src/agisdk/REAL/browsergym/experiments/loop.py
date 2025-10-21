@@ -666,6 +666,13 @@ def _save_summary_info(
         summary_info["terminated"] = episode_info[-1].terminated
         summary_info["truncated"] = episode_info[-1].truncated
 
+    if finish_state:
+        try:
+            with open(exp_dir / "finish_state.json", "w") as finish_file:
+                json.dump(finish_state, finish_file, indent=4)
+        except Exception as exc:
+            logger.error(f"Failed to write finish_state.json: {exc}")
+
     # Write updated summary info
     with open(summary_info_path, "w") as f:
         json.dump(summary_info, f, indent=4)
