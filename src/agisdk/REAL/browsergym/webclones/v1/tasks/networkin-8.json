@@ -1,0 +1,30 @@
+{
+  "id": "networkin-8",
+  "goal": "Search for two users who have worked at Microsoft and list their current job positions.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://evals-networkin.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "description": "performed searches",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "searchHistoryDiff.added != null && length(keys(searchHistoryDiff.added)) > `0`"
+    },
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer contain a list of at least 2 users who have worked at Microsoft, including their current job positions?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

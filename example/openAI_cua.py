@@ -17,7 +17,7 @@ from playwright.sync_api import sync_playwright, Error as PlaywrightError
 
 from agisdk.REAL.tasks import all_tasks as tasks
 from agisdk.REAL.browsergym.webclones.evaluate import WebCloneEvaluator
-from agisdk.REAL.browsergym.webclones.task_config import TaskConfig
+from agisdk.REAL.browsergym.webclones.task_config import TaskConfig, DEFAULT_VERSION
 from agisdk.REAL.logging import logger as rich_logger
 
 
@@ -342,7 +342,8 @@ def run_task(task: Dict[str, Any], run_id: str, headless: bool) -> Dict[str, Any
                 rich_logger.error(f"❌ Failed to navigate to /finish endpoint: {e}")
                 env_state = {}
 
-            ev = WebCloneEvaluator(TaskConfig(tid))
+            task_version = task.get("version", DEFAULT_VERSION)
+            ev = WebCloneEvaluator(TaskConfig(tid, task_version))
             reward, _, msg, _ = ev.evaluate(env_state=env_state, model_response=model_ans)
             rich_logger.info(f"🌍 Environment State: {json.dumps(env_state, indent=2)[:200]}...")
             rich_logger.info(f"🤖 Model Response: {model_ans[:100]}{'...' if len(model_ans) > 100 else ''}")

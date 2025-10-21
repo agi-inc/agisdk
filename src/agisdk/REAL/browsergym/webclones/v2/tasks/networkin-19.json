@@ -1,0 +1,22 @@
+{
+  "id": "networkin-19",
+  "goal": "Create a post and say that I\u2019m excited to join AGI INC. Then send it to 5 random people.",
+  "website": {
+    "id": "networkin",
+    "name": "NetworkIn",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_networkin_19.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "omnizon-8",
+  "goal": "Search for \"Automatic Espresso Machine,\" click on the cheapest one, change the quantity to 5, use \"buy now\" to purchase them and complete the checkout.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "quantity of 5",
+      "type": "jmespath",
+      "expected_value": 5,
+      "query": "orderDetailsDiff.added.\"0\".order.cart[0].quantity"
+    },
+    {
+      "type": "jmespath",
+      "description": "id match",
+      "expected_value": "51",
+      "query": "orderDetailsDiff.added.\"0\".order.cart[0].id"
+    },
+    {
+      "type": "jmespath",
+      "description": "1 product in cart",
+      "expected_value": 1,
+      "query": "length(orderDetailsDiff.added.\"0\".order.cart)"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "zilloft-4",
+  "goal": "What is the price of the cheapest home in San Francisco with at least 4 bedrooms?",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://evals-zilloft.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "description": "eval not implemented yet",
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer correctly state that the price of the cheapest home in San Francisco with at least 4 bedrooms is $449,900?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

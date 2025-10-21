@@ -12,7 +12,7 @@ from scrapybara.tools import ComputerTool
 from scrapybara.prompts import BROWSER_SYSTEM_PROMPT
 
 from agisdk.REAL.tasks import all_tasks as tasks
-from agisdk.REAL.browsergym.webclones.task_config import TaskConfig
+from agisdk.REAL.browsergym.webclones.task_config import TaskConfig, DEFAULT_VERSION
 from agisdk.REAL.browsergym.webclones.evaluate     import WebCloneEvaluator
 
 def run_task(task: dict, run_id: str, model: Anthropic, 
@@ -91,7 +91,8 @@ def run_task(task: dict, run_id: str, model: Anthropic,
         result["response"] = resp.text
 
         print(f"🏆 [{tid}] Evaluating task performance...")
-        evaluator = WebCloneEvaluator(TaskConfig(tid))
+        task_version = task.get("version", DEFAULT_VERSION)
+        evaluator = WebCloneEvaluator(TaskConfig(tid, task_version))
         reward, _, msg, _ = evaluator.evaluate(
             env_state=env_state,
             model_response=resp.text or "")

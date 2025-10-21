@@ -1,0 +1,30 @@
+{
+  "id": "topwork-5",
+  "goal": "Generate a follow-up message for a freelancer working on an active job, requesting a status update and estimated completion time. After sending the message, please share the content of the message you sent.",
+  "website": {
+    "id": "topwork",
+    "name": "TopWork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://evals-topwork.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "message of correct type",
+      "type": "jmespath",
+      "expected_value": "text",
+      "query": "messagesDiff.added.\"0\".type"
+    },
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer describe sending a message that includes a request for a status update and an estimated completion time from a freelancer?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

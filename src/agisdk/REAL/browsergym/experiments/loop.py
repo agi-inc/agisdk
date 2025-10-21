@@ -22,6 +22,10 @@ from PIL import Image
 from tqdm import tqdm
 
 from agisdk.REAL.browsergym.core.chat import Chat
+from agisdk.REAL.browsergym.webclones.task_config import (
+    DEFAULT_VERSION as WEBCLONE_DEFAULT_VERSION,
+    VERSION_DIRS as WEBCLONE_VERSION_DIRS,
+)
 
 from .agent import Agent
 from .utils import count_messages_token, count_tokens
@@ -662,6 +666,13 @@ def _save_summary_info(
         summary_info["terminated"] = episode_info[-1].terminated
         summary_info["truncated"] = episode_info[-1].truncated
 
+    if finish_state:
+        try:
+            with open(exp_dir / "finish_state.json", "w") as finish_file:
+                json.dump(finish_state, finish_file, indent=4)
+        except Exception as exc:
+            logger.error(f"Failed to write finish_state.json: {exc}")
+
     # Write updated summary info
     with open(summary_info_path, "w") as f:
         json.dump(summary_info, f, indent=4)
@@ -901,23 +912,23 @@ def _move_old_exp(exp_dir):
 def _get_env_name(task_name: str):
     """Register tasks if needed (lazy import) and return environment name."""
 
-    # lazy benchmark import
-    # if task_name.startswith("miniwob"):
-    #     import browsergym.miniwob
-    # elif task_name.startswith("workarena"):
-    #     import browsergym.workarena
-    # elif task_name.startswith("webarena"):
-    #     import browsergym.webarena
-    # elif task_name.startswith("visualwebarena"):
-    #     import browsergym.visualwebarena
-    if task_name.startswith("webclones"):
+    cleaned = task_name.strip()
+    if cleaned.startswith("browsergym/"):
+        cleaned = cleaned.split("/", 1)[1]
+
+    if cleaned.startswith("webclones."):
+        cleaned = cleaned.split(".", 1)[1]
+        cleaned = f"{WEBCLONE_DEFAULT_VERSION}.{cleaned}"
+
+    prefix = cleaned.split(".", 1)[0]
+    if prefix in WEBCLONE_VERSION_DIRS:
         import agisdk.REAL.browsergym.webclones
     else:
         raise ValueError(
             f"Task {task_name} not found. Please register the task in browsergym."
         )
 
-    return f"browsergym/{task_name}"
+    return f"browsergym/{cleaned}"
 
 
 def _send_chat_info(chat: Chat, action: str, agent_info: dict):

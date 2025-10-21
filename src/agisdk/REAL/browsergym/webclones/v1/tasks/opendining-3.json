@@ -1,0 +1,49 @@
+{
+  "id": "opendining-3",
+  "goal": "Book a table at \"The Royal Dine\" for a party of 4 on July 20, 2024, at 7 PM. For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "website": {
+    "id": "opendining",
+    "name": "OpenDining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://evals-opendining.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "booking was made",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\" != null"
+    },
+    {
+      "description": "correct restaurant selected",
+      "type": "jmespath",
+      "expected_value": "The Royal Dine",
+      "query": "bookingDetailsDiff.added.\"0\".restaurant.name"
+    },
+    {
+      "description": "correct reservation time",
+      "type": "jmespath",
+      "expected_value": "7:00 PM",
+      "query": "bookingDetailsDiff.added.\"0\".time"
+    },
+    {
+      "description": "correct reservation date",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(bookingDetailsDiff.added.\"0\".date, '2024-07-20')"
+    },
+    {
+      "description": "phone number provided",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\".tel != null && length(bookingDetailsDiff.added.\"0\".tel) > `5`"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

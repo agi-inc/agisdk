@@ -1,0 +1,22 @@
+{
+  "id": "zilloft-6",
+  "goal": "Request a tour for a house in Virginia Beach, VA. I am looking for a house thats max 500k and 2 bed 1 bath. I am free for a tour tomorrow at 3:30pm.",
+  "website": {
+    "id": "zilloft",
+    "name": "ZilloFT",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_zilloft_6.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

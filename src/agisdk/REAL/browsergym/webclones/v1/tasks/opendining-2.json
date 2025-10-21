@@ -1,0 +1,24 @@
+{
+  "id": "opendining-2",
+  "goal": "Click on the restaurant named \"Yellowy Bistro\" and tell me its description, menu, and reviews.",
+  "website": {
+    "id": "opendining",
+    "name": "OpenDining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://evals-opendining.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer include the Yellowy Bistro's description mentioning 'bright and cheerful bistro' or 'sunny decor', list menu items such as 'Linguine Carbonara' or 'Grilled Salmon', and mention review ratings that are approximately 4.2-4.8 overall?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

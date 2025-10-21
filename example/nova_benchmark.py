@@ -128,10 +128,8 @@ def run_task(task: dict, run_id: str, headless: bool) -> dict:
                     error_message = f"Invalid JSON format: {str(e)}"
             
             model_response = ""
-            # Import TaskConfig
-            from agisdk.REAL.browsergym.webclones.task_config import TaskConfig
-            # Create a TaskConfig object from the task ID
-            task_config = TaskConfig(tid)
+            task_version = task.get("version", DEFAULT_VERSION)
+            task_config = TaskConfig(tid, task_version)
             # Create evaluator with the TaskConfig
             evaluator = WebCloneEvaluator(task_config=task_config)
             reward, done, message, info = evaluator.evaluate(env_state=env_state_json, model_response=result["response"])

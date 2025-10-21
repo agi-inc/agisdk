@@ -1,0 +1,67 @@
+{
+  "id": "fly-unified-4",
+  "goal": "Book me a round-trip flight from Providence (Rhode Island) to Indianapolis, departing on December 5th, 2024 at 08:00 and returning on December 9th at 14:00.\nPassenger: Jane Smith\nDate of Birth: 02/14/1995\nSex: Female\nSeat Selection: Yes (Window seat)\nPayment: Credit Card (378342143523967), Exp: 06/26, security code: 345 Address: 456 Elm St, Miami, FL, 33101, USA, Phone: 555-987-6543, Email: janesmith@example.com.",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct departure city",
+      "type": "jmespath",
+      "expected_value": "Providence",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct destination city",
+      "type": "jmespath",
+      "expected_value": "Indianapolis",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.to.destination.city"
+    },
+    {
+      "description": "correct return departure city",
+      "type": "jmespath",
+      "expected_value": "Indianapolis",
+      "query": "differences.bookedFlights.added.\"0\".flight.returnFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct return destination city",
+      "type": "jmespath",
+      "expected_value": "Providence",
+      "query": "differences.bookedFlights.added.\"0\".flight.returnFlight.info.to.destination.city"
+    },
+    {
+      "description": "correct passenger first name",
+      "type": "jmespath",
+      "expected_value": "Jane",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].firstName"
+    },
+    {
+      "description": "correct passenger last name",
+      "type": "jmespath",
+      "expected_value": "Smith",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].lastName"
+    },
+    {
+      "description": "correct departure time",
+      "type": "jmespath",
+      "expected_value": "2024-12-05T16:00:00.000Z",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.segments[0].departureTime"
+    },
+    {
+      "description": "correct return time",
+      "type": "jmespath",
+      "expected_value": "2024-12-09T22:00:00.000Z",
+      "query": "differences.bookedFlights.added.\"0\".flight.returnFlight.info.segments[0].departureTime"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}
