@@ -1,113 +1,83 @@
-import json, sys
+import json
+import sys
 
-# Verification script for GoMail task:
-# Goal: Ensure an email was sent to Carol notifying a meeting time change to 8:30 AM.
+# Verification script for: Go Mail: Write an email to Barbara Thomas regarding the project plan
 # Strategy:
-# 1) Find added emails (from differences and initialfinaldiff) that have sent == True and include Carol's email in the recipients.
-# 2) In subject+content (HTML stripped), confirm mention of a meeting and the new time as 8:30 AM, plus an indicator of change (e.g., now/moved/changed/rescheduled).
+# 1) Extract all newly added emails from both `differences.emails.added` and `initialfinaldiff.added.email.emails`.
+# 2) Declare SUCCESS if there exists a sent email to barbara.thomas@example.com whose subject or content mentions "project plan" (case-insensitive). Otherwise, FAILURE.
 
-TARGET_EMAIL = "carol.adams@example.com"
+def load_json(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-def strip_html(s):
-    if not isinstance(s, str):
-        s = str(s) if s is not None else ""
-    out = []
-    in_tag = False
-    for ch in s:
-        if ch == '<':
-            in_tag = True
-            continue
-        if ch == '>':
-            in_tag = False
-            out.append(' ')
-            continue
-        if not in_tag:
-            out.append(ch)
-    # collapse spaces and lowercase
-    text = ''.join(out).replace('\n', ' ').replace('\r', ' ')
-    # normalize multiple spaces
-    parts = [p for p in text.split(' ') if p != '']
-    return (' '.join(parts)).lower()
 
-def gather_added_emails(state):
-    emails = []
-    dif = state.get('differences', {}).get('emails', {})
-    added = dif.get('added', [])
-    if isinstance(added, list):
-        emails.extend(added)
-    # Also check initialfinaldiff added path if present
-    if state.get('initialfinaldiff'):
-        try:
-            email_section = state['initialfinaldiff'].get('added', {})\
-                                             .get('email', {})\
-                                             .get('emails', {})
-            if isinstance(email_section, dict):
-                for v in email_section.values():
-                    emails.append(v)
-        except Exception:
-            pass
-    return emails
+def extract_added_emails(data):
+    emails_by_id = {}
 
-def contains_830_am(text):
-    # Check for explicit 8:30 AM mention allowing optional space
-    t = text
-    if '8:30am' in t:
-        return True
-    if '8:30 am' in t:
-        return True
-    # Also accept variants with non-breaking space or multiple spaces collapsed by normalization above
-    return False
+    # From differences.emails.added (preferred aggregated diff)
+    diffs = data.get('differences', {})
+    emails_diff = diffs.get('emails', {}) if isinstance(diffs, dict) else {}
+    added_list = emails_diff.get('added', []) if isinstance(emails_diff, dict) else []
+    if isinstance(added_list, list):
+        for e in added_list:
+            if isinstance(e, dict):
+                eid = str(e.get('id', ''))
+                emails_by_id[eid] = e
 
-def indicates_change(text):
-    # Words indicating change or announcement
-    keywords = [
-        'change', 'changed', 'move', 'moved', 'reschedule', 'rescheduled', 'now', 'update', 'updated'
-    ]
-    return any(k in text for k in keywords)
+    # From initialfinaldiff.added.email.emails (raw additions map)
+    ifd = data.get('initialfinaldiff', {})
+    added_ifd = ifd.get('added', {}) if isinstance(ifd, dict) else {}
+    email_section = added_ifd.get('email', {}) if isinstance(added_ifd, dict) else {}
+    emails_map = email_section.get('emails', {}) if isinstance(email_section, dict) else {}
+    if isinstance(emails_map, dict):
+        for k, e in emails_map.items():
+            if isinstance(e, dict):
+                eid = str(e.get('id', ''))
+                emails_by_id[eid] = e
 
-def mentions_meeting(text):
-    return 'meeting' in text
+    return list(emails_by_id.values())
 
-def email_to_includes_carol(to_list):
-    if not isinstance(to_list, list):
+
+def contains_project_plan(text: str) -> bool:
+    if not text:
         return False
-    for addr in to_list:
-        if isinstance(addr, str) and addr.strip().lower() == TARGET_EMAIL:
-            return True
+    t = text.lower()
+    return "project plan" in t
+
+
+def to_contains_barbara(to_field) -> bool:
+    target = "barbara.thomas@example.com"
+    # to_field expected to be a list; handle strings defensively
+    if isinstance(to_field, list):
+        for item in to_field:
+            if isinstance(item, str) and target in item.lower():
+                return True
+    elif isinstance(to_field, str):
+        return target in to_field.lower()
     return False
 
-def verify(state):
-    emails = gather_added_emails(state)
-    for em in emails:
-        # Must be sent
-        if not em or not isinstance(em, dict):
-            continue
-        if not em.get('sent', False):
-            continue
-        if not email_to_includes_carol(em.get('to')):
-            continue
-        subj = strip_html(em.get('subject', ''))
-        body = strip_html(em.get('content', ''))
-        combined = (subj + ' ' + body).strip()
-        if not mentions_meeting(combined):
-            continue
-        if not contains_830_am(combined):
-            continue
-        if not indicates_change(combined):
-            continue
-        return True
-    return False
 
 def main():
-    try:
-        path = sys.argv[1]
-        with open(path, 'r', encoding='utf-8') as f:
-            state = json.load(f)
-        result = verify(state)
-        print('SUCCESS' if result else 'FAILURE')
-    except Exception:
-        # On any unexpected error, signal failure
-        print('FAILURE')
+    path = sys.argv[1]
+    data = load_json(path)
 
-if __name__ == '__main__':
+    added_emails = extract_added_emails(data)
+
+    success = False
+    for e in added_emails:
+        sent = bool(e.get('sent'))
+        if not sent:
+            continue
+        if not to_contains_barbara(e.get('to')):
+            continue
+        subject = e.get('subject') or ''
+        content = e.get('content') or ''
+        combined = f"{subject}\n{content}"
+        if contains_project_plan(combined):
+            success = True
+            break
+
+    print("SUCCESS" if success else "FAILURE")
+
+if __name__ == "__main__":
     main()

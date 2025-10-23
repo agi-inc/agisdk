@@ -1,12 +1,12 @@
 {
   "id": "staynb-6",
-  "goal": "Show me places in San Francisco with wifi for the dates September 27-29th for 2 people.",
+  "goal": "Find me places in Cape Town for 4 guests for the dates October 1st to 6th. I need 2+ bedrooms and beds along with wifi. Add a place that fits these requirements to my wishlist.",
   "website": {
     "id": "staynb",
-    "name": "StayNB",
+    "name": "Staynb",
     "similarTo": "Airbnb",
     "previewImage": "/websitePreviews/staynb_preview.jpg",
-    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app"
+    "url": "https://real-staynb.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

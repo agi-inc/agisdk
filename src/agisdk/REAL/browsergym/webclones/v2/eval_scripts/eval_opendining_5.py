@@ -1,87 +1,111 @@
 import json, sys
 
-def normalize_name(name: str) -> str:
-    if not isinstance(name, str):
-        return ""
-    name = name.strip().lower()
-    # Basic accent normalization for common chars seen
-    replacements = {
-        "é": "e", "á": "a", "í": "i", "ó": "o", "ú": "u", "ü": "u",
-        "’": "'",
-    }
-    for k, v in replacements.items():
-        name = name.replace(k, v)
-    return name
+def load_json(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-# Strategy in code:
-# - Load final_state_diff.json and locate booking.bookingDetails.
-# - Confirm a concrete reservation: at least one detail with non-null date and time.
-# - Validate constraints: restaurant located in Embarcadero (by known IDs or names from training) and rating > 3.0.
-# - If any booking detail satisfies all, print SUCCESS; else FAILURE.
+# Helper to safely get nested keys
 
-def main():
-    path = sys.argv[1]
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception:
-        print("FAILURE")
-        return
+def get_in(d, path, default=None):
+    cur = d
+    for p in path:
+        if isinstance(cur, dict) and p in cur:
+            cur = cur[p]
+        else:
+            return default
+    return cur
 
-    booking = (
-        data.get('initialfinaldiff', {})
-            .get('added', {})
-            .get('booking')
-    )
+# Extract the booking object from possible locations
 
-    if not isinstance(booking, dict):
-        print("FAILURE")
-        return
+def extract_booking(state):
+    # Common path in examples
+    booking = get_in(state, ["initialfinaldiff", "added", "booking"], None)
+    if isinstance(booking, dict):
+        return booking
+    # Fallback to updated
+    booking = get_in(state, ["initialfinaldiff", "updated", "booking"], None)
+    if isinstance(booking, dict):
+        return booking
+    # As a last resort, try top-level 'booking'
+    booking = state.get("booking") if isinstance(state, dict) else None
+    if isinstance(booking, dict):
+        return booking
+    return None
 
-    details = booking.get('bookingDetails')
-    if not isinstance(details, dict) or not details:
-        # No actual booking details → cannot be a successful reservation
-        print("FAILURE")
-        return
+# Extract the first booking detail entry from dict-with-numeric-keys or list
 
-    # Known Embarcadero restaurants inferred from training examples
-    embarcadero_ids = set([
-        'cd4f81d3-3c75-4c67-b47b-e7f013f6ae9d',  # River View Café
-        '4be91a74-c7ff-4673-b60a-2c83d53a3052',  # Ocean Breeze
-    ])
-    embarcadero_names = set([
-        normalize_name('River View Cafe'),
-        normalize_name('River View Café'),
-        normalize_name('Ocean Breeze'),
-    ])
-
-    success = False
-    for item in details.values():
-        if not isinstance(item, dict):
-            continue
-        rest = item.get('restaurant') or {}
-        if not isinstance(rest, dict):
-            continue
-        rest_id = rest.get('id')
-        rest_name = normalize_name(rest.get('name', ''))
-        rating_raw = rest.get('rating')
+def extract_first_detail(booking):
+    details = booking.get("bookingDetails") if isinstance(booking, dict) else None
+    if not details:
+        return None
+    if isinstance(details, list):
+        return details[0] if details else None
+    if isinstance(details, dict):
+        # Sort keys to make deterministic; keys might be numeric strings like "0"
         try:
-            rating = float(rating_raw)
-        except (TypeError, ValueError):
-            rating = None
-        # Date/time check to ensure a concrete reservation slot was selected
-        date = item.get('date') or booking.get('date')
-        time = item.get('time') or booking.get('time')
+            # Try to sort by integer value if possible
+            keys = sorted(details.keys(), key=lambda k: int(k) if isinstance(k, str) and k.isdigit() else k)
+        except Exception:
+            keys = list(details.keys())
+        for k in keys:
+            return details[k]
+    return None
 
-        is_embarcadero = (rest_id in embarcadero_ids) or (rest_name in embarcadero_names)
-        has_slot = bool(date) and bool(time)
-        over_three = (rating is not None) and (rating > 3.0)
+# Normalize a guest string like "2 people"
 
-        if is_embarcadero and has_slot and over_three:
-            success = True
-            break
+def normalize_guests(val):
+    if not isinstance(val, str):
+        return None
+    return val.strip().lower()
 
-    print("SUCCESS" if success else "FAILURE")
+# Main verification logic
 
-if __name__ == '__main__':
-    main()
+def verify(state):
+    booking = extract_booking(state)
+    if not isinstance(booking, dict):
+        return False
+
+    detail = extract_first_detail(booking)
+    if not isinstance(detail, dict):
+        # No concrete booked detail -> failure
+        return False
+
+    # Check rating >= 4.0
+    restaurant = detail.get("restaurant", {}) if isinstance(detail.get("restaurant"), dict) else {}
+    rating_val = restaurant.get("rating")
+    try:
+        rating = float(rating_val)
+    except Exception:
+        return False
+    if rating < 4.0:
+        return False
+
+    # Check guests exactly 2 people (from detail or from booking fallback)
+    guests_detail = normalize_guests(detail.get("guests"))
+    guests_booking = normalize_guests(booking.get("guests"))
+    if guests_detail != "2 people" and guests_booking != "2 people":
+        return False
+
+    # Check occasion marked as Birthday in optionals
+    optionals = detail.get("optionals") if isinstance(detail.get("optionals"), dict) else None
+    occasion = optionals.get("occasion") if isinstance(optionals, dict) else None
+    if not isinstance(occasion, str) or occasion.strip().lower() != "birthday":
+        return False
+
+    # Basic sanity: must have a date and time in the detail for an actual reservation
+    date_ok = isinstance(detail.get("date"), str) and len(detail.get("date").strip()) > 0
+    time_ok = isinstance(detail.get("time"), str) and len(detail.get("time").strip()) > 0
+    if not (date_ok and time_ok):
+        return False
+
+    return True
+
+if __name__ == "__main__":
+    try:
+        path = sys.argv[1]
+        data = load_json(path)
+        result = verify(data)
+        print("SUCCESS" if result else "FAILURE")
+    except Exception:
+        # In case of any unexpected errors, default to FAILURE per strict verification
+        print("FAILURE")

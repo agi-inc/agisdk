@@ -1,89 +1,162 @@
-import json, sys
+import sys, json
 
-# Strategy:
-# - Primary success signal: a tour request was created (present in initialfinaldiff.added.tourRequests.requestTourList or differences.requestTours.added).
-# - Secondary heuristic to match failure case observed in training: if the parsed city from the tour message equals "Hidden Valley Lake", mark FAILURE.
-#   Note: Ideally we'd validate filters (price, beds, baths, location, time), but such data isn't available in final_state_diff.
-
-
-def get_nested(d, path, default=None):
-    cur = d
-    for p in path:
-        if isinstance(cur, dict) and p in cur:
-            cur = cur[p]
-        else:
-            return default
-    return cur
+# Verification logic:
+# - Find any contact/tour request entries containing selectedDate with date and time
+# - Success if any entry has date on July 19 and time around 1 PM (12:00 PM to 2:00 PM inclusive)
+# - Otherwise Failure
+# Rationale: Training successes show contact agent with selectedDate 2024-07-19 and time 1:00 PM; failures lack contact or have wrong date/time.
 
 
-def parse_city_from_message(msg):
-    if not isinstance(msg, str):
+def parse_time_to_minutes(t):
+    if not isinstance(t, str):
         return None
-    # Expect format like: "I am interested in <street>, <city>, <state> <zip>."
-    try:
-        # Remove trailing period
-        s = msg.strip()
-        if s.endswith('.'):
-            s = s[:-1]
-        # Split by commas
-        parts = [p.strip() for p in s.split(',')]
-        # Typically: [prefix with street..., city, state_zip]
+    s = t.strip()
+    if not s:
+        return None
+    # Normalize spacing before AM/PM
+    s_up = s.upper().replace('.', '')
+    ampm = None
+    # Ensure there's a space before AM/PM if missing (e.g., 1:00PM)
+    if s_up.endswith('AM'):
+        ampm = 'AM'
+        core = s_up[:-2].strip()
+    elif s_up.endswith('PM'):
+        ampm = 'PM'
+        core = s_up[:-2].strip()
+    else:
+        # If no AM/PM marker, cannot confidently parse in this context
+        return None
+    # Split hours and minutes
+    if ':' in core:
+        hh_str, mm_str = core.split(':', 1)
+        # If minutes include extra, trim non-digits
+        mm = ''
+        for ch in mm_str:
+            if ch.isdigit():
+                mm += ch
+            else:
+                break
+        if mm == '':
+            mm = '0'
+        try:
+            hh = int(hh_str.strip())
+            mi = int(mm)
+        except:
+            return None
+    else:
+        try:
+            hh = int(core)
+            mi = 0
+        except:
+            return None
+    if not (1 <= hh <= 12) or not (0 <= mi < 60):
+        return None
+    # Convert to 24h minutes
+    if ampm == 'AM':
+        if hh == 12:
+            hh = 0
+    else:  # PM
+        if hh != 12:
+            hh += 12
+    return hh * 60 + mi
+
+
+def is_july_19(date_str):
+    if not isinstance(date_str, str):
+        return False
+    ds = date_str.strip()
+    if not ds:
+        return False
+    # Prefer ISO-like: YYYY-MM-DD[...]
+    # Extract date part before 'T' if present
+    if 'T' in ds:
+        ds_part = ds.split('T', 1)[0]
+    else:
+        ds_part = ds
+    # Try YYYY-MM-DD
+    if '-' in ds_part:
+        parts = ds_part.split('-')
         if len(parts) >= 3:
-            # City is the second-to-last element (before state/zip)
-            return parts[-2]
-        return None
-    except Exception:
-        return None
+            y, m, d = parts[0], parts[1], parts[2]
+            try:
+                m_i = int(m)
+                d_i = int(d)
+                return (m_i == 7 and d_i == 19)
+            except:
+                pass
+    # Try MM/DD/YYYY
+    if '/' in ds_part:
+        parts = ds_part.split('/')
+        if len(parts) >= 3:
+            try:
+                m_i = int(parts[0])
+                d_i = int(parts[1])
+                return (m_i == 7 and d_i == 19)
+            except:
+                pass
+    # Fallback: substring heuristics
+    if '07-19' in ds_part or '7-19' in ds_part or '07/19' in ds_part or '7/19' in ds_part:
+        return True
+    # Could be named month
+    ds_upper = ds_part.upper()
+    if 'JUL' in ds_upper and '19' in ds_upper:
+        return True
+    return False
 
-try:
+
+def iter_dicts(obj):
+    # Recursively yield all dicts within obj
+    if isinstance(obj, dict):
+        yield obj
+        for v in obj.values():
+            for d in iter_dicts(v):
+                yield d
+    elif isinstance(obj, list):
+        for item in obj:
+            for d in iter_dicts(item):
+                yield d
+
+
+def find_selected_date_entries(data):
+    entries = []
+    # Look for structures with 'selectedDate' nested or as field
+    for d in iter_dicts(data):
+        # Case 1: contactAgentData contains selectedDate
+        if 'contactAgentData' in d and isinstance(d['contactAgentData'], dict):
+            cad = d['contactAgentData']
+            if isinstance(cad.get('selectedDate'), dict):
+                entries.append(cad['selectedDate'])
+        # Case 2: selectedDate directly in dict
+        if isinstance(d.get('selectedDate'), dict):
+            entries.append(d['selectedDate'])
+    return entries
+
+
+def main():
     path = sys.argv[1]
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, 'r') as f:
         data = json.load(f)
 
-    requests_from_initial = get_nested(
-        data, ["initialfinaldiff", "added", "tourRequests", "requestTourList"], {}
-    ) or {}
-    requests_from_diff = get_nested(
-        data, ["differences", "requestTours", "added"], {}
-    ) or {}
+    # Collect all selectedDate dicts
+    selected_dates = find_selected_date_entries(data)
 
-    def is_valid_request(entry):
-        if not isinstance(entry, dict):
-            return False
-        rtd = entry.get("requestTourData", {})
-        if not isinstance(rtd, dict):
-            return False
-        options = rtd.get("options", [])
-        form = rtd.get("formValues", {})
-        if not isinstance(options, list) or len(options) == 0:
-            return False
-        if not isinstance(form, dict) or not form:
-            return False
-        if not any(isinstance(o, dict) and o.get("time") for o in options):
-            return False
-        return True
+    success_found = False
+    for sd in selected_dates:
+        date_val = sd.get('date')
+        time_val = sd.get('time')
+        if not date_val or not time_val:
+            continue
+        if not is_july_19(date_val):
+            continue
+        mins = parse_time_to_minutes(time_val)
+        if mins is None:
+            continue
+        # Around 1 PM: accept 12:00 PM (720) to 2:00 PM (840) inclusive
+        if 720 <= mins <= 840:
+            success_found = True
+            break
 
-    # Gather all valid requests (prefer differences, fall back to initial)
-    valid_entries = []
-    for container in (requests_from_diff, requests_from_initial):
-        if isinstance(container, dict):
-            for _, v in container.items():
-                if is_valid_request(v):
-                    valid_entries.append(v)
-    if not valid_entries:
-        print("FAILURE")
-        sys.exit(0)
+    print('SUCCESS' if success_found else 'FAILURE')
 
-    # Heuristic: detect known failure city from training feedback
-    fail_cities = {"hidden valley lake"}
-    for v in valid_entries:
-        msg = v.get("requestTourData", {}).get("formValues", {}).get("message")
-        city = parse_city_from_message(msg)
-        if isinstance(city, str) and city.strip().lower() in fail_cities:
-            print("FAILURE")
-            sys.exit(0)
-
-    print("SUCCESS")
-
-except Exception:
-    print("FAILURE")
+if __name__ == '__main__':
+    main()

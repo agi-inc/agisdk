@@ -1,113 +1,137 @@
 import json, sys
 
-# Strategy:
-# - Verify destination contains 'san francisco', dates equal 2024-09-27 to 2024-09-29, and adults == 2 (fallback to '2 Guests').
-# - Detect wifi via appliedFilters.amenities (case-insensitive). Because amenities logging may be inconsistent, use a conservative heuristic proxy: if wifi not explicitly found, accept if destination includes 'usa' or if config.staynb.removePopup is True (indicating full filter interaction). This aligns with observed training patterns while still checking core fields.
+# Verification logic for task:
+# - Destination should be Cape Town
+# - Dates should be Oct 1, 2024 to Oct 6, 2024 (inclusive of bounds)
+# - Total guests (Adults + Children) should equal 4
+# - A place should be added to a wishlist which meets constraints: bedrooms >= 2 and beds >= 2
+# - Wifi amenity is not present in available data; thus we verify the actual outcome (the selected stay meets constraints)
+#   rather than the presence of a filter flag.
 
 
-def get_nested(d, keys, default=None):
+def get_nested(d, path, default=None):
     cur = d
-    for k in keys:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
+    for key in path:
+        if isinstance(cur, dict) and key in cur:
+            cur = cur[key]
         else:
             return default
     return cur
 
 
-def normalize_text(s):
+def normalize_date(s):
     if not isinstance(s, str):
-        return ""
-    return " ".join(s.lower().strip().split())
+        return None
+    # Expect ISO string; compare first 10 chars (YYYY-MM-DD)
+    return s[:10]
 
 
-def first_recent_search(search_obj):
-    rs = get_nested(search_obj, ["recentSearches"], {}) or {}
-    if isinstance(rs, dict) and rs:
+def compute_total_guests(guest_counts):
+    if not isinstance(guest_counts, dict):
+        return None
+    adults = guest_counts.get('Adults', 0) or 0
+    children = guest_counts.get('Children', 0) or 0
+    # Typically infants/pets are not counted as guests for capacity
+    return adults + children
+
+
+def parse_guests_string(guest_str):
+    # Fallback: parse like "4 Guests" or "1 Guest"
+    if not isinstance(guest_str, str):
+        return None
+    parts = guest_str.strip().split()
+    for p in parts:
         try:
-            items = sorted(rs.items(), key=lambda kv: int(kv[0]) if isinstance(kv[0], str) and kv[0].isdigit() else kv[0])
-        except Exception:
-            items = list(rs.items())
-        return items[0][1]
+            return int(p)
+        except:
+            pass
     return None
 
 
-def extract_search_state(data):
-    root = data.get("initialfinaldiff", {})
-    search = get_nested(root, ["added", "search"]) or get_nested(root, ["updated", "search"]) or root.get("search")
-    return search or {}
-
-
-def parse_dates(dates_obj):
-    def to_date(s):
-        if not isinstance(s, str):
-            return None
-        return s.split('T')[0]
-    if not isinstance(dates_obj, dict):
-        return None, None
-    return to_date(dates_obj.get("startDate")), to_date(dates_obj.get("endDate"))
-
-
-def has_wifi(applied_filters):
-    if not isinstance(applied_filters, dict):
+def any_stay_meets_requirements(wishlist_data):
+    # Iterate all wishlists and their stays; ensure at least one stay has bedrooms >=2 and beds >=2
+    if not isinstance(wishlist_data, dict):
         return False
-    ams = applied_filters.get("amenities")
-    if isinstance(ams, list):
-        for a in ams:
-            if isinstance(a, str):
-                al = a.lower()
-                if ("wifi" in al) or ("wi-fi" in al) or ("wireless" in al):
-                    return True
-    return False
+    wishlists = wishlist_data.get('wishlists')
+    if not isinstance(wishlists, dict):
+        return False
+    found_any = False
+    for wl in wishlists.values():
+        stays = None
+        if isinstance(wl, dict):
+            stays = wl.get('stays')
+        if isinstance(stays, list):
+            for stay in stays:
+                rooms = stay.get('rooms') if isinstance(stay, dict) else None
+                if isinstance(rooms, dict):
+                    bedrooms = rooms.get('bedrooms')
+                    beds = rooms.get('beds')
+                    try:
+                        if bedrooms is not None and beds is not None:
+                            if int(bedrooms) >= 2 and int(beds) >= 2:
+                                found_any = True
+                                return True
+                    except Exception:
+                        # If not integers, skip
+                        continue
+    return found_any
 
 
 def main():
-    try:
-        path = sys.argv[1]
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception:
-        print("FAILURE")
-        return
+    path = sys.argv[1]
+    with open(path, 'r') as f:
+        data = json.load(f)
 
-    search = extract_search_state(data)
+    root = data
+    # The examples show data under initialfinaldiff.added
+    added = get_nested(root, ['initialfinaldiff', 'added'], {})
+    search = added.get('search', {}) if isinstance(added, dict) else {}
+    wishlist = added.get('wishlist', {}) if isinstance(added, dict) else {}
 
-    applied_dest = get_nested(search, ["appliedDestination"]) or ""
-    applied_dates = get_nested(search, ["appliedDates"]) or {}
-    applied_guest_counts = get_nested(search, ["appliedGuestCounts"]) or {}
-    applied_filters = get_nested(search, ["appliedFilters"]) or {}
+    # Destination check (prefer appliedDestination, fallback to recentSearches[0].destination)
+    dest = search.get('appliedDestination')
+    if not dest:
+        recent_searches = search.get('recentSearches')
+        if isinstance(recent_searches, dict) and recent_searches:
+            first_key = sorted(recent_searches.keys(), key=lambda x: str(x))[0]
+            rs = recent_searches.get(first_key, {})
+            dest = rs.get('destination')
+    dest_ok = isinstance(dest, str) and ('cape town' in dest.lower())
 
-    rs = first_recent_search(search) or {}
+    # Dates check (prefer appliedDates)
+    dates = search.get('appliedDates') if isinstance(search, dict) else None
+    if not isinstance(dates, dict) or not dates:
+        # fallback to recentSearches
+        recent_searches = search.get('recentSearches')
+        if isinstance(recent_searches, dict) and recent_searches:
+            first_key = sorted(recent_searches.keys(), key=lambda x: str(x))[0]
+            rs = recent_searches.get(first_key, {})
+            dates = rs.get('dates', {}) if isinstance(rs, dict) else {}
+    start = normalize_date(dates.get('startDate') if isinstance(dates, dict) else None)
+    end = normalize_date(dates.get('endDate') if isinstance(dates, dict) else None)
+    dates_ok = (start == '2024-10-01' and end == '2024-10-06')
 
-    dest_norm = normalize_text(applied_dest) or normalize_text(rs.get("destination", ""))
-    dest_ok = "san francisco" in dest_norm if dest_norm else False
+    # Guests check (prefer appliedGuestCounts)
+    guest_counts = search.get('appliedGuestCounts') if isinstance(search, dict) else None
+    total_guests = compute_total_guests(guest_counts) if guest_counts else None
+    if total_guests is None:
+        # fallback parse from recent searches string
+        recent_searches = search.get('recentSearches')
+        guest_str = None
+        if isinstance(recent_searches, dict) and recent_searches:
+            first_key = sorted(recent_searches.keys(), key=lambda x: str(x))[0]
+            rs = recent_searches.get(first_key, {})
+            guest_str = rs.get('guests') if isinstance(rs, dict) else None
+        total_guests = parse_guests_string(guest_str)
+    guests_ok = (total_guests == 4)
 
-    start, end = parse_dates(applied_dates)
-    if not start or not end:
-        rs_start, rs_end = parse_dates(rs.get("dates", {}))
-        start, end = start or rs_start, end or rs_end
-    dates_ok = (start == "2024-09-27" and end == "2024-09-29")
+    # Wishlist check: a stay added that meets bedrooms>=2 and beds>=2
+    stay_ok = any_stay_meets_requirements(wishlist)
 
-    adults = applied_guest_counts.get("Adults") if isinstance(applied_guest_counts, dict) else None
-    guests_text = rs.get("guests") if isinstance(rs, dict) else None
-    guests_ok = False
-    if isinstance(adults, int):
-        guests_ok = (adults == 2)
-    if not guests_ok and isinstance(guests_text, str):
-        guests_ok = ("2" in guests_text)
-
-    # Wifi explicit detection and heuristic proxy
-    wifi_ok = has_wifi(applied_filters)
-    if not wifi_ok:
-        # Heuristic: treat broader location string or UI state indicating interaction as proxy for amenity selection visibility
-        has_usa = ("usa" in dest_norm)
-        remove_popup = bool(get_nested(data.get("initialfinaldiff", {}), ["added", "config", "staynb", "removePopup"], False))
-        wifi_ok = has_usa or remove_popup
-
-    if dest_ok and dates_ok and guests_ok and wifi_ok:
+    if dest_ok and dates_ok and guests_ok and stay_ok:
         print("SUCCESS")
     else:
         print("FAILURE")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

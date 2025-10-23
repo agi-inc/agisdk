@@ -1,113 +1,91 @@
 import json, sys
 
-def get_nested(d, keys, default=None):
+def norm(s):
+    if not isinstance(s, str):
+        return ""
+    return s.strip().lower()
+
+# Strategy in code:
+# - Load final_state_diff.json and merge 'added' and 'updated' sections.
+# - Verify an actually booked trip exists in ride.trips with:
+#   * pickup includes "golden gate" and "apart" (Golden Gate Apartments)
+#   * destination includes both "chase" and "bank" (any Chase Bank)
+#   * car.type == "UdriverX" (correct ride type)
+# This distinguishes successes from failures such as wrong pickup, not booked, or wrong car type.
+
+def get_nested(d, *keys):
     cur = d
     for k in keys:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
-        else:
-            return default
+        if not isinstance(cur, dict) or k not in cur:
+            return None
+        cur = cur[k]
     return cur
 
-def find_section(obj):
-    # Try to locate the ride and user objects inside added/updated sections
-    root = obj.get('initialfinaldiff', obj)
-    candidates = []
-    for key in ['added', 'updated']:
-        sec = root.get(key)
-        if isinstance(sec, dict):
-            candidates.append(sec)
-    # Also consider root directly if it already has ride/user
-    if isinstance(root, dict):
-        candidates.append(root)
-    ride = None
-    user = None
-    for sec in candidates:
-        if ride is None and isinstance(sec.get('ride'), dict) and sec.get('ride'):
-            ride = sec.get('ride')
-        if user is None and isinstance(sec.get('user'), dict) and sec.get('user'):
-            user = sec.get('user')
-    return ride, user
+try:
+    path = sys.argv[1]
+    with open(path, 'r') as f:
+        data = json.load(f)
 
-def text(s):
-    if isinstance(s, str):
-        return s.strip().lower()
-    return ''
+    base = data.get('initialfinaldiff', {})
+    added = base.get('added', {}) or {}
+    updated = base.get('updated', {}) or {}
 
-def match_pickup(loc):
-    if not isinstance(loc, dict):
-        return False
-    # Multiple robust signals for Ai Electronics Center
-    name = text(loc.get('name'))
-    addr = text(loc.get('address'))
-    faddr = text(loc.get('formattedAddress'))
-    loc_id = loc.get('id')
-    # Accept if id matches known id
-    if loc_id == 370:
-        return True
-    # Accept if name contains ai + electronics center
-    if ('electronics center' in name and ('ai ' in name or name.startswith('ai') or 'ai' in name)):
-        return True
-    # Accept if address contains the street address
-    if '4790 mission' in addr or '4790 mission' in faddr:
-        return True
-    return False
+    # Merge added over updated (prefer added values where present)
+    state = {}
+    for key in set(list(updated.keys()) + list(added.keys())):
+        v = added.get(key, None)
+        if v is None:
+            v = updated.get(key)
+        state[key] = v
 
-def match_dropoff(loc):
-    if not isinstance(loc, dict):
-        return False
-    name = text(loc.get('name'))
-    addr = text(loc.get('address'))
-    faddr = text(loc.get('formattedAddress'))
-    loc_id = loc.get('id')
-    if loc_id == 733:
-        return True
-    if '333 fremont apartments' in name:
-        return True
-    if '333 fremont st' in addr or '333 fremont st' in faddr or '333 fremont street' in addr or '333 fremont street' in faddr:
-        return True
-    return False
+    ride = state.get('ride', {}) or {}
 
-def main():
-    try:
-        path = sys.argv[1]
-        with open(path, 'r') as f:
-            data = json.load(f)
-    except Exception:
-        print('FAILURE')
-        return
+    trips = ride.get('trips', []) or []
+    success_found = False
 
-    ride, user = find_section(data)
-    if not isinstance(ride, dict):
-        print('FAILURE')
-        return
+    for trip in trips:
+        # Extract fields safely
+        pickup_name = norm(get_nested(trip, 'pickup', 'name'))
+        dest_name = norm(get_nested(trip, 'destination', 'name'))
+        car_type = get_nested(trip, 'car', 'type')
+        car_type = car_type if isinstance(car_type, str) else ""
 
-    pickup_ok = match_pickup(ride.get('pickupLocation'))
-    dropoff_ok = match_dropoff(ride.get('dropoffLocation'))
+        # Conditions
+        pickup_ok = ('golden gate' in pickup_name) and ('apart' in pickup_name)
+        dest_ok = ('chase' in dest_name) and ('bank' in dest_name)
+        car_ok = (car_type == 'UdriverX')
 
-    # Determine if rides/prices were actually shown. Training indicates calculatedPrice.finalPrice > 0 for success
-    calc = ride.get('calculatedPrice') or {}
-    try:
-        final_price = float(calc.get('finalPrice') or 0)
-    except Exception:
-        final_price = 0.0
+        if pickup_ok and dest_ok and car_ok:
+            success_found = True
+            break
 
-    rides_shown = final_price > 0
+    # As a fallback, if trips did not contain it, also inspect the current ride.trip
+    if not success_found:
+        cur_trip = ride.get('trip', {}) or {}
+        pickup_name = norm(get_nested(cur_trip, 'pickup', 'name'))
+        dest_name = norm(get_nested(cur_trip, 'destination', 'name'))
+        car_type = get_nested(cur_trip, 'car', 'type')
+        car_type = car_type if isinstance(car_type, str) else ""
+        pickup_ok = ('golden gate' in pickup_name) and ('apart' in pickup_name)
+        dest_ok = ('chase' in dest_name) and ('bank' in dest_name)
+        car_ok = (car_type == 'UdriverX')
+        # Consider it success only if all three hold on current trip too, indicating correct imminent booking
+        if pickup_ok and dest_ok and car_ok:
+            # To ensure it's actually booked (not just shown), look for a wallet transaction as secondary evidence
+            user = state.get('user', {}) or {}
+            wallet = user.get('wallet', {}) or {}
+            txs = wallet.get('transactions', []) or []
+            has_tx = False
+            for tx in txs:
+                desc = norm(tx.get('description'))
+                amt = tx.get('amount')
+                if isinstance(desc, str) and ('trip to chase bank' in desc) and isinstance(amt, (int, float)) and amt < 0:
+                    has_tx = True
+                    break
+            if has_tx:
+                success_found = True
 
-    # Optional: read wallet balance to ensure the script considers credits (does not gate success)
-    balance = None
-    if isinstance(user, dict):
-        balance = get_nested(user, ['wallet', 'balance'])
-        try:
-            balance = float(balance)
-        except Exception:
-            balance = None
-
-    # Success criteria: correct route AND rides/prices shown
-    if pickup_ok and dropoff_ok and rides_shown:
-        print('SUCCESS')
-    else:
-        print('FAILURE')
-
-if __name__ == '__main__':
-    main()
+    print('SUCCESS' if success_found else 'FAILURE')
+except Exception:
+    # On any error, be safe and mark as failure
+    print('FAILURE')

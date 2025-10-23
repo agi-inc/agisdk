@@ -1,90 +1,90 @@
-import sys, json
+import json, sys
 
-def get(d, path, default=None):
-    cur = d
-    for k in path:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
+def get_in(data, path, default=None):
+    cur = data
+    for key in path:
+        if isinstance(cur, dict):
+            if key in cur:
+                cur = cur[key]
+            else:
+                return default
         else:
             return default
     return cur
 
-
-def is_number(x):
-    try:
-        float(x)
-        return True
-    except Exception:
+# Determine if a message text is an invite to view/apply for a job
+def is_invite_message(text):
+    if not isinstance(text, str):
         return False
+    t = text.strip().lower()
+    # Consider common invite phrasing; require an invite keyword and mention of job/application context
+    has_invite_keyword = ('invite' in t) or ('invited' in t) or ('invitation' in t)
+    mentions_context = ('job' in t) or ('apply' in t) or ('proposal' in t) or ('position' in t)
+    return has_invite_keyword and mentions_context
 
-
-def check_job(job):
-    # Core verification logic based on task: ensure a Data Annotator job for Verita AI with correct pay and key fields
-    if not isinstance(job, dict):
+# Determine if contact's job indicates full-stack
+def is_fullstack_job(job_str):
+    if not isinstance(job_str, str):
         return False
+    norm = job_str.lower().replace('-', ' ')
+    return 'full stack' in norm
 
-    title = str(job.get('title', '')).strip().lower()
-    if 'data annotator' not in title:
-        return False
+# Analyze a single contact to determine if they were invited and whether they are full-stack
+# Returns (invited_bool, fullstack_bool)
 
-    desc = str(job.get('description', '')).lower()
-    if 'verita ai' not in desc:
-        return False
+def analyze_contact(contact):
+    invited = False
+    # Check messages block
+    msgs = contact.get('messages')
+    if isinstance(msgs, dict):
+        for m in msgs.values():
+            if isinstance(m, dict) and m.get('author') == 'Client' and is_invite_message(m.get('message')):
+                invited = True
+                break
+    elif isinstance(msgs, list):
+        for m in msgs:
+            if isinstance(m, dict) and m.get('author') == 'Client' and is_invite_message(m.get('message')):
+                invited = True
+                break
 
-    # Validate hourly pay is exactly 20-25 per hour
-    hr_from = job.get('hourlyRateFrom')
-    hr_to = job.get('hourlyRateTo')
-    if not (is_number(hr_from) and is_number(hr_to)):
-        return False
-    hr_from = float(hr_from)
-    hr_to = float(hr_to)
-    # Require exact match 20 to 25 to avoid wrong pay (e.g., 200-250 in failed example)
-    if not (abs(hr_from - 20) < 1e-9 and abs(hr_to - 25) < 1e-9):
-        return False
+    # Fallback to lastMessage if messages block didn't conclusively show an invite
+    if not invited:
+        if contact.get('lastMessageAuthor') == 'Client' and is_invite_message(contact.get('lastMessage')):
+            invited = True
 
-    # Validate key fields reflecting a small, entry-level, non-permanent job
-    size = str(job.get('estimateSize', '')).lower()
-    if size != 'small':
-        return False
-
-    level = str(job.get('estimateLevelExperience', '')).lower()
-    if level != 'entry':
-        return False
-
-    hire_opp = str(job.get('estimateHireOpportunity', '')).lower()
-    if hire_opp != 'no':
-        return False
-
-    # Duration should be short-term; allow common valid value(s)
-    time_str = str(job.get('estimateTime', ''))
-    allowed_times = {"1 to 3 months", "Less than 1 month"}
-    if time_str not in allowed_times:
-        return False
-
-    # If all checks pass, consider this a valid posting
-    return True
+    fullstack = is_fullstack_job(contact.get('job'))
+    return invited, fullstack
 
 
 def main():
-    try:
-        path = sys.argv[1]
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception:
-        print("FAILURE")
-        return
+    path = sys.argv[1]
+    with open(path, 'r') as f:
+        data = json.load(f)
 
-    # Extract added jobs; be defensive about structure
-    jobs_container = get(data, ["initialfinaldiff", "added", "jobs", "jobs"], default={})
-    valid_found = False
+    root = data
+    if 'initialfinaldiff' in root:
+        root = root['initialfinaldiff']
 
-    if isinstance(jobs_container, dict):
-        for _, job in jobs_container.items():
-            if check_job(job):
-                valid_found = True
-                break
+    total_invited_contacts = 0
+    fullstack_invited_contacts = 0
 
-    print("SUCCESS" if valid_found else "FAILURE")
+    for section in ('updated', 'added'):
+        contacts_parent = get_in(root, [section, 'messages', 'contactList'])
+        if isinstance(contacts_parent, dict):
+            for _idx, contact in contacts_parent.items():
+                if not isinstance(contact, dict):
+                    continue
+                invited, fullstack = analyze_contact(contact)
+                if invited:
+                    total_invited_contacts += 1
+                    if fullstack:
+                        fullstack_invited_contacts += 1
+
+    # Success criteria: exactly one invite sent in this run and the invited contact is a full-stack developer
+    if total_invited_contacts == 1 and fullstack_invited_contacts == 1:
+        print('SUCCESS')
+    else:
+        print('FAILURE')
 
 if __name__ == '__main__':
     main()

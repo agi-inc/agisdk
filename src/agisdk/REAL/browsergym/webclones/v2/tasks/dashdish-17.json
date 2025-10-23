@@ -1,12 +1,12 @@
 {
   "id": "dashdish-17",
-  "goal": "Hello, I would like BBQ Wings. Please leave a 4 dollar tip for driver and make it express delivery. Thank you.",
+  "goal": "Order two different types of wings from wingstop and express delivery it.",
   "website": {
     "id": "dashdish",
-    "name": "DashDish",
+    "name": "Dashdish",
     "similarTo": "DoorDash",
     "previewImage": "/websitePreviews/dashdish_preview.jpg",
-    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app"
+    "url": "https://real-dashdish.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

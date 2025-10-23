@@ -1,79 +1,84 @@
-import sys, json
+import json, sys
+
+# Strategy:
+# - Recursively search the JSON for any order objects containing cartItems and checkoutDetails.charges.totalAmount
+# - A state is SUCCESS if any order includes at least one item with 'fries' in its name/description (case-insensitive)
+#   AND the totalAmount is <= 20. Otherwise, it's FAILURE.
+
 
 def load_json(path):
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-# Recursively collect all lists under any 'cartItems' key in the JSON
-# This avoids overfitting to a specific nesting (added/updated/etc.)
-def find_cart_items(node):
-    items = []
-    if isinstance(node, dict):
-        for k, v in node.items():
-            if k == 'cartItems' and isinstance(v, list):
-                # ensure only dict items are considered as cart entries
-                items.extend([x for x in v if isinstance(x, dict)])
-            else:
-                items.extend(find_cart_items(v))
-    elif isinstance(node, list):
-        for el in node:
-            items.extend(find_cart_items(el))
-    return items
 
-# Normalize text for robust matching
-def norm_text(s):
+def to_float(val):
     try:
-        return ' '.join(str(s).lower().split())
+        if isinstance(val, (int, float)):
+            return float(val)
+        if isinstance(val, str):
+            s = val.strip().replace('$', '').replace(',', '')
+            return float(s)
     except Exception:
-        return ''
+        return None
+    return None
 
-# Determine if an item satisfies the goal: lemon pepper wings from Wingstop
-# Strategy: require restaurant contains "wingstop" and item text contains
-# both "lemon" and "pepper" and also contains "wing" (to avoid matching fries, etc.)
 
-def item_matches(item):
-    restaurant = norm_text(item.get('restaurantName', ''))
-    if 'wingstop' not in restaurant:
+def find_orders(obj):
+    orders = []
+
+    def recurse(o):
+        if isinstance(o, dict):
+            # Identify an order-like object
+            if 'cartItems' in o and isinstance(o.get('cartItems'), list) and 'checkoutDetails' in o:
+                cd = o.get('checkoutDetails')
+                if isinstance(cd, dict):
+                    charges = cd.get('charges', {})
+                    if isinstance(charges, dict) and 'totalAmount' in charges:
+                        orders.append(o)
+            for v in o.values():
+                recurse(v)
+        elif isinstance(o, list):
+            for it in o:
+                recurse(it)
+    recurse(obj)
+    return orders
+
+
+def contains_fries(text):
+    if not text:
         return False
+    t = text.lower()
+    return 'fries' in t
 
-    # Combine relevant textual fields to capture naming variations
-    name = norm_text(item.get('name', ''))
-    desc = norm_text(item.get('description', ''))
-    prefs = norm_text(item.get('preferences', ''))
-    size = norm_text(item.get('size', ''))
-    combined = ' '.join([name, desc, prefs, size])
 
-    has_lemon = 'lemon' in combined
-    has_pepper = 'pepper' in combined
-    has_wing = 'wing' in combined  # matches wing/wings
-
-    if has_lemon and has_pepper and has_wing:
-        # Optionally ensure quantity positive if present
-        qty = item.get('quantity')
-        if qty is None:
-            return True
-        try:
-            return float(qty) > 0
-        except Exception:
+def order_has_fries(order):
+    items = order.get('cartItems', [])
+    for it in items:
+        name = it.get('name', '')
+        desc = it.get('description', '')
+        if contains_fries(name) or contains_fries(desc):
             return True
     return False
 
 
-def main():
-    if len(sys.argv) < 2:
-        print('FAILURE')
-        return
-    path = sys.argv[1]
-    try:
-        data = load_json(path)
-    except Exception:
-        print('FAILURE')
-        return
+def order_total(order):
+    charges = order.get('checkoutDetails', {}).get('charges', {})
+    return to_float(charges.get('totalAmount'))
 
-    items = find_cart_items(data)
+
+def main():
+    path = sys.argv[1]
+    data = load_json(path)
+
+    orders = find_orders(data)
+
     success = False
-    for it in items:
-        if item_matches(it):
+    for o in orders:
+        total = order_total(o)
+        has_fries = order_has_fries(o)
+        if total is None:
+            continue
+        if has_fries and total <= 20.0:
             success = True
             break
 

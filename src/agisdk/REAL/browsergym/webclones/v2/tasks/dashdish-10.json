@@ -1,12 +1,12 @@
 {
   "id": "dashdish-10",
-  "goal": "Order lemon pepper wings from Wingstop",
+  "goal": "DashDish: Order me fries from anywhere and keep the total under $15",
   "website": {
     "id": "dashdish",
-    "name": "DashDish",
+    "name": "Dashdish",
     "similarTo": "DoorDash",
     "previewImage": "/websitePreviews/dashdish_preview.jpg",
-    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app"
+    "url": "https://real-dashdish.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

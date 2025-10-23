@@ -1,104 +1,95 @@
 import json, sys
 
-# Strategy:
-# - Load final_state_diff.json, locate the 'booking' object (with a recursive fallback).
-# - Success if: booking.index exists (not null/empty), loading is False, time is 12 PM (normalized),
-#   and bookingDetails contains restaurant.name == 'Sushi Zen' (case-insensitive).
-# - Avoid relying on bookingCompleted or guest count; ensure wrong restaurant/time or missing reservation fails.
-
-def get_booking(obj):
-    # Try common path first
-    booking = None
-    if isinstance(obj, dict):
-        booking = (
-            obj.get('initialfinaldiff', {})
-               .get('added', {})
-               .get('booking')
-        )
-        if booking is not None:
-            return booking
-    # Fallback: recursive search for a dict under key 'booking'
-    def rec_search(o):
-        if isinstance(o, dict):
-            if 'index' in o and 'time' in o and 'errors' in o and 'form' in o:
-                # Likely the booking object shape
-                return o
-            for k, v in o.items():
-                found = rec_search(v)
-                if found is not None:
-                    return found
-        elif isinstance(o, list):
-            for it in o:
-                found = rec_search(it)
-                if found is not None:
-                    return found
+def normalize_time(t: str):
+    if not isinstance(t, str):
         return None
-    return rec_search(obj)
+    s = t.strip().lower()
+    # Normalize variations like '9 pm', '9:00 pm', '09:00 PM'
+    s = s.replace('.','')
+    # remove leading zeros in hour
+    if s.startswith('09'):
+        s = '9' + s[2:]
+    return s
 
 
-def normalize_time(s):
-    if not isinstance(s, str):
-        return ''
-    t = s.strip().lower().replace('.', '')
-    t = t.replace(' ', '')
-    return t
+def is_nine_pm(t: str) -> bool:
+    """Check if time is in the 9 PM hour (9:00 PM - 9:59 PM)"""
+    s = normalize_time(t)
+    if not s:
+        return False
+    
+    # Accept any time starting with "9" or "09" and ending with "pm"
+    if s.endswith('pm'):
+        # Extract the hour part
+        if s.startswith('9:') or s.startswith('9 ') or s == '9 pm':
+            return True
+        if s.startswith('09:') or s.startswith('09 '):
+            return True
+    
+    return False
+
+def parse_rating(val):
+    try:
+        if val is None:
+            return None
+        if isinstance(val, (int, float)):
+            return float(val)
+        if isinstance(val, str):
+            return float(val.strip())
+    except Exception:
+        return None
+    return None
 
 
-def is_noon_12pm(time_str):
-    t = normalize_time(time_str)
-    return t in {'12pm', '12:00pm'}
-
-
-def get_restaurant_name(booking):
+def get_first_booking_detail(booking):
     bd = booking.get('bookingDetails')
-    if bd is None:
+    if not bd:
         return None
-    entry = None
+    # bookingDetails might be a dict keyed by string indices or a list
     if isinstance(bd, dict):
-        # take first value
-        for _, v in bd.items():
-            entry = v
-            break
-    elif isinstance(bd, list) and bd:
-        entry = bd[0]
-    if not isinstance(entry, dict):
-        return None
-    rest = entry.get('restaurant') if isinstance(entry.get('restaurant'), dict) else None
-    name = rest.get('name') if rest else None
-    if isinstance(name, str):
-        return name.strip()
+        # Sort keys numerically if possible to get the first one
+        try:
+            items = sorted(bd.items(), key=lambda kv: int(kv[0]))
+        except Exception:
+            items = list(bd.items())
+        for _, v in items:
+            return v
+    elif isinstance(bd, list):
+        return bd[0] if bd else None
     return None
 
 
 def main():
-    try:
-        path = sys.argv[1]
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception:
+    path = sys.argv[1]
+    with open(path, 'r') as f:
+        data = json.load(f)
+
+    booking = (
+        data.get('initialfinaldiff', {})
+            .get('added', {})
+            .get('booking', {})
+    )
+
+    # Must have concrete booking details (proof of reservation) with a restaurant
+    bd = get_first_booking_detail(booking)
+    if not bd or not isinstance(bd, dict):
         print('FAILURE')
         return
 
-    booking = get_booking(data)
-    if not isinstance(booking, dict):
+    # Verify time is 9 PM, prefer bookingDetails time then fallback to top-level
+    time_val = bd.get('time') if bd.get('time') else booking.get('time')
+    if not is_nine_pm(time_val):
         print('FAILURE')
         return
 
-    index = booking.get('index')
-    loading = booking.get('loading')
-    time_str = booking.get('time')
-    rest_name = get_restaurant_name(booking)
-
-    # Validate conditions
-    has_index = isinstance(index, str) and index.strip() != ''
-    correct_time = is_noon_12pm(time_str)
-    correct_restaurant = isinstance(rest_name, str) and rest_name.lower().strip() == 'sushi zen'
-    loading_done = (loading is False)
-
-    if has_index and loading_done and correct_time and correct_restaurant:
-        print('SUCCESS')
-    else:
+    # Verify restaurant is top-rated: rating >= 3.5
+    restaurant = bd.get('restaurant') if isinstance(bd.get('restaurant'), dict) else None
+    rating = parse_rating(restaurant.get('rating') if restaurant else None)
+    if rating is None or rating < 3.5:
         print('FAILURE')
+        return
+
+    print('SUCCESS')
 
 if __name__ == '__main__':
     main()

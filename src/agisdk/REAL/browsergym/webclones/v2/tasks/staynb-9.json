@@ -1,12 +1,12 @@
 {
   "id": "staynb-9",
-  "goal": "book a stay in los angeles with wifi under 600$ nightly for the dates september 1st to 3rd.",
+  "goal": "I am bored so find me places around me for tonight with a pool, wifi, free parking, and AC.",
   "website": {
     "id": "staynb",
-    "name": "StayNB",
+    "name": "Staynb",
     "similarTo": "Airbnb",
     "previewImage": "/websitePreviews/staynb_preview.jpg",
-    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app"
+    "url": "https://real-staynb.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

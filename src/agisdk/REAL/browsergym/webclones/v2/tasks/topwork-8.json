@@ -1,12 +1,12 @@
 {
   "id": "topwork-8",
-  "goal": "Rehire someone I've already hired as a project lead.",
+  "goal": "Topwork: Remove data related job postings",
   "website": {
     "id": "topwork",
-    "name": "TopWork",
+    "name": "Topwork",
     "similarTo": "Upwork",
     "previewImage": "/websitePreviews/topwork_preview.jpg",
-    "url": "https://real-topwork-gi8kuj63p-real-sites.vercel.app"
+    "url": "https://real-topwork.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

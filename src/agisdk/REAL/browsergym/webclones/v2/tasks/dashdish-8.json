@@ -1,12 +1,12 @@
 {
   "id": "dashdish-8",
-  "goal": "DashDish: Place an order for any type of sub-sandwich, keep the total under $30",
+  "goal": "Order $20 worth of food from Taco Boys",
   "website": {
     "id": "dashdish",
-    "name": "DashDish",
+    "name": "Dashdish",
     "similarTo": "DoorDash",
     "previewImage": "/websitePreviews/dashdish_preview.jpg",
-    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app"
+    "url": "https://real-dashdish.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

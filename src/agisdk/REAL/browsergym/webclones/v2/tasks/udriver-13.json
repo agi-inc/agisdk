@@ -1,12 +1,12 @@
 {
   "id": "udriver-13",
-  "goal": "Show me rides from AI Electronics Center to 333 Fremont Apartments and see if I have enough credits for the ride.",
+  "goal": "Book me an UdriverX to any chase bank from Golden Gates apartments. Need the ride asap.",
   "website": {
     "id": "udriver",
-    "name": "UDriver",
+    "name": "Udriver",
     "similarTo": "Uber",
     "previewImage": "/websitePreviews/udriver_preview.jpg",
-    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app"
+    "url": "https://real-udriver.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

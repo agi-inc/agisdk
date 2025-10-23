@@ -1,98 +1,90 @@
-import json, sys, re
+import json, sys
+
+# Verification script for: GoMail: send an email to Angela White asking when she goes on FTA
+# Strategy:
+# - Look for newly added emails (differences.emails.added and initialfinaldiff.added.email.emails)
+# - A success requires: recipient matches Angela White and the content/subject mentions 'FTA' with a query cue like 'when'/'what'/'date(s)'; and the email is sent (not draft)
 
 def load_json(path):
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-# Simple HTML tag stripper to analyze textual content
-TAG_RE = re.compile(r'<[^>]+>')
-
-def strip_tags(text):
-    if not isinstance(text, str):
-        return ''
-    return TAG_RE.sub(' ', text).lower()
-
-def get_added_emails(data):
-    emails = []
-    # From differences.emails.added (common path)
+def collect_added_emails(data):
+    added_emails = []
+    # From differences.emails.added (list)
     try:
-        added = data.get('differences', {}).get('emails', {}).get('added', [])
+        diffs = data.get('differences', {})
+        emails = diffs.get('emails', {})
+        added = emails.get('added', [])
         if isinstance(added, list):
-            emails.extend([e for e in added if isinstance(e, dict)])
+            for item in added:
+                if isinstance(item, dict):
+                    added_emails.append(item)
     except Exception:
         pass
-    # Also handle initialfinaldiff.added.email.emails which may be a dict of emails
+    # From initialfinaldiff.added.email.emails (dict of objects)
     try:
-        init_added_emails = data.get('initialfinaldiff', {}).get('added', {}).get('email', {}).get('emails', {})
-        if isinstance(init_added_emails, dict):
-            for _, v in init_added_emails.items():
-                if isinstance(v, dict):
-                    emails.append(v)
+        if isinstance(data.get('initialfinaldiff'), dict):
+            added_root = data['initialfinaldiff'].get('added', {})
+            email_block = added_root.get('email', {})
+            emails_map = email_block.get('emails', {})
+            if isinstance(emails_map, dict):
+                for _, item in emails_map.items():
+                    if isinstance(item, dict):
+                        added_emails.append(item)
     except Exception:
         pass
-    return emails
+    return added_emails
 
-# Determine if the email talks about meeting date/time
-TIME_WORDS = [
-    'date', 'when', 'schedule', 'scheduled', 'time', 'day'
-]
-
-def mentions_meeting_date(subject, content):
-    subj = strip_tags(subject)
-    body = strip_tags(content)
-    combined = subj + ' ' + body
-    has_meeting = 'meeting' in combined
-    has_time_intent = any(w in combined for w in TIME_WORDS)
-    return has_meeting and has_time_intent
-
-
-def to_includes_thompson(to_list):
+def is_angela_recipient(to_list):
     if not isinstance(to_list, list):
         return False
-    for addr in to_list:
-        if not isinstance(addr, str):
+    for t in to_list:
+        if not isinstance(t, str):
             continue
-        addr_l = addr.lower()
-        if 'thompson' in addr_l:
+        low = t.lower().strip()
+        if low == 'angela.white@example.com':
+            return True
+        if 'angela.white@' in low:
+            return True
+        if 'angela white' in low:
             return True
     return False
 
-
-def is_sent_email(email):
-    # Must be marked sent and not a draft/spam/trash
-    if not isinstance(email, dict):
+def mentions_fta_with_question(text):
+    if not isinstance(text, str):
         return False
-    if email.get('sent') is not True:
+    low = text.lower()
+    if 'fta' not in low:
         return False
-    if email.get('draft') is True:
-        return False
-    if email.get('spam') is True:
-        return False
-    if email.get('trash') is True:
-        return False
-    return True
+    # question cue words
+    cues = ['when', 'what', 'date', 'dates']
+    return any(cue in low for cue in cues)
 
 
 def main():
-    # Strategy in code comments:
-    # 1) Gather all added emails from differences and initialfinaldiff.
-    # 2) For each, ensure it's sent and addressed to Thompson (recipient contains 'thompson').
-    # 3) Verify subject or content mentions 'meeting' and includes a time/date intent word (e.g., 'when', 'date', 'schedule', 'time', 'day').
-    # 4) If any email satisfies all conditions, print SUCCESS; else FAILURE.
     path = sys.argv[1]
     data = load_json(path)
-    added_emails = get_added_emails(data)
+    added_emails = collect_added_emails(data)
 
-    for e in added_emails:
-        if not is_sent_email(e):
+    success = False
+    for em in added_emails:
+        # Ensure not a draft and optionally sent
+        if em.get('draft') is True:
             continue
-        if not to_includes_thompson(e.get('to')):
+        if 'sent' in em and not em.get('sent'):
             continue
-        if mentions_meeting_date(e.get('subject', ''), e.get('content', '')):
-            print('SUCCESS')
-            return
+        to_list = em.get('to', [])
+        if not is_angela_recipient(to_list):
+            continue
+        content = (em.get('content') or '')
+        subject = (em.get('subject') or '')
+        text = f"{subject} {content}"
+        if mentions_fta_with_question(text):
+            success = True
+            break
 
-    print('FAILURE')
+    print('SUCCESS' if success else 'FAILURE')
 
 if __name__ == '__main__':
     main()

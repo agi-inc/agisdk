@@ -1,12 +1,12 @@
 {
   "id": "omnizon-9",
-  "goal": "Omnizon: Order me a desk chair for my new desk",
+  "goal": "Omnizon: I want to create a gaming collection - buy any gaming device under $100",
   "website": {
     "id": "omnizon",
     "name": "Omnizon",
     "similarTo": "Amazon",
     "previewImage": "/websitePreviews/omnizon_preview.jpg",
-    "url": "https://real-omnizon-eq6za0727-real-sites.vercel.app"
+    "url": "https://real-omnizon.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

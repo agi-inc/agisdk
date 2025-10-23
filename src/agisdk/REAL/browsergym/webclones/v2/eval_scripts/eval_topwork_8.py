@@ -1,97 +1,76 @@
-import json, sys
+import sys, json
 
-def get_path(d, path, default=None):
+def deep_get(d, keys, default=None):
     cur = d
-    for p in path:
-        if isinstance(cur, dict) and p in cur:
-            cur = cur[p]
+    for k in keys:
+        if isinstance(cur, dict) and k in cur:
+            cur = cur[k]
         else:
             return default
     return cur
 
+# Heuristic to determine if a job is data-related
+# Strategy:
+# - Prefer strong signals: category/subcategory contains 'data'
+# - Then look for keywords in title/description indicating analytics/analysis/ML/statistics/visualization
+# - Finally, look for known data-science skills/libraries; avoid overly broad terms like 'SQL' alone to reduce false positives
 
-def gather_offers(data):
-    # Collect offers from offers.offers in both added and updated, deduplicated by id
-    offer_map = {}
-    paths = [
-        ["initialfinaldiff", "updated", "offers", "offers"],
-        ["initialfinaldiff", "added", "offers", "offers"],
+def is_data_related(job):
+    if not isinstance(job, dict):
+        return False
+    title = (job.get('title') or '').lower()
+    desc = (job.get('description') or '').lower()
+    category = (job.get('category') or '').lower()
+    subcat = (job.get('subcategory') or '').lower()
+    skills = job.get('skills') or []
+    skills_text = ' '.join([str(s).lower() for s in skills if s is not None])
+
+    # Strong category/subcategory signal
+    if 'data' in category or 'data' in subcat:
+        return True
+
+    # Title keywords
+    title_kw = ['data', 'analytics', 'analysis', 'analyst', 'machine learning', 'ml', 'data science']
+    if any(kw in title for kw in title_kw):
+        return True
+
+    # Description keywords (require presence of 'data' plus another specific analytic term to avoid generic matches)
+    desc_secondary = ['analysis', 'analytics', 'visualization', 'visualisation', 'machine learning', 'statistical', 'statistics', 'modeling', 'modelling']
+    if 'data' in desc and any(kw in desc for kw in desc_secondary):
+        return True
+
+    # Skills indicating data work
+    data_skills = [
+        'pandas','numpy','matplotlib','seaborn','scikit','sklearn','scikit-learn',
+        'tensorflow','pytorch','keras','hadoop','spark','tableau','power bi','powerbi',
+        'plotly','bokeh','d3','etl','data engineering','data science','ml','machine learning'
     ]
-    for path in paths:
-        offers_dict = get_path(data, path, {})
-        if isinstance(offers_dict, dict):
-            for _, v in offers_dict.items():
-                if isinstance(v, dict):
-                    oid = v.get("id")
-                    # If id missing, synthesize a stable key to avoid double counting within same state
-                    if not oid:
-                        oid = f"{v.get('freelancerId','')}_{v.get('contractTitle','')}_{v.get('startDate','') }"
-                    if oid not in offer_map:
-                        offer_map[oid] = v
-    # Fallback: check message-level embedded offers if none found above
-    if not offer_map:
-        # scan both added and updated contactList for message-level offers
-        for base in ("added", "updated"):
-            contact_list = get_path(data, ["initialfinaldiff", base, "messages", "contactList"], {})
-            if isinstance(contact_list, dict):
-                for _, contact in contact_list.items():
-                    if not isinstance(contact, dict):
-                        continue
-                    msgs = contact.get("messages")
-                    # messages can be dict or list
-                    iterable = []
-                    if isinstance(msgs, dict):
-                        iterable = list(msgs.values())
-                    elif isinstance(msgs, list):
-                        iterable = msgs
-                    for msg in iterable:
-                        if not isinstance(msg, dict):
-                            continue
-                        offer_obj = msg.get("offer")
-                        if isinstance(offer_obj, dict):
-                            oid = offer_obj.get("id") or f"{offer_obj.get('freelancerId','')}_{offer_obj.get('contractTitle','')}_{offer_obj.get('startDate','')}"
-                            if oid not in offer_map:
-                                offer_map[oid] = offer_obj
-    return list(offer_map.values())
+    if any(ds in skills_text for ds in data_skills):
+        return True
 
-
-def is_success(data):
-    # Strategy: exactly one offer with contractTitle "Project Lead" should exist; more or zero => failure.
-    # If status field is present, it must be "Pending" to indicate offer sent (rehire flow), not accepted or something else.
-    offers = gather_offers(data)
-    project_lead_offers = []
-    for o in offers:
-        if not isinstance(o, dict):
-            continue
-        title = o.get("contractTitle")
-        if isinstance(title, str) and title.strip().lower() == "project lead":
-            project_lead_offers.append(o)
-    # Exactly one project lead offer must be present
-    if len(project_lead_offers) != 1:
-        return False
-    # Validate status if present
-    status = project_lead_offers[0].get("status")
-    if status is not None and str(status).strip().lower() != "pending":
-        return False
-    # Optional sanity: ensure this is an offer (has freelancerId and startDate or similar)
-    # Not strictly required but avoids counting malformed entries
-    o = project_lead_offers[0]
-    if not o.get("freelancerId"):
-        return False
-    return True
+    return False
 
 
 def main():
-    try:
-        path = sys.argv[1]
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception:
-        # If JSON can't be read, fail
-        print("FAILURE")
-        return
-    result = is_success(data)
-    print("SUCCESS" if result else "FAILURE")
+    # Load JSON state from file path provided as first argument
+    path = sys.argv[1]
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
 
-if __name__ == "__main__":
+    # Navigate to removed job posts list
+    removed_posts = deep_get(data, ['initialfinaldiff', 'added', 'jobs', 'removedJobPosts'], [])
+    if removed_posts is None:
+        removed_posts = []
+
+    # Determine success: at least one removed post is data-related
+    success = False
+    if isinstance(removed_posts, list) and len(removed_posts) > 0:
+        for job in removed_posts:
+            if is_data_related(job):
+                success = True
+                break
+
+    print('SUCCESS' if success else 'FAILURE')
+
+if __name__ == '__main__':
     main()

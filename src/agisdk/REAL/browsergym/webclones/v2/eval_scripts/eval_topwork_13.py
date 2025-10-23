@@ -1,81 +1,95 @@
-import sys, json
+import json, sys
 
-def get_in(d, path, default=None):
-    cur = d
-    for k in path:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
-        else:
-            return default
-    return cur
+def to_lower_str(x):
+    if isinstance(x, str):
+        return x.strip().lower()
+    return None
 
-# Determine if a job post is data-related based on multiple signals
-STRONG_KEYWORDS = [
-    'data science', 'data analyst', 'data analysis', 'analytics',
-    'machine learning', 'deep learning', 'statistical', 'statistics', 'etl',
-    'data engineer', 'business intelligence', 'visualization'
-]
-# Single-word tokens to check carefully (as standalone or clear substring)
-SINGLE_TOKENS = ['data', 'ai', 'ml', 'sql']
+def to_int_safe(x):
+    try:
+        # handle strings like '20', numbers, etc.
+        if isinstance(x, bool):
+            return None
+        if isinstance(x, (int, float)):
+            return int(x)
+        if isinstance(x, str):
+            x = x.strip()
+            # allow numeric strings only
+            if x.replace('.', '', 1).isdigit():
+                return int(float(x))
+        return None
+    except Exception:
+        return None
 
-
-def is_data_related(job: dict) -> bool:
-    # Category/Subcategory signals
-    for key in ('category', 'subcategory'):
-        val = (job.get(key) or '')
-        if isinstance(val, str) and 'data' in val.lower():
-            return True
-    # Skills signals
-    skills = job.get('skills')
-    if isinstance(skills, list):
-        for s in skills:
-            s_low = str(s).lower()
-            if 'data' in s_low:
-                return True
-            if any(kw in s_low for kw in ['analytics', 'data analysis', 'machine learning', 'etl', 'statistics', 'visualization', 'business intelligence']):
-                return True
-            # cautious match for common DS tools
-            if s_low.strip() in {'sql', 'ml', 'ai', 'pandas', 'numpy', 'matplotlib', 'seaborn', 'pytorch', 'tensorflow'}:
-                return True
-    # Title/Description keyword fallback (strong keywords only)
-    text = ' '.join([str(job.get('title') or ''), str(job.get('description') or '')]).lower()
-    if any(kw in text for kw in STRONG_KEYWORDS):
-        return True
-    # cautious single tokens: ensure bounded by non-letters to reduce false positives
-    for token in SINGLE_TOKENS:
-        idx = text.find(token)
-        if idx != -1:
-            left_ok = (idx == 0) or not text[idx-1].isalpha()
-            right_ok = (idx + len(token) == len(text)) or not text[idx+len(token)].isalpha()
-            if left_ok and right_ok:
-                return True
-    return False
-
+# Verification script
+# Strategy:
+# - Identify newly added jobs in initialfinaldiff.added.jobs.jobs
+# - Find a job with title containing 'Data Annotator' and description mentioning 'Verita AI'
+# - Validate key fields: hourlyRateFrom=20, hourlyRateTo=25, estimateSize=small, estimateTime=1 to 3 months,
+#   estimateLevelExperience=entry, estimateHireOpportunity=no, and status=published
+# - Print SUCCESS if any job matches; otherwise, FAILURE
 
 def main():
+    if len(sys.argv) < 2:
+        print("FAILURE")
+        return
+    path = sys.argv[1]
     try:
-        path = sys.argv[1]
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
         return
 
-    removed = get_in(data, ['initialfinaldiff', 'added', 'jobs', 'removedJobPosts'], [])
+    initialfinaldiff = data.get('initialfinaldiff', {}) or {}
+    added = initialfinaldiff.get('added', {}) or {}
+    jobs_root = added.get('jobs', {}) or {}
+    jobs_dict = jobs_root.get('jobs', {}) or {}
 
-    if not isinstance(removed, list) or len(removed) == 0:
-        print('FAILURE')
-        return
+    # Collect job entries from the added jobs
+    job_entries = []
+    if isinstance(jobs_dict, dict):
+        for v in jobs_dict.values():
+            if isinstance(v, dict):
+                job_entries.append(v)
 
-    # Success if any removed job is data-related
-    for job in removed:
-        if isinstance(job, dict) and is_data_related(job):
-            print('SUCCESS')
-            return
+    success = False
+    for job in job_entries:
+        title = to_lower_str(job.get('title'))
+        desc = to_lower_str(job.get('description'))
+        if not title or not desc:
+            continue
+        if 'data annotator' not in title:
+            continue
+        if 'verita ai' not in desc:
+            continue
 
-    print('FAILURE')
+        hr_from = to_int_safe(job.get('hourlyRateFrom'))
+        hr_to = to_int_safe(job.get('hourlyRateTo'))
+        size = to_lower_str(job.get('estimateSize'))
+        timeframe = to_lower_str(job.get('estimateTime'))
+        level = to_lower_str(job.get('estimateLevelExperience'))
+        hire = to_lower_str(job.get('estimateHireOpportunity'))
+        status = to_lower_str(job.get('status'))
+
+        if hr_from != 20 or hr_to != 25:
+            continue
+        if size != 'small':
+            continue
+        if timeframe != '1 to 3 months':
+            continue
+        if level != 'entry':
+            continue
+        if hire != 'no':
+            continue
+        if status != 'published':
+            continue
+
+        # All checks passed
+        success = True
+        break
+
+    print("SUCCESS" if success else "FAILURE")
 
 if __name__ == '__main__':
-    # Strategy: Check removedJobPosts for data-related postings via category/subcategory/skills/title/description.
-    # Success if at least one data-related job was removed; otherwise failure.
     main()

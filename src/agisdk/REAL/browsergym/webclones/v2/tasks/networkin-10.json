@@ -1,12 +1,12 @@
 {
   "id": "networkin-10",
-  "goal": "Like 3 new posts",
+  "goal": "Connect with 3 new people",
   "website": {
     "id": "networkin",
-    "name": "NetworkIn",
+    "name": "Networkin",
     "similarTo": "LinkedIn",
     "previewImage": "/websitePreviews/networkin_preview.jpg",
-    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app"
+    "url": "https://real-networkin.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

@@ -1,12 +1,12 @@
 {
   "id": "opendining-1",
-  "goal": "Book me a 4+ star restaurant for my birthday tonight. It is going to be for my girlfriend and I.",
+  "goal": "Book me a reservation at an Italian Restaurant for today at 3pm.",
   "website": {
     "id": "opendining",
-    "name": "OpenDining",
+    "name": "Opendining",
     "similarTo": "OpenTable",
     "previewImage": "/websitePreviews/opendining_preview.jpg",
-    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app"
+    "url": "https://real-opendining.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

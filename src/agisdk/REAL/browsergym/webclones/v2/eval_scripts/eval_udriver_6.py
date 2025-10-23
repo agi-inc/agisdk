@@ -1,74 +1,24 @@
 import json, sys
 
-def get(d, *keys):
-    cur = d
-    for k in keys:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
-        else:
-            return None
-    return cur
-
-
-def to_str(x):
-    return x if isinstance(x, str) else ""
-
-
 def norm(s):
-    return to_str(s).strip().lower()
+    if s is None:
+        return ""
+    return str(s).strip().lower()
 
-
-def find_ride_data(data):
-    # Try to locate the 'ride' object from common locations
-    paths = [
-        ("initialfinaldiff", "added", "ride"),
-        ("initialfinaldiff", "updated", "ride"),
-        ("added", "ride"),
-        ("ride",),
-    ]
-    for p in paths:
-        val = get(data, *p)
-        if isinstance(val, dict):
-            return val
+def get_section(data, key):
+    # Prefer 'added', then 'updated'
+    for sec in ("added", "updated"):
+        sec_dict = data.get("initialfinaldiff", {}).get(sec, {})
+        if isinstance(sec_dict, dict) and key in sec_dict and isinstance(sec_dict.get(key), dict):
+            if sec_dict.get(key):
+                return sec_dict.get(key)
     return {}
 
-
-def is_pickup_22_irving(node):
-    # Accept if name contains '22nd & Irving' or equals '22nd & Irving Market'
-    name = norm(get(node, "name")) or norm(get(node, "pickup", "name"))
-    fmt = norm(get(node, "formattedAddress")) or norm(get(node, "pickup", "formattedAddress"))
-    street = norm(get(node, "addressComponents", "street")) or norm(get(node, "pickup", "addressComponents", "street"))
-    # Primary name checks
-    if name:
-        if "22nd & irving" in name or name == "22nd & irving market":
-            return True
-    # Address-based checks (a bit robust but specific)
-    if fmt:
-        if "2101 irving st" in fmt and "san francisco" in fmt:
-            return True
-    if street:
-        if "2101 irving" in street and "irving" in street:
-            return True
-    return False
-
-
-def is_dest_7eleven(node):
-    # Accept if name contains '7-eleven'
-    name = norm(get(node, "name")) or norm(get(node, "destination", "name"))
-    if name and "7-eleven" in name:
-        return True
-    return False
-
-
-def trip_matches_criteria(trip):
-    # Check a trip object has correct pickup and destination and is active/completed
-    status = norm(get(trip, "status"))
-    if status not in ("in progress", "completed"):
+def approx_equal(a, b, tol=0.05):
+    try:
+        return abs(float(a) - float(b)) <= tol
+    except Exception:
         return False
-    pickup_ok = is_pickup_22_irving(get(trip, "pickup") or {})
-    dest_ok = is_dest_7eleven(get(trip, "destination") or {})
-    return pickup_ok and dest_ok
-
 
 def main():
     try:
@@ -79,60 +29,78 @@ def main():
         print("FAILURE")
         return
 
-    ride = find_ride_data(data) or {}
+    ride = get_section(data, "ride")
+    user = get_section(data, "user")
 
-    # Immediate vs scheduled: must NOT be scheduled
-    pickup_date = norm(get(ride, "pickupDate"))
-    pickup_time = norm(get(ride, "pickupTime"))
-    booked_trip = get(ride, "bookedTrip")
-    if booked_trip is not None and booked_trip != None:
-        # Any non-null bookedTrip means a scheduled ride
-        print("FAILURE")
-        return
-    if pickup_date or pickup_time:
-        print("FAILURE")
-        return
+    # 1) Find a completed trip from Aaha Indian Cuisine to Casa Loma Hotel
+    trips = ride.get("trips", []) if isinstance(ride.get("trips", []), list) else []
+    target_pick = "aaha indian cuisine"
+    target_dest = "casa loma hotel"
 
-    # Verify pickup and destination intent via ride-level OR trip-level
-    # Use ride.* first, then trip.* as fallback
-    pickup_node_candidates = []
-    drop_node_candidates = []
-    if isinstance(get(ride, "pickupLocation"), dict):
-        pickup_node_candidates.append(get(ride, "pickupLocation"))
-    if isinstance(get(ride, "dropoffLocation"), dict):
-        drop_node_candidates.append(get(ride, "dropoffLocation"))
-    if isinstance(get(ride, "trip"), dict):
-        if isinstance(get(ride, "trip", "pickup"), dict):
-            pickup_node_candidates.append(get(ride, "trip", "pickup"))
-        if isinstance(get(ride, "trip", "destination"), dict):
-            drop_node_candidates.append(get(ride, "trip", "destination"))
-
-    pickup_ok = any(is_pickup_22_irving(node) for node in pickup_node_candidates if isinstance(node, dict))
-    dest_ok = any(is_dest_7eleven(node) for node in drop_node_candidates if isinstance(node, dict))
-
-    if not (pickup_ok and dest_ok):
-        print("FAILURE")
-        return
-
-    # Ensure the ride is actually booked/initiated: check trips array contains matching entry
-    trips = get(ride, "trips")
-    booked_now = False
-    if isinstance(trips, list):
-        for t in trips:
-            if isinstance(t, dict) and trip_matches_criteria(t):
-                booked_now = True
+    matched_trip = None
+    for t in trips:
+        if norm(t.get("status")) != "completed":
+            continue
+        pickup_name = norm((t.get("pickup") or {}).get("name"))
+        dest_name = norm((t.get("destination") or {}).get("name"))
+        if target_pick in pickup_name and target_dest in dest_name:
+            # Require wallet payment to satisfy "credits" condition
+            pm = (t.get("paymentMethod") or {})
+            if norm(pm.get("type")) == "wallet" or "credit" in norm(pm.get("displayName")):
+                matched_trip = t
                 break
-
-    if not booked_now:
-        # As a fallback, if ride.trip itself matches criteria, consider it booked only if trips is missing or not a list
-        trip_obj = get(ride, "trip") or {}
-        if isinstance(trip_obj, dict) and trip_matches_criteria(trip_obj) and not isinstance(trips, list):
-            booked_now = True
-
-    if booked_now:
-        print("SUCCESS")
-    else:
+    if not matched_trip:
         print("FAILURE")
+        return
+
+    # 2) Confirm wallet debit transaction for Casa Loma Hotel
+    wallet = (user.get("wallet") or {})
+    txns = wallet.get("transactions", []) if isinstance(wallet.get("transactions", []), list) else []
+    debit_found = False
+    txn_amount = None
+    for tx in txns:
+        if norm(tx.get("type")) == "debit" and target_dest in norm(tx.get("description")):
+            # Should be a negative amount
+            try:
+                amt = float(tx.get("amount"))
+            except Exception:
+                continue
+            if amt < 0:
+                debit_found = True
+                txn_amount = -amt  # make positive for comparison
+                break
+    if not debit_found:
+        print("FAILURE")
+        return
+
+    # 3) Cross-check transaction amount roughly matches the trip price when available
+    trip_price = None
+    car = matched_trip.get("car") or {}
+    if "finalPrice" in car:
+        try:
+            trip_price = float(car.get("finalPrice"))
+        except Exception:
+            trip_price = None
+    # If we have both values, ensure they are close
+    if trip_price is not None and txn_amount is not None:
+        if not approx_equal(trip_price, txn_amount, tol=0.05):
+            print("FAILURE")
+            return
+
+    # 4) Ensure wallet balance is non-negative (indicates sufficient credits after charge)
+    balance_ok = True
+    try:
+        bal = float(wallet.get("balance", 0))
+        if bal < -1e-6:
+            balance_ok = False
+    except Exception:
+        # If balance missing or invalid, be conservative and fail credits condition
+        balance_ok = False
+    if not balance_ok:
+        print("FAILURE")
+        return
+
+    print("SUCCESS")
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,12 @@
 {
   "id": "staynb-4",
-  "goal": "I am bored so find me places around me for tonight with a pool, wifi, free parking, and AC.",
+  "goal": "Show me places in San Francisco with wifi for the dates September 27-29th for 2 people.",
   "website": {
     "id": "staynb",
-    "name": "StayNB",
+    "name": "Staynb",
     "similarTo": "Airbnb",
     "previewImage": "/websitePreviews/staynb_preview.jpg",
-    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app"
+    "url": "https://real-staynb.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",
