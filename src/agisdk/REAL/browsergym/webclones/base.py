@@ -263,7 +263,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             "model_response": model_response,
             "task_config": self._build_task_config_payload(),
             "run_id": self.run_id,
-            "task_id": self.task_id,
+            "task_id": self.canonical_task_id,
         }
 
         logger.info("🚂 Script task: sending to Railway for evaluation and leaderboard submission...")
