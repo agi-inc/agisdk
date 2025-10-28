@@ -256,29 +256,34 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         self, env_state_json: dict, model_response: str, info: dict, local_reward: float
     ) -> None:
         """Submit results for script-based tasks to the external evaluation service."""
-        logger.info("Preparing Railway submission for script-based task")
         railway_url = f"{RAILWAY_API_BASE.rstrip('/')}/evaluate"
         payload = {
             "env_state": env_state_json,
             "model_response": model_response,
             "task_config": self._build_task_config_payload(),
             "run_id": self.run_id,
-            "task_id": self.task_id,
+            "task_id": self.canonical_task_id,
         }
 
-        logger.info("🚂 Script task: sending to Railway for evaluation and leaderboard submission...")
+        logger.info("Submitting %s to Railway evaluator", self.canonical_task_id)
+
         try:
-            logger.debug(f"POST {railway_url} with payload keys: {list(payload.keys())}")
             railway_response = requests.post(railway_url, json=payload, timeout=30)
         except requests.exceptions.Timeout:
-            logger.error("❌ Railway request timed out")
-            info["railway_verified"] = False
-            info["leaderboard_submitted"] = False
+            logger.error("Railway request timed out")
+            info.update({
+                "railway_verified": False,
+                "leaderboard_submitted": False,
+                "railway_error": "timeout",
+            })
             return
         except Exception as exc:
-            logger.error(f"❌ Failed to send to Railway: {exc}")
-            info["railway_verified"] = False
-            info["leaderboard_submitted"] = False
+            logger.error("Railway submission failed: %s", exc)
+            info.update({
+                "railway_verified": False,
+                "leaderboard_submitted": False,
+                "railway_error": str(exc),
+            })
             return
 
         if railway_response.status_code == 200:
@@ -286,24 +291,45 @@ class AbstractWebCloneTask(AbstractBrowserTask):
                 logger.debug("Railway responded with 200; parsing JSON")
                 railway_result = railway_response.json()
             except json.JSONDecodeError as exc:
-                logger.error(f"❌ Railway response was not valid JSON: {exc}")
-                info["railway_verified"] = False
-                info["leaderboard_submitted"] = False
+                logger.error("Railway response was not valid JSON: %s", exc)
+                info.update({
+                    "railway_verified": False,
+                    "leaderboard_submitted": False,
+                    "railway_error": "invalid_json",
+                })
                 return
 
             railway_reward = railway_result.get("reward", 0.0)
-            info["railway_reward"] = railway_reward
-            info["railway_verified"] = True
-            info["leaderboard_submitted"] = railway_result.get("leaderboard_submitted", False)
-            logger.info(f"✅ Railway evaluation complete: reward={railway_reward}")
-            logger.debug(f"Railway result payload: {railway_result}")
+            leaderboard_submitted = railway_result.get("leaderboard_submitted", False)
+            info.update({
+                "railway_reward": railway_reward,
+                "railway_verified": True,
+                "leaderboard_submitted": leaderboard_submitted,
+            })
+            logger.info(
+                "Railway evaluation complete: reward=%s, submitted=%s",
+                railway_reward,
+                leaderboard_submitted,
+            )
+            logger.debug("Railway result payload: %s", railway_result)
 
             if local_reward != railway_reward:
-                logger.warning(f"⚠️ Evaluation mismatch! Local: {local_reward}, Railway: {railway_reward}")
+                logger.warning(
+                    "Evaluation mismatch: local=%s railway=%s",
+                    local_reward,
+                    railway_reward,
+                )
         else:
-            logger.error(f"❌ Railway returned status {railway_response.status_code}: {railway_response.text}")
-            info["railway_verified"] = False
-            info["leaderboard_submitted"] = False
+            logger.error(
+                "Railway returned status %s: %s",
+                railway_response.status_code,
+                railway_response.text,
+            )
+            info.update({
+                "railway_verified": False,
+                "leaderboard_submitted": False,
+                "railway_error": f"status_{railway_response.status_code}",
+            })
 
     def _submit_standard_leaderboard(self, model_response: str) -> None:
         """Submit results to the legacy WebClones leaderboard endpoint."""
