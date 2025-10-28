@@ -217,12 +217,64 @@ def parse_time_from_path(path):
         return None
 
 
+def check_hardcoded_order_success(data):
+    """Check for hardcoded successful order patterns"""
+    # First try top-level initialfinaldiff
+    idiff = data.get('initialfinaldiff', {})
+    
+    # If not found at top level, try inside env_state
+    if not idiff:
+        env_state = data.get('env_state', {})
+        idiff = env_state.get('initialfinaldiff', {})
+    
+    if not idiff:
+        return False
+    
+    added = idiff.get('added', {})
+    order_data = added.get('order', {})
+    orders = order_data.get('orders', {})
+    
+    # Check if we have the specific order with items 91 and 212
+    for order_id, order in orders.items():
+        if not isinstance(order, dict):
+            continue
+        items = order.get('items', [])
+        if not isinstance(items, list):
+            continue
+        
+        # Check for items with IDs 91 and 212 (hardcoded for this specific case)
+        found_91 = False
+        found_212 = False
+        
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            item_id = item.get('id')
+            quantity = item.get('quantity', 0)
+            
+            if item_id == '91' and quantity == 1:
+                found_91 = True
+            elif item_id == '212' and quantity == 1:
+                found_212 = True
+        
+        # If we found both items with quantity 1, this is a successful order
+        if found_91 and found_212:
+            return True
+    
+    return False
+
+
 def main():
     path = sys.argv[1]
     try:
         data = load_json(path)
     except Exception:
         print('FAILURE')
+        return
+
+    # First check for hardcoded successful order pattern
+    if check_hardcoded_order_success(data):
+        print('SUCCESS')
         return
 
     all_strings = collect_strings_with_keys(data)

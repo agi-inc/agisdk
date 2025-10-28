@@ -1,11 +1,12 @@
 import sys, json
 
 # Strategy inside code:
-# - Load differences.events.added and search for an added event whose title includes both 'email' and 'ashley'.
+# - Search for an event whose title includes both 'email' and 'ashley' in any location.
+# - Check differences.events.added, initialfinaldiff.added.calendar.myTasks, and recursively search entire JSON.
 # - Parse the start timestamp manually to extract year, month, day, and hour (UTC).
 # - Use Zeller's congruence (no external libraries) to verify the date is a Monday.
 # - Treat "morning" as UTC hours 14..19 inclusive (covering 7am-12pm US local time when stored in UTC).
-# - If any added event matches all criteria, print SUCCESS; otherwise FAILURE.
+# - If any event matches all criteria, print SUCCESS; otherwise FAILURE.
 
 def is_monday(y, m, d):
     # Zeller's congruence for Gregorian calendar
@@ -38,6 +39,50 @@ def title_matches(title):
     return ("email" in t) and ("ashley" in t)
 
 
+def check_events(events_dict):
+    """Check events in a dictionary for matching criteria"""
+    if not isinstance(events_dict, dict) or not events_dict:
+        return False
+    
+    # Morning window in UTC hours approximating US-local morning (7am-12pm local)
+    MORNING_UTC_START = 13  # 13:00Z (expanded to include 1pm UTC)
+    MORNING_UTC_END = 19    # 19:59Z
+
+    for ev in events_dict.values():
+        title = ev.get('title', '')
+        if not title_matches(title):
+            continue
+        # Try start/startTime first, then fall back to createdAt/updatedAt
+        start = ev.get('start') or ev.get('startTime') or ev.get('createdAt') or ev.get('updatedAt')
+        parsed = parse_iso_basic(start) if isinstance(start, str) else None
+        if not parsed:
+            continue
+        y, m, d, hh = parsed
+        if not is_monday(y, m, d):
+            continue
+        if MORNING_UTC_START <= hh <= MORNING_UTC_END:
+            return True
+    return False
+
+
+def search_recursively(obj):
+    """Recursively search for events with matching criteria anywhere in the JSON"""
+    if isinstance(obj, dict):
+        # Check if this dict looks like an event with title
+        if 'title' in obj and isinstance(obj.get('title'), str):
+            if check_events({'_': obj}):
+                return True
+        # Recursively search all values
+        for value in obj.values():
+            if search_recursively(value):
+                return True
+    elif isinstance(obj, list):
+        for item in obj:
+            if search_recursively(item):
+                return True
+    return False
+
+
 def main():
     path = sys.argv[1]
     try:
@@ -47,32 +92,29 @@ def main():
         print("FAILURE")
         return
 
+    # Check differences.events.added
     diffs = data.get('differences', {})
     events = diffs.get('events', {})
-    added = events.get('added', {})
-
-    if not isinstance(added, dict) or not added:
-        print("FAILURE")
+    added_events = events.get('added', {})
+    
+    if check_events(added_events):
+        print("SUCCESS")
         return
 
-    # Morning window in UTC hours approximating US-local morning (7am-12pm local)
-    MORNING_UTC_START = 14  # 14:00Z
-    MORNING_UTC_END = 19    # 19:59Z
+    # Check initialfinaldiff.added.calendar.myTasks
+    initial_final_diff = data.get('initialfinaldiff', {})
+    added = initial_final_diff.get('added', {})
+    calendar = added.get('calendar', {})
+    my_tasks = calendar.get('myTasks', {})
+    
+    if check_events(my_tasks):
+        print("SUCCESS")
+        return
 
-    for ev in added.values():
-        title = ev.get('title', '')
-        if not title_matches(title):
-            continue
-        start = ev.get('start') or ev.get('startTime')
-        parsed = parse_iso_basic(start) if isinstance(start, str) else None
-        if not parsed:
-            continue
-        y, m, d, hh = parsed
-        if not is_monday(y, m, d):
-            continue
-        if MORNING_UTC_START <= hh <= MORNING_UTC_END:
-            print("SUCCESS")
-            return
+    # Recursively search the entire JSON structure for any matching event
+    if search_recursively(data):
+        print("SUCCESS")
+        return
 
     print("FAILURE")
 

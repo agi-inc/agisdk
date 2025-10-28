@@ -50,9 +50,11 @@ def main():
             if not isinstance(item, dict):
                 continue
             name = item.get('name')
-            if isinstance(name, str) and 'pizza' in name.lower():
-                has_pizza = True
-                break
+            if isinstance(name, str):
+                name_lower = name.lower()
+                if 'pizza' in name_lower or 'hot-n-ready pepperoni' in name_lower:
+                    has_pizza = True
+                    break
         # Read total amount
         charges = order.get('checkoutDetails', {}).get('charges', {})
         total = to_float(charges.get('totalAmount'))

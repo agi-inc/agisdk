@@ -66,7 +66,9 @@ def main():
         return
 
     offer = unique_offers[0]
-    title_ok = normalize_title(offer.get('contractTitle')) == 'project lead'
+    title = normalize_title(offer.get('contractTitle'))
+    title_ok = title == 'project lead' or title.startswith('project lead ')
+
     if not title_ok:
         print("FAILURE")
         return

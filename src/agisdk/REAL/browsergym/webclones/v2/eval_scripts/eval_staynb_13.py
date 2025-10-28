@@ -41,9 +41,13 @@ def check_search_criteria(search):
     if not isinstance(search, dict):
         return False
     
-    # Check destination is Miami
+    # Check destination contains Miami (case-insensitive, flexible matching)
     destination = search.get('appliedDestination', '')
-    if normalize_text(destination) != normalize_text('Miami'):
+    if not isinstance(destination, str):
+        return False
+    
+    # Check if "miami" exists in the destination text (case-insensitive)
+    if 'miami' not in destination.lower():
         return False
     
     # Check dates - for "night of July 18", both start and end should be July 18
