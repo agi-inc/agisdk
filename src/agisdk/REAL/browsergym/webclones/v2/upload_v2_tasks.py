@@ -10,7 +10,7 @@ from typing import List, Dict, Any
 from supabase import create_client, Client
 
 # Supabase configuration
-SUPABASE_URL = "https://mnwlhrlwrguhtfidjnts.supabase.co"
+SUPABASE_URL = "https://mnwlhrlwrguhtfidnjts.supabase.co"
 # Using service role key for full access
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ud2xocmx3cmd1aHRmaWRuanRzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMjMwNTE4MCwiZXhwIjoyMDQ3ODgxMTgwfQ.QxQHo2qHNzONLs1Z4aTzv33mz98cQzI9TfWQvsaJclM"
 
@@ -65,25 +65,19 @@ def upload_v2_tasks(tasks: List[Dict[str, Any]], supabase: Client) -> None:
 
     for task in tasks:
         try:
-            # The task data already matches the expected structure
-            # Just upload it as-is since it contains all the fields
+            # Prepare record matching the actual table structure
             task_record = {
-                "id": "v2." + task.get("id"),  # Use task ID directly
+                "task_id": "v2." + task.get("id"),  # Format: v2.dashdish-1
+                "website_id": task.get("website", {}).get("id", ""),  # Extract website id
                 "goal": task.get("goal"),
-                "website": task.get("website"),  # Keep as object/dict
                 "difficulty": task.get("difficulty"),
-                "challengeType": task.get("challengeType"),  # Keep camelCase as in source
-                "possible": task.get("possible"),
-                "evals": task.get("evals"),  # Keep as array
-                "points": task.get("points"),
-                "config": task.get("config"),  # Keep as object
-                "version": "v2"  # Ensure it's marked as v2
+                "challenge_type": task.get("challengeType"),  # Map challengeType to challenge_type
+                "evals": task  # Store the entire task data in evals field
             }
 
-            # Use upsert to update if exists or insert if new
-            response = supabase.table("tasks").upsert(
-                task_record,
-                on_conflict="id"  # Use id as the unique identifier
+            # Use insert (not upsert since 'id' is auto-generated)
+            response = supabase.table("tasks").insert(
+                task_record
             ).execute()
 
             success_count += 1
@@ -102,20 +96,20 @@ def upload_v2_tasks(tasks: List[Dict[str, Any]], supabase: Client) -> None:
 def verify_upload(supabase: Client) -> None:
     """Verify that v2 tasks were uploaded successfully."""
     try:
-        # Count v2 tasks in the database
-        result = supabase.table("tasks").select("id").eq("version", "v2").execute()
-        v2_count = len(result.data) if result.data else 0
+        # Count v2 tasks in the database (using task_id pattern)
+        result = supabase.table("tasks").select("task_id, goal").like("task_id", "v2.%").execute()
+        v2_tasks = result.data if result.data else []
+        v2_count = len(v2_tasks)
 
         print(f"\n--- Verification ---")
         print(f"Total v2 tasks in database: {v2_count}")
 
         # Show a few examples
         if v2_count > 0:
-            examples = supabase.table("tasks").select("id, goal").eq("version", "v2").limit(3).execute()
-            if examples.data:
-                print("\nSample v2 tasks in database:")
-                for task in examples.data:
-                    print(f"  - {task['id']}: {task['goal'][:60]}...")
+            print("\nSample v2 tasks in database:")
+            for task in v2_tasks[:5]:
+                goal_preview = task['goal'][:60] + "..." if len(task['goal']) > 60 else task['goal']
+                print(f"  - {task['task_id']}: {goal_preview}")
 
     except Exception as e:
         print(f"Error during verification: {e}")
