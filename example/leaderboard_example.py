@@ -15,11 +15,11 @@ submit_to_leaderboard = (
 harness = REAL.harness(
     model="gpt-5",
     task_version="v2",
-    task_name="omnizon-2",
-    headless=False,
-    leaderboard=submit_to_leaderboard,
-    run_id=RUN_ID if submit_to_leaderboard else None,
-    api_key=API_KEY if submit_to_leaderboard else None,
+    task_type="omnizon",
+    headless=True,
+    leaderboard=True,
+    run_id="ad994b7d-1e82-402c-9681-66c95fb116f2",
+    api_key="8a427b5b4dd458b684056042d8c4a61309bdf2607071fe70cd9a1658cdac8507",
     force_refresh=True,
     use_cache=False,
 )

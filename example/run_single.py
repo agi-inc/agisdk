@@ -5,19 +5,20 @@ from pathlib import Path
 repo_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(repo_root / "src"))
 import os
-from agisdk import REAL
 import time
 
-# Ray + uv expect to be invoked from the repository root so they see pyproject.toml.
-if Path.cwd().resolve() != repo_root.resolve():
+# Enforce running from the repo root using the existing `.venv`.
+if Path.cwd().resolve() != repo_root:
     raise SystemExit(
-        "Run this script from the repository root so Ray can locate pyproject.toml,\n"
-        "e.g. `python example/run_single.py`."
+        "Run this script from the repository root inside the existing `.venv`,\n"
+        "e.g. `source .venv/bin/activate && python example/run_single.py`."
     )
 
+from agisdk import REAL
+
 # Hardcoded API keys
-os.environ["OPENROUTER_API_KEY"] = "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"
-os.environ["REAL_RUN_ID"] = "c7cd577f-c18b-4532-802f-4b5efc19bd22"
+os.environ["OPENROUTER_API_KEY"] =  "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"
+os.environ["REAL_RUN_ID"] = "ad994b7d-1e82-402c-9681-66c95fb116f2"
 
 # OpenRouter models to test
 models_to_test = [
@@ -31,21 +32,19 @@ print("=" * 50)
 for i, model in enumerate(models_to_test, 1):
     print(f"\n[{i}/{len(models_to_test)}] Testing: {model}")
     print("-" * 50)
-    
+
     start_time = time.perf_counter()
     harness = REAL.harness(
         model=model,
         task_version="v2",
-        run_id="c7cd577f-c18b-4532-802f-4b5efc19bd22",
-        api_key="d424c804a5b7326b590ba1f59340f1718ff02e1afdf81626ccfb3376edcaaefc",
-        run_name="OpenAI-GPT-5 2025-10-28",
-        model_id_name="OpenAI-GPT-5",
+        run_id="ad994b7d-1e82-402c-9681-66c95fb116f2",
+        api_key="8a427b5b4dd458b684056042d8c4a61309bdf2607071fe70cd9a1658cdac8507",
         headless=True,
-        leaderboard=True,   
+        leaderboard=True,
         max_steps=35,
-        num_workers=15,
+        num_workers=15
     )
-    
+
     try:
         result = harness.run()
         elapsed = time.perf_counter() - start_time
@@ -55,7 +54,7 @@ for i, model in enumerate(models_to_test, 1):
         print(f"❌ Error: {e}")
         import traceback
         traceback.print_exc()
-    
+
     # Small delay between tests
     time.sleep(2)
 
