@@ -1,141 +1,157 @@
 import json, sys
 
-# Verification script for: Book a ride from Aaha Indian Cuisine to Casa Loma Hotel and ensure enough credits
+# Verification logic for: Show me rides from 1000 Chestnut St to Rooftop 25 and book one of the rides.
 # Strategy:
-# 1) Confirm a trip record exists in ride.trips with pickup=Aaha Indian Cuisine (id 40) and destination=Casa Loma Hotel (id 689).
-# 2) Confirm credits: success if either a wallet debit transaction for this trip exists, or wallet balance >= final price and wallet is selected as payment.
-# Notes: Do NOT rely on ride.trip (it may exist before booking). Only use ride.trips to confirm a booked trip.
+# 1) Success if there's a completed trip in ride.trips where pickup contains "1000 Chestnut" and destination contains "Rooftop 25".
+# 2) Fallback: If wallet has a debit transaction mentioning "Rooftop 25" AND the route shown in ride (trip or pickup/dropoff) matches the same pickup/destination, count as success.
 
-def get_nested(d, path, default=None):
-    cur = d
-    for k in path:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
-        else:
-            return default
-    return cur
 
-try:
-    path = sys.argv[1]
-    with open(path, 'r') as f:
-        data = json.load(f)
-except Exception:
-    print("FAILURE")
-    sys.exit(0)
+def load_json(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-root = data if isinstance(data, dict) else {}
-added = get_nested(root, ["initialfinaldiff", "added"], {}) or {}
-ride = added.get("ride", {})
-user = added.get("user", {})
 
-trips = ride.get("trips", [])
+def get_sections(data):
+    sections = []
+    if isinstance(data, dict) and 'initialfinaldiff' in data:
+        if isinstance(data['initialfinaldiff'], dict):
+            for k in ['added', 'updated']:
+                sec = data['initialfinaldiff'].get(k)
+                if isinstance(sec, dict):
+                    sections.append(sec)
+    else:
+        if isinstance(data, dict):
+            sections.append(data)
+    return sections if sections else [data]
 
-# Helper to normalize names
 
-def norm(s):
-    if s is None:
-        return ""
-    return str(s).strip().lower()
+def recursive_find(obj, key):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k == key and isinstance(v, dict):
+                return v
+            found = recursive_find(v, key)
+            if found is not None:
+                return found
+    elif isinstance(obj, list):
+        for item in obj:
+            found = recursive_find(item, key)
+            if found is not None:
+                return found
+    return None
 
-# Check for correct route in trips
-TARGET_PICKUP_NAME = "aaha indian cuisine"
-TARGET_DEST_NAME = "casa loma hotel"
-TARGET_PICKUP_ID = 40
-TARGET_DEST_ID = 689
 
-matched_trip = None
-for t in trips:
-    pickup = t.get("pickup", {})
-    dest = t.get("destination", {})
-    p_name = norm(pickup.get("name"))
-    d_name = norm(dest.get("name"))
-    p_id = pickup.get("id")
-    d_id = dest.get("id")
-    status = norm(t.get("status"))
-    # Require status indicates a real booking attempt
-    if status not in ("in progress", "completed"):
-        continue
-    pickup_ok = (p_id == TARGET_PICKUP_ID) or (p_name == TARGET_PICKUP_NAME)
-    dest_ok = (d_id == TARGET_DEST_ID) or (d_name == TARGET_DEST_NAME)
-    if pickup_ok and dest_ok:
-        matched_trip = t
-        # Prefer a completed one if multiple
-        if status == "completed":
-            break
+def find_first_with_key(sections, key):
+    for sec in sections:
+        if isinstance(sec, dict) and key in sec and isinstance(sec[key], dict):
+            return sec[key]
+    for sec in sections:
+        found = recursive_find(sec, key)
+        if found is not None:
+            return found
+    return None
 
-if not matched_trip:
-    # No correct booking found
-    print("FAILURE")
-    sys.exit(0)
 
-# Determine if credits condition is satisfied
-wallet = user.get("wallet", {})
-balance = wallet.get("balance")
-try:
-    balance_val = float(balance)
-except Exception:
-    balance_val = None
+def text_contains(s, needle):
+    if not isinstance(s, str):
+        return False
+    return needle in s.lower()
 
-# Determine price of the matched trip
-price_candidates = []
-car = matched_trip.get("car", {})
-if isinstance(car, dict) and isinstance(car.get("finalPrice"), (int, float)):
-    price_candidates.append(float(car.get("finalPrice")))
-# Fallbacks
-trip_obj = ride.get("trip", {})
-if isinstance(trip_obj, dict):
-    car2 = trip_obj.get("car", {})
-    if isinstance(car2, dict) and isinstance(car2.get("finalPrice"), (int, float)):
-        price_candidates.append(float(car2.get("finalPrice")))
-calc = ride.get("calculatedPrice", {})
-if isinstance(calc, dict) and isinstance(calc.get("finalPrice"), (int, float)):
-    price_candidates.append(float(calc.get("finalPrice")))
 
-trip_price = price_candidates[0] if price_candidates else None
+def location_matches(loc, needle):
+    if not isinstance(loc, dict):
+        return False
+    low = needle.lower()
+    fields = [loc.get('name'), loc.get('formattedAddress'), loc.get('address')]
+    for f in fields:
+        if text_contains(f, low):
+            return True
+    # also check nested addressComponents street if available
+    ac = loc.get('addressComponents')
+    if isinstance(ac, dict):
+        for f in [ac.get('street'), ac.get('city'), ac.get('state'), ac.get('zipCode'), ac.get('country')]:
+            if text_contains(f, low):
+                return True
+    return False
 
-# Check payment method selection for wallet
-pm_trip = matched_trip.get("paymentMethod", {}) if isinstance(matched_trip.get("paymentMethod", {}), dict) else {}
-pm_sel = ride.get("selectedPaymentMethod", {}) if isinstance(ride.get("selectedPaymentMethod", {}), dict) else {}
 
-is_wallet_trip = norm(pm_trip.get("type")) == "wallet" or ("credits" in norm(pm_trip.get("displayName")))
-is_wallet_selected = norm(pm_sel.get("type")) == "wallet" or ("credits" in norm(pm_sel.get("displayName")))
+def route_shown_correct(ride):
+    # Checks if the current selection shows the requested route (pickup 1000 Chestnut, destination Rooftop 25)
+    if not isinstance(ride, dict):
+        return False
+    # Prefer ride.trip if present
+    trip = ride.get('trip')
+    if isinstance(trip, dict):
+        p = trip.get('pickup')
+        d = trip.get('destination')
+        if location_matches(p, '1000 chestnut') and location_matches(d, 'rooftop 25'):
+            return True
+    # Fall back to pickupLocation/dropoffLocation if present
+    p2 = ride.get('pickupLocation')
+    d2 = ride.get('dropoffLocation')
+    if location_matches(p2, '1000 chestnut') and location_matches(d2, 'rooftop 25'):
+        return True
+    return False
 
-# Check transactions for a debit indicating credits were used for the Casa Loma trip
-transactions = wallet.get("transactions", []) if isinstance(wallet.get("transactions", []), list) else []
-used_wallet_txn = False
-if transactions:
-    for txn in transactions:
-        if not isinstance(txn, dict):
+
+def completed_trip_correct(ride):
+    # Search ride.trips for a completed trip with the requested route
+    if not isinstance(ride, dict):
+        return False
+    trips = ride.get('trips')
+    if not isinstance(trips, list):
+        return False
+    for t in trips:
+        if not isinstance(t, dict):
             continue
-        desc = norm(txn.get("description"))
-        typ = norm(txn.get("type"))
-        amt = txn.get("amount")
-        try:
-            amt_val = float(amt)
-        except Exception:
-            amt_val = None
-        if "trip to casa loma hotel" in desc and typ == "debit" and (amt_val is not None) and amt_val < 0:
-            # Optionally validate approximate price match if price known
-            if trip_price is not None:
-                if abs(abs(amt_val) - trip_price) <= 0.2:
-                    used_wallet_txn = True
-                    break
-            else:
-                used_wallet_txn = True
-                break
+        status = str(t.get('status', '')).lower()
+        if status != 'completed':
+            continue
+        pickup = t.get('pickup')
+        dest = t.get('destination')
+        if location_matches(pickup, '1000 chestnut') and location_matches(dest, 'rooftop 25'):
+            return True
+    return False
 
-# Determine success conditions for credits
-credits_ok = False
-if used_wallet_txn:
-    credits_ok = True
-else:
-    # Validate sufficient balance and wallet selection
-    if (is_wallet_trip or is_wallet_selected) and (trip_price is not None) and (balance_val is not None):
-        # Allow small epsilon
-        if balance_val + 1e-6 >= trip_price:
-            credits_ok = True
 
-if matched_trip and credits_ok:
-    print("SUCCESS")
-else:
+def wallet_has_rooftop_debit(user):
+    # Check wallet transactions for a debit related to Rooftop 25
+    if not isinstance(user, dict):
+        return False
+    wallet = user.get('wallet')
+    if not isinstance(wallet, dict):
+        return False
+    txs = wallet.get('transactions')
+    if not isinstance(txs, list):
+        return False
+    for tx in txs:
+        if not isinstance(tx, dict):
+            continue
+        ttype = str(tx.get('type', '')).lower()
+        desc = tx.get('description', '')
+        if ttype == 'debit' and text_contains(desc, 'rooftop 25'):
+            return True
+    return False
+
+
+def main():
+    path = sys.argv[1]
+    data = load_json(path)
+    sections = get_sections(data)
+    ride = find_first_with_key(sections, 'ride')
+    user = find_first_with_key(sections, 'user')
+
+    # Primary condition: a completed trip with correct route exists
+    if completed_trip_correct(ride):
+        print("SUCCESS")
+        return
+
+    # Fallback: wallet shows debit to Rooftop 25 and the route shown in the UI matches the requested route
+    if wallet_has_rooftop_debit(user) and route_shown_correct(ride):
+        print("SUCCESS")
+        return
+
     print("FAILURE")
+
+if __name__ == '__main__':
+    main()

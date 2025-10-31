@@ -1,67 +1,99 @@
-# Task: DashDish - Verify an order for any type of sub-sandwich was placed and total < $30
+import json, sys
+
+# Verifier for: Order $20 worth of food from Taco Boys
 # Strategy:
-# 1) Confirm there is at least one cart item whose name contains "sub" or "sandwich" (case-insensitive).
-# 2) Ensure checkout totalAmount exists, is > 0, and strictly < 30. If any condition fails -> FAILURE.
+# 1) Extract all placed orders from both initialfinaldiff.added.cart.foodOrders and differences.foodOrders.added.
+# 2) For each order, check if any cart item is from "Taco Boys" (case-insensitive) and if charges.totalAmount >= 20.
+# 3) If any order satisfies both conditions, print SUCCESS; else, FAILURE.
 
-import json
-import sys
-
-def safe_get(d, path, default=None):
-    cur = d
-    for key in path:
-        if isinstance(cur, dict) and key in cur:
-            cur = cur[key]
+def safe_get(d, *keys):
+    for k in keys:
+        if isinstance(d, dict) and k in d:
+            d = d[k]
         else:
-            return default
-    return cur
+            return None
+    return d
 
-try:
-    path = sys.argv[1]
-    with open(path, 'r') as f:
-        data = json.load(f)
 
-    # Navigate to cart data
-    cart = safe_get(data, ["initialfinaldiff", "added", "cart"], {}) or {}
-    cart_items = cart.get("cartItems")
-    if not isinstance(cart_items, list) or len(cart_items) == 0:
-        print("FAILURE")
-        sys.exit(0)
+def extract_orders(state):
+    orders = []
+    seen_ids = set()
 
-    # Identify presence of a sub-sandwich by item name
-    has_sub = False
-    for item in cart_items:
-        name = ""
-        if isinstance(item, dict):
-            name = str(item.get("name", ""))
-        lname = name.lower()
-        # Accept either 'sub' or 'sandwich' anywhere in the name
-        if ("sub" in lname) or ("sandwich" in lname):
-            has_sub = True
+    # From initialfinaldiff.added.cart.foodOrders
+    fod = safe_get(state, 'initialfinaldiff', 'added', 'cart', 'foodOrders')
+    if isinstance(fod, dict):
+        for _, od in fod.items():
+            if isinstance(od, dict):
+                oid = od.get('orderId')
+                if oid not in seen_ids:
+                    seen_ids.add(oid)
+                    orders.append(od)
+
+    # From differences.foodOrders.added
+    diff_added = safe_get(state, 'differences', 'foodOrders', 'added')
+    if isinstance(diff_added, dict):
+        for _, od in diff_added.items():
+            if isinstance(od, dict):
+                oid = od.get('orderId')
+                if oid not in seen_ids:
+                    seen_ids.add(oid)
+                    orders.append(od)
+
+    return orders
+
+
+def is_taco_boys_item(item):
+    if not isinstance(item, dict):
+        return False
+    rn = item.get('restaurantName')
+    if not isinstance(rn, str):
+        return False
+    return 'taco boys' in rn.strip().lower()
+
+
+def parse_total_amount(order):
+    charges = safe_get(order, 'checkoutDetails', 'charges')
+    if isinstance(charges, dict):
+        ta = charges.get('totalAmount')
+        if isinstance(ta, (int, float)):
+            return float(ta)
+        # Handle string numeric just in case
+        if isinstance(ta, str):
+            try:
+                return float(ta.replace('$', '').strip())
+            except:
+                return 0.0
+    return 0.0
+
+
+def main():
+    try:
+        path = sys.argv[1]
+    except Exception:
+        print('FAILURE')
+        return
+
+    try:
+        with open(path, 'r') as f:
+            state = json.load(f)
+    except Exception:
+        print('FAILURE')
+        return
+
+    orders = extract_orders(state)
+
+    success = False
+    for od in orders:
+        items = od.get('cartItems')
+        if not isinstance(items, list) or len(items) == 0:
+            continue
+        has_taco = any(is_taco_boys_item(it) for it in items)
+        total_amt = parse_total_amount(od)
+        if has_taco and total_amt >= 20.0:
+            success = True
             break
 
-    if not has_sub:
-        # No qualifying sub-sandwich in the order
-        print("FAILURE")
-        sys.exit(0)
+    print('SUCCESS' if success else 'FAILURE')
 
-    # Validate total amount constraints
-    total_amount = safe_get(cart, ["checkoutDetails", "charges", "totalAmount"], None)
-    try:
-        total_val = float(total_amount)
-    except (TypeError, ValueError):
-        print("FAILURE")
-        sys.exit(0)
-
-    # Must be an actual placed order: total > 0 and strictly under $30
-    if total_val <= 0:
-        print("FAILURE")
-        sys.exit(0)
-
-    if not (total_val < 30.0):
-        print("FAILURE")
-        sys.exit(0)
-
-    print("SUCCESS")
-except Exception:
-    # Any unexpected issue -> FAILURE to avoid false positives
-    print("FAILURE")
+if __name__ == '__main__':
+    main()

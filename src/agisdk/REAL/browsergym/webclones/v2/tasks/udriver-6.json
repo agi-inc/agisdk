@@ -1,12 +1,12 @@
 {
   "id": "udriver-6",
-  "goal": "Need a ride to any 7/11 from 22 and Irving Street.",
+  "goal": "Book me a ride to Casa Loma Hotel from Aaha Indian Cuisine. Make sure I have enough credits for the ride.",
   "website": {
     "id": "udriver",
-    "name": "UDriver",
+    "name": "Udriver",
     "similarTo": "Uber",
     "previewImage": "/websitePreviews/udriver_preview.jpg",
-    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app"
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

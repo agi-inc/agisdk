@@ -1,12 +1,12 @@
 {
   "id": "dashdish-3",
-  "goal": "Order me some noodles and make sure the final price is under 26$",
+  "goal": "DashDish: Its my son\u2019s birthday, please order me a Pizza from anywhere and keep it under $30",
   "website": {
     "id": "dashdish",
-    "name": "DashDish",
+    "name": "Dashdish",
     "similarTo": "DoorDash",
     "previewImage": "/websitePreviews/dashdish_preview.jpg",
-    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app"
+    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

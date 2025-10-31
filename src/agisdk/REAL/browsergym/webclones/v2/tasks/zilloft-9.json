@@ -1,0 +1,22 @@
+{
+  "id": "zilloft-9",
+  "goal": "Zilloft: Find me a house over 1000 square feet",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_zilloft_9.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

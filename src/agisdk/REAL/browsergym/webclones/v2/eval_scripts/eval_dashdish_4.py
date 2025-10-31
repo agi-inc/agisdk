@@ -1,116 +1,70 @@
-import json
-import sys
+import json, sys
 
 # Strategy:
-# - Load final_state_diff.json and extract cart/cartItems robustly from various possible locations.
-# - Determine if at least one item was ordered, all items are rice-based (heuristic keywords),
-#   and the total amount (charges.totalAmount if present, else sum of item finalPrice/price) is < 30.
-# - Print SUCCESS if all conditions met; otherwise print FAILURE.
+# 1) Confirm an order was actually placed by finding entries in foodOrders (not just items in cart).
+# 2) For each placed order, check that at least one cart item is a sandwich/sub (name contains 'sandwich' or 'sub').
+# 3) Verify the order's totalAmount (including fees/tip) is strictly less than 25.
+# If any order satisfies both conditions, print SUCCESS; else FAILURE.
 
 
-def deep_find_cart(d):
-    """Attempt to find a cart dict that contains cartItems anywhere in the structure."""
-    if isinstance(d, dict):
-        if 'cartItems' in d:
-            return d
-        for v in d.values():
-            res = deep_find_cart(v)
-            if res is not None:
-                return res
-    elif isinstance(d, list):
-        for v in d:
-            res = deep_find_cart(v)
-            if res is not None:
-                return res
-    return None
+def safe_get(d, path, default=None):
+    cur = d
+    for key in path:
+        if isinstance(cur, dict) and key in cur:
+            cur = cur[key]
+        else:
+            return default
+    return cur
 
 
-def get_cart(data):
-    # Try common locations first
-    paths = [
-        ('initialfinaldiff', 'added', 'cart'),
-        ('initialfinaldiff', 'updated', 'cart'),
-        ('initialfinaldiff', 'cart'),
-    ]
-    for p in paths:
-        cur = data
-        ok = True
-        for k in p:
-            if isinstance(cur, dict) and k in cur:
-                cur = cur[k]
-            else:
-                ok = False
-                break
-        if ok and isinstance(cur, dict) and 'cartItems' in cur:
-            return cur
-    # Fallback: deep search
-    return deep_find_cart(data)
+def collect_orders(data):
+    orders = []
+    # Primary path seen in examples
+    fo_map = safe_get(data, ["initialfinaldiff", "added", "cart", "foodOrders"], {})
+    if isinstance(fo_map, dict):
+        for v in fo_map.values():
+            if isinstance(v, dict):
+                orders.append(v)
+    # Fallback via differences
+    diff_added = safe_get(data, ["differences", "foodOrders", "added"], {})
+    if isinstance(diff_added, dict):
+        for v in diff_added.values():
+            if isinstance(v, dict):
+                orders.append(v)
+    return orders
 
 
-def to_float(x):
+def is_sandwich_item(name: str) -> bool:
+    if not isinstance(name, str):
+        return False
+    n = name.lower()
+    # Consider 'sandwich' or 'sub' as sandwich indicators.
+    return ("sandwich" in n) or ("sub" in n)
+
+
+def parse_float(x):
     try:
-        if isinstance(x, (int, float)):
-            return float(x)
-        if isinstance(x, str):
-            s = x.strip().replace('$', '')
-            return float(s)
+        return float(x)
     except Exception:
         return None
-    return None
 
 
-POSITIVE_KEYWORDS = [
-    'rice', 'biryani', 'bowl', 'sushi', 'donburi', 'bibimbap', 'risotto', 'poke bowl', 'poke', 'on rice', 'over rice'
-]
-
-# Some words strongly indicate non-rice meals; used as a weak guard when ambiguous
-NEGATIVE_KEYWORDS = [
-    'wings', 'fries', 'pizza', 'burger', 'sandwich', 'wrap', 'taco', 'tacos', 'noodle', 'noodles'
-]
-
-
-def is_rice_meal(item):
-    name = (item.get('name') or '')
-    desc = (item.get('description') or '')
-    rest = (item.get('restaurantName') or '')
-    text = f"{name} {desc} {rest}".lower()
-    # If any explicit positive keyword present, accept
-    if any(kw in text for kw in POSITIVE_KEYWORDS):
-        return True
-    # If contains strong negatives, reject
-    if any(kw in text for kw in NEGATIVE_KEYWORDS):
+def evaluate(data):
+    orders = collect_orders(data)
+    if not orders:
         return False
-    # Heuristic: many Asian-style "bowl" dishes contain rice, handled above.
-    # If it's an Asian cuisine term without explicit negatives, we can consider some patterns
-    asian_cues = ['bento', 'teriyaki', 'katsu', 'gyudon', 'don', 'korean', 'japanese']
-    if any(kw in text for kw in asian_cues):
-        # Likely served with rice; accept cautiously
-        return True
+    for order in orders:
+        charges = order.get("checkoutDetails", {}).get("charges", {})
+        total = parse_float(charges.get("totalAmount"))
+        if total is None:
+            continue
+        if total >= 25:
+            continue
+        items = order.get("cartItems", [])
+        has_sandwich = any(is_sandwich_item(it.get("name")) for it in items if isinstance(it, dict))
+        if has_sandwich:
+            return True
     return False
-
-
-def compute_total(cart, items):
-    # Prefer checkoutDetails.charges.totalAmount if valid and > 0
-    charges = {}
-    try:
-        charges = (cart.get('checkoutDetails') or {}).get('charges') or {}
-    except Exception:
-        charges = {}
-    total = to_float(charges.get('totalAmount'))
-    if total is not None and total > 0:
-        return total
-    # Fallback: sum item finalPrice or price
-    s = 0.0
-    any_price = False
-    for it in items:
-        val = it.get('finalPrice')
-        if val is None:
-            val = it.get('price')
-        f = to_float(val)
-        if f is not None:
-            s += f
-            any_price = True
-    return s if any_price else None
 
 
 def main():
@@ -118,31 +72,11 @@ def main():
         path = sys.argv[1]
         with open(path, 'r') as f:
             data = json.load(f)
-        cart = get_cart(data)
-        if not cart:
-            print('FAILURE')
-            return
-        items = cart.get('cartItems') or []
-        if not isinstance(items, list) or len(items) == 0:
-            print('FAILURE')
-            return
-        # All items must be rice meals
-        if not all(is_rice_meal(it) for it in items):
-            print('FAILURE')
-            return
-        total = compute_total(cart, items)
-        # If total is missing or not a number, fail to be safe
-        if total is None:
-            print('FAILURE')
-            return
-        # Must be strictly less than $30
-        if total < 30:
-            print('SUCCESS')
-        else:
-            print('FAILURE')
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
+        return
+    ok = evaluate(data)
+    print("SUCCESS" if ok else "FAILURE")
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

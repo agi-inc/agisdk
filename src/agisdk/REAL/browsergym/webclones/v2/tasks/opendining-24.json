@@ -1,0 +1,22 @@
+{
+  "id": "opendining-24",
+  "goal": "Open Dining: Book a reservation for an Italian restaurant at 12:30PM today",
+  "website": {
+    "id": "opendining",
+    "name": "Opendining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_opendining_24.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

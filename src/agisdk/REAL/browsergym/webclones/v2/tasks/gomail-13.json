@@ -1,12 +1,12 @@
 {
   "id": "gomail-13",
-  "goal": "Write an email to alexa richardson and ask to let me know when the files come in.",
+  "goal": "GoMail: Send an email to Carol notifying her there has been a time change for the meeting and it is now moved to 8:30 AM",
   "website": {
     "id": "gomail",
-    "name": "GoMail",
+    "name": "Gomail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app"
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

@@ -1,70 +1,87 @@
 import sys, json
 
-# Strategy: The task is successful only if a purchase was made and the purchased
-# items include a pack of sports balls. From training examples, item id "114"
-# corresponds to a sports balls pack. We verify by checking for an added order
-# and confirming at least one item in the order has id "114" with quantity > 0.
-
-def load_json(path):
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return {}
+# Strategy:
+# - Confirm navigation reached the confirmation page and an order was added.
+# - Ensure the search intent targeted 'headphones' (case-insensitive, substring 'headphone').
+# - Validate at least one ordered item's price is strictly >24 and <100.
+# - Disqualify if search terms indicate non-headphone items (e.g., keyboard, earbuds).
 
 
-def deep_get(d, keys, default=None):
+def safe_get(d, path, default=None):
     cur = d
-    for k in keys:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
+    for p in path:
+        if isinstance(cur, dict) and p in cur:
+            cur = cur[p]
         else:
             return default
     return cur
 
 
-def get_orders(data):
-    orders_root = deep_get(data, ["initialfinaldiff", "added", "order", "orders"], None)
-    if not isinstance(orders_root, dict):
-        return []
-    return list(orders_root.values())
-
-
-def is_sports_balls_item(item):
-    # Known sports balls SKU from training data
-    sports_ids = {"114"}
-    iid = str(item.get("id", "")).strip()
-    return iid in sports_ids
-
-
-def purchased_sports_balls(data):
-    orders = get_orders(data)
-    for order in orders:
-        items = order.get("items", [])
-        if not isinstance(items, list):
-            continue
-        for it in items:
-            if not isinstance(it, dict):
-                continue
-            if is_sports_balls_item(it):
-                # Ensure positive quantity when present; default to 1 if missing
-                qty = it.get("quantity", 1)
-                try:
-                    if float(qty) > 0:
-                        return True
-                except Exception:
-                    # If quantity is non-numeric but item matches, consider it purchased
-                    return True
-    return False
-
-
 def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else None
-    data = load_json(path) if path else {}
-    if purchased_sports_balls(data):
-        print("SUCCESS")
-    else:
+    if len(sys.argv) < 2:
         print("FAILURE")
+        return
+    try:
+        with open(sys.argv[1], 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception:
+        print("FAILURE")
+        return
+
+    diff = data.get("initialfinaldiff", {}) or {}
+    added = diff.get("added", {}) or {}
+    updated = diff.get("updated", {}) or {}
+
+    # Check confirmation page
+    pathname = safe_get(updated, ["router", "location", "pathname"], "")
+    is_confirmation = isinstance(pathname, str) and pathname.endswith("/confirmation")
+
+    # Collect search intent strings
+    filter_obj = updated.get("filter", {}) or {}
+    search_parts = []
+    for k in ("searchQuery", "searchInputValue"):
+        v = filter_obj.get(k)
+        if isinstance(v, str):
+            search_parts.append(v.lower())
+    search_text = " ".join(search_parts)
+
+    # Determine if the user specifically searched for headphones
+    has_headphones_intent = "headphone" in search_text  # matches headphone/headphones
+
+    # Disqualify obvious non-headphone intents
+    bad_keywords = [
+        "keyboard", "gaming keyboard", "earbud", "earbuds", "ear pod", "earpod",
+        "earpods", "earphone", "earphones"
+    ]
+    if any(bad in search_text for bad in bad_keywords):
+        has_headphones_intent = False
+
+    # Extract ordered item prices
+    orders = safe_get(added, ["order", "orders"], {})
+    prices = []
+    if isinstance(orders, dict):
+        for _, order in orders.items():
+            if isinstance(order, dict):
+                items = order.get("items", [])
+                if isinstance(items, list):
+                    for item in items:
+                        if isinstance(item, dict):
+                            price = item.get("price")
+                            if isinstance(price, (int, float)):
+                                try:
+                                    prices.append(float(price))
+                                except Exception:
+                                    pass
+
+    has_order = len(prices) > 0
+
+    # Price validation: at least one item in the valid range
+    price_ok = any(24 < p < 100 for p in prices)
+
+    success = is_confirmation and has_order and price_ok and has_headphones_intent
+
+    print("SUCCESS" if success else "FAILURE")
+
 
 if __name__ == "__main__":
     main()

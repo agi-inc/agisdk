@@ -1,12 +1,12 @@
 {
   "id": "omnizon-3",
-  "goal": "Omnizon: Buy me a pack of sports balls(footballs, basketballs, etc.) as season is coming around",
+  "goal": "Find me headphones above 24$ and below 100$ and order it.",
   "website": {
     "id": "omnizon",
     "name": "Omnizon",
     "similarTo": "Amazon",
     "previewImage": "/websitePreviews/omnizon_preview.jpg",
-    "url": "https://real-omnizon-eq6za0727-real-sites.vercel.app"
+    "url": "https://amazon-omnizon-z1-rea-lr9f-agi7-xw2-pq6s-git-b7a192-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

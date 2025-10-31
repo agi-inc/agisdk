@@ -1,0 +1,22 @@
+{
+  "id": "gomail-11",
+  "goal": "GoMail: Delete emails older than 2 months ago",
+  "website": {
+    "id": "gomail",
+    "name": "Gomail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gomail_11.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

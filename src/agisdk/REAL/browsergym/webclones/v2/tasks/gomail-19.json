@@ -1,12 +1,12 @@
 {
   "id": "gomail-19",
-  "goal": "Go Mail: Write an email to Thompson regarding meeting date",
+  "goal": "GoMail: send an email to Angela White asking when she goes on FTA",
   "website": {
     "id": "gomail",
-    "name": "GoMail",
+    "name": "Gomail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app"
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

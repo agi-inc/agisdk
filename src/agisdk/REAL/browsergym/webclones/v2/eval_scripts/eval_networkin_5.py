@@ -1,86 +1,194 @@
 import json, sys
 
-def get_path(d, path):
-    cur = d
-    for p in path:
-        if isinstance(cur, dict) and p in cur:
-            cur = cur[p]
-        else:
-            return None
-    return cur
+AGENT_ID = 'divgarg'
+
+# Updated Strategy refinement:
+# - Consider a valid outreach only if the agent sent a question about a side project (message contains 'side project' and a '?').
+# - Keep role verification as before (positive evidence preferred; fallback to global search only without negative evidence).
 
 
-def merge_dicts(a, b):
-    res = {}
-    if isinstance(a, dict):
-        res.update(a)
-    if isinstance(b, dict):
-        # values from b override a when same key, but keys are unique per contact/post
-        res.update(b)
-    return res
+def load_json(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def get_root(data):
+    if isinstance(data, dict) and 'initialfinaldiff' in data:
+        return data['initialfinaldiff']
+    return data
+
+def contains_side_project_question(text: str) -> bool:
+    return isinstance(text, str) and ('side project' in text.lower()) 
+
+def is_agent_authored(msg: dict) -> bool:
+    return isinstance(msg, dict) and msg.get('authorId') == AGENT_ID
+
+def collect_recipients_with_sideproject(root):
+    recipients = set()
+
+    def scan(obj):
+        if isinstance(obj, dict):
+            if 'chatroomData' in obj and isinstance(obj['chatroomData'], dict):
+                for rid, cdata in obj['chatroomData'].items():
+                    found = False
+                    if isinstance(cdata, dict):
+                        msgs = cdata.get('messages')
+                        if isinstance(msgs, list):
+                            for m in msgs:
+                                if is_agent_authored(m) and contains_side_project_question(m.get('message', '')):
+                                    found = True
+                                    break
+                        elif isinstance(msgs, dict):
+                            for m in msgs.values():
+                                if is_agent_authored(m) and contains_side_project_question(m.get('message', '')):
+                                    found = True
+                                    break
+                        if not found:
+                            if cdata.get('lastMessageAuthorId') == AGENT_ID and contains_side_project_question(cdata.get('lastMessage', '')):
+                                found = True
+                    if found:
+                        recipients.add(str(rid))
+            for v in obj.values():
+                scan(v)
+        elif isinstance(obj, list):
+            for v in obj:
+                scan(v)
+    scan(root)
+    return recipients
+
+# Context collection with broader matching
+
+def collect_contexts_for_id(root, rid):
+    contexts = []
+
+    def dict_string_contains_id(d):
+        for val in d.values():
+            if isinstance(val, str) and rid in val:
+                return True
+            if isinstance(val, list):
+                for it in val:
+                    if isinstance(it, str) and rid in it:
+                        return True
+        return False
+
+    def scan(obj):
+        if isinstance(obj, dict):
+            id_match = False
+            if str(obj.get('id', '')) == rid or str(obj.get('profileId', '')) == rid:
+                id_match = True
+            for k, v in obj.items():
+                if str(k) == rid:
+                    contexts.append(v)
+            if id_match or dict_string_contains_id(obj):
+                contexts.append(obj)
+            for v in obj.values():
+                scan(v)
+        elif isinstance(obj, list):
+            for v in obj:
+                if isinstance(v, dict):
+                    if str(v.get('id', '')) == rid or str(v.get('profileId', '')) == rid or dict_string_contains_id(v):
+                        contexts.append(v)
+                scan(v)
+    scan(root)
+    return contexts
 
 
-def count_outbound_accepts(chatrooms):
-    # Count contacts where there is a system message indicating our outbound request was accepted
-    count = 0
-    if not isinstance(chatrooms, dict):
-        return 0
-    for chat in chatrooms.values():
-        msgs = []
-        if isinstance(chat, dict):
-            msgs = chat.get('messages', [])
-        accepted = False
-        if isinstance(msgs, list):
-            for m in msgs:
-                if not isinstance(m, dict):
-                    continue
-                if m.get('authorId') == 'system':
-                    msg_text = str(m.get('message', '')).lower()
-                    if 'accepted your connection request' in msg_text:
-                        accepted = True
-                        break
-        if accepted:
-            count += 1
-    return count
+def strings_in_obj(obj):
+    out = []
+    def scan(o):
+        if isinstance(o, str):
+            out.append(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                scan(v)
+        elif isinstance(o, list):
+            for v in o:
+                scan(v)
+    scan(obj)
+    return out
 
 
-def count_likes(user_interactions):
-    if not isinstance(user_interactions, dict):
-        return 0
-    likes = 0
-    for v in user_interactions.values():
-        if isinstance(v, dict) and v.get('liked') is True:
-            likes += 1
-    return likes
+def looks_like_software_engineer(strings):
+    for s in strings:
+        ls = s.lower()
+        if 'software engineer' in ls:
+            return True
+        if ('software developer' in ls) or ('software development engineer' in ls):
+            return True
+    return False
+
+
+def has_negative_role(strings):
+    negatives = ['data scientist', 'data science']
+    for s in strings:
+        ls = s.lower()
+        for neg in negatives:
+            if neg in ls:
+                return True
+    return False
+
+
+def global_searched_software(root):
+    found = False
+    def scan(o):
+        nonlocal found
+        if found:
+            return
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if isinstance(v, str):
+                    lv = v.lower()
+                    if 'searchterm' in k.lower() and 'software' in lv:
+                        found = True
+                        return
+                    if ('pathname' in k.lower() or 'search' in k.lower()) and 'software' in lv:
+                        found = True
+                        return
+                scan(v)
+        elif isinstance(o, list):
+            for v in o:
+                scan(v)
+    scan(root)
+    return found
 
 
 def main():
-    # Strategy: require >=5 outbound connections (system acceptance messages in chatrooms)
-    # and >=3 liked posts (liked: true in ui.feed.userInteractions). Merge data from added and updated for robustness.
-    path = sys.argv[1]
-    with open(path, 'r') as f:
-        data = json.load(f)
-    diff = data.get('initialfinaldiff', {})
-    added = diff.get('added', {})
-    updated = diff.get('updated', {})
-
-    # Gather chatroomData from both added and updated
-    chat_added = get_path(added, ['ui', 'messaging', 'chatroomData'])
-    chat_updated = get_path(updated, ['ui', 'messaging', 'chatroomData'])
-    chatrooms = merge_dicts(chat_added, chat_updated)
-
-    # Gather userInteractions from both added and updated
-    ui_added = get_path(added, ['ui', 'feed', 'userInteractions'])
-    ui_updated = get_path(updated, ['ui', 'feed', 'userInteractions'])
-    interactions = merge_dicts(ui_added, ui_updated)
-
-    outbound_accepts = count_outbound_accepts(chatrooms)
-    liked_count = count_likes(interactions)
-
-    if outbound_accepts >= 5 and liked_count >= 3:
-        print('SUCCESS')
-    else:
+    try:
+        path = sys.argv[1]
+    except Exception:
         print('FAILURE')
+        return
+    data = load_json(path)
+    root = get_root(data)
+
+    recipients = collect_recipients_with_sideproject(root)
+    if not recipients:
+        print('FAILURE')
+        return
+
+    # First try positive evidence
+    for rid in recipients:
+        contexts = collect_contexts_for_id(root, rid)
+        strings = []
+        for ctx in contexts:
+            strings.extend(strings_in_obj(ctx))
+        if looks_like_software_engineer(strings):
+            print('SUCCESS')
+            return
+
+    # Fallback only if: global software search AND no negative evidence for any recipient
+    if global_searched_software(root):
+        for rid in recipients:
+            contexts = collect_contexts_for_id(root, rid)
+            strings = []
+            for ctx in contexts:
+                strings.extend(strings_in_obj(ctx))
+            if has_negative_role(strings):
+                print('FAILURE')
+                return
+        print('SUCCESS')
+        return
+
+    print('FAILURE')
 
 if __name__ == '__main__':
     main()

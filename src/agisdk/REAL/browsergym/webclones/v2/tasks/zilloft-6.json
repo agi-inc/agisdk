@@ -1,12 +1,12 @@
 {
   "id": "zilloft-6",
-  "goal": "Request a tour for a house in Virginia Beach, VA. I am looking for a house thats max 500k and 2 bed 1 bath. I am free for a tour tomorrow at 3:30pm.",
+  "goal": "Contact an agent for a house in Sacramento that is in the price range 500k - 1.1M. It needs to be 4+ bedrooms and 2+ bathrooms. Have the house tour on July 19th around 1pmish.",
   "website": {
     "id": "zilloft",
-    "name": "ZilloFT",
+    "name": "Zilloft",
     "similarTo": "Zillow",
     "previewImage": "/websitePreviews/zilloft_preview.jpg",
-    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app"
+    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

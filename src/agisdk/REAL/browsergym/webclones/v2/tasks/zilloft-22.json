@@ -1,0 +1,22 @@
+{
+  "id": "zilloft-22",
+  "goal": "Zilloft: I want to move to SoCal, find me houses in Southern California which are less than 1 million dollars. Book atleast 1 tour.",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_zilloft_22.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

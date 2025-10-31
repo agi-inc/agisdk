@@ -1,12 +1,12 @@
 {
   "id": "opendining-4",
-  "goal": "OpenDining: Book me a reservation for 1 person at Sushi Zen 12 pm for my lunch today",
+  "goal": "Look at the top rated restaurants people are talking about and book a reservation for 9pm tonight for any of them.",
   "website": {
     "id": "opendining",
-    "name": "OpenDining",
+    "name": "Opendining",
     "similarTo": "OpenTable",
     "previewImage": "/websitePreviews/opendining_preview.jpg",
-    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app"
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

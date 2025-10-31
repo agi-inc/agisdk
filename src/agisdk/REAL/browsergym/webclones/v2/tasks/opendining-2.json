@@ -1,12 +1,12 @@
 {
   "id": "opendining-2",
-  "goal": "Book me a reservation at an Italian Restaurant for today at 3pm.",
+  "goal": "Reserve me an American restaurant for any time that is available between 7pm to 8pm today for my friend and I as it's his birthday today.",
   "website": {
     "id": "opendining",
-    "name": "OpenDining",
+    "name": "Opendining",
     "similarTo": "OpenTable",
     "previewImage": "/websitePreviews/opendining_preview.jpg",
-    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app"
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

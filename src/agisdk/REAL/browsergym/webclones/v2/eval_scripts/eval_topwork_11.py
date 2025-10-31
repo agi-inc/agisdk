@@ -1,91 +1,84 @@
 import json, sys
 
-def get_nested(d, *keys):
-    cur = d
-    for k in keys:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
+def normalize_title(s):
+    if not isinstance(s, str):
+        return ""
+    return " ".join(s.split()).strip().lower()
+
+
+def collect_offers(obj, offers_list):
+    # Recursively traverse the JSON and collect dicts that look like offer objects
+    if isinstance(obj, dict):
+        # Heuristic: an offer has both 'contractTitle' and 'freelancerId'
+        if 'contractTitle' in obj and 'freelancerId' in obj:
+            offers_list.append(obj)
+        for v in obj.values():
+            collect_offers(v, offers_list)
+    elif isinstance(obj, list):
+        for item in obj:
+            collect_offers(item, offers_list)
+
+
+def dedupe_offers(offers):
+    unique = {}
+    for off in offers:
+        oid = off.get('id')
+        if oid is not None:
+            key = ('id', str(oid))
         else:
-            return None
-    return cur
-
-
-def text_indicates_help_set_up(text: str) -> bool:
-    if not isinstance(text, str):
-        return False
-    s = text.lower()
-    # Require indication of willingness to help and setup
-    has_help = "help" in s
-    has_setup = ("set up" in s) or ("setup" in s)
-    return has_help and has_setup
-
-
-def any_added_msg_matches_for_alex(initialfinaldiff: dict) -> bool:
-    added = initialfinaldiff.get('added', {}) or {}
-    messages_root = added.get('messages', {}) or {}
-    selected_chat_id = messages_root.get('selectedChatId')
-
-    contact_list = get_nested(added, 'messages', 'contactList')
-    if isinstance(contact_list, dict):
-        for _, contact in contact_list.items():
-            msgs = (contact or {}).get('messages') or {}
-            if isinstance(msgs, dict):
-                for _, m in msgs.items():
-                    if not isinstance(m, dict):
-                        continue
-                    author = m.get('author')
-                    msg_text = m.get('message')
-                    if author == 'Sarah Johnson' and text_indicates_help_set_up(msg_text):
-                        # Try to ensure this is to Alex Rodriguez by contact id or selected chat
-                        contact_id = (contact or {}).get('id')
-                        if contact_id == 'alexrodriguez' or selected_chat_id == 'alexrodriguez':
-                            return True
-    return False
-
-
-def any_updated_last_message_matches_for_alex(initialfinaldiff: dict) -> bool:
-    updated = initialfinaldiff.get('updated', {}) or {}
-    # Check selected chat id if present anywhere in updated
-    selected_chat_id = get_nested(updated, 'messages', 'selectedChatId')
-    contact_list = get_nested(updated, 'messages', 'contactList')
-    if not isinstance(contact_list, dict):
-        return False
-
-    for _, contact in contact_list.items():
-        if not isinstance(contact, dict):
-            continue
-        last_author = contact.get('lastMessageAuthor')
-        last_msg = contact.get('lastMessage')
-        contact_id = contact.get('id')
-        # We consider it Alex's chat if the contact id matches or the selectedChatId is alexrodriguez
-        is_alex_chat = (contact_id == 'alexrodriguez') or (selected_chat_id == 'alexrodriguez')
-        if is_alex_chat and last_author == 'Sarah Johnson' and text_indicates_help_set_up(last_msg):
-            return True
-    return False
+            # Fallback key when id is missing
+            key = (
+                'fallback',
+                str(off.get('freelancerId', '')),
+                normalize_title(off.get('contractTitle', '')),
+                str(off.get('startDate', '')),
+                str(off.get('offerDate', '')),
+            )
+        # Prefer entries that have more fields (e.g., include status) when deduping
+        if key in unique:
+            # keep the one with more keys
+            if len(off.keys()) > len(unique[key].keys()):
+                unique[key] = off
+        else:
+            unique[key] = off
+    return list(unique.values())
 
 
 def main():
-    try:
-        path = sys.argv[1]
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception:
-        print('FAILURE')
+    # Strategy: Count unique offers (dicts with contractTitle and freelancerId) anywhere in the diff.
+    # Success criteria:
+    #  - Exactly one unique offer was created
+    #  - Its contractTitle equals 'Project Lead' (case-insensitive)
+    #  - If status is present, it must be 'Pending'
+    path = sys.argv[1]
+    with open(path, 'r') as f:
+        data = json.load(f)
+
+    root = data.get('initialfinaldiff', data)
+    offers_found = []
+    collect_offers(root, offers_found)
+
+    unique_offers = dedupe_offers(offers_found)
+
+    # Must have exactly one offer
+    if len(unique_offers) != 1:
+        print("FAILURE")
         return
 
-    initialfinaldiff = data.get('initialfinaldiff') or {}
+    offer = unique_offers[0]
+    title = normalize_title(offer.get('contractTitle'))
+    title_ok = title == 'project lead' or title.startswith('project lead ')
 
-    # Strategy:
-    # 1) Look for added message authored by Sarah Johnson in Alex Rodriguez chat with content expressing help to get set up.
-    # 2) If not found, check updated lastMessage for Alex chat with same content.
-    success = False
+    if not title_ok:
+        print("FAILURE")
+        return
 
-    if any_added_msg_matches_for_alex(initialfinaldiff):
-        success = True
-    elif any_updated_last_message_matches_for_alex(initialfinaldiff):
-        success = True
+    status = offer.get('status')
+    if status is not None and normalize_title(status) != 'pending':
+        print("FAILURE")
+        return
 
-    print('SUCCESS' if success else 'FAILURE')
+    print("SUCCESS")
 
 if __name__ == '__main__':
     main()

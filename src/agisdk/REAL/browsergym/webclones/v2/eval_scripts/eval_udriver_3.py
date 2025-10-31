@@ -1,96 +1,92 @@
 import sys, json
 
-def get_nested(d, *keys):
-    cur = d
-    for k in keys:
-        if isinstance(cur, dict) and k in cur:
-            cur = cur[k]
-        else:
-            return None
-    return cur
-
-# Task: Book a ride from Alchemist Bar & Lounge to El Corazon Gallery
-# Verification strategy:
-# - A successful booking must create an entry in ride.trips with pickup=Alchemist and destination=El Corazon.
-# - Accept status 'completed' or 'in progress'. Do NOT count ride.trip or bookedTrip alone (pre-booking/scheduling) as success.
-# - Match by case-insensitive name or by known IDs (pickup id=177, destination id=389). Be resilient to missing fields.
-
-ALCHEMIST_NAME = "alchemist bar & lounge"
-ALCHEMIST_ID = 177
-ELCORAZON_NAME = "el corazon gallery"
-ELCORAZON_ID = 389
-
-try:
-    path = sys.argv[1]
+def load_json(path):
     with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-except Exception:
-    print("FAILURE")
-    sys.exit(0)
+        return json.load(f)
 
-root = data
-iff = root.get("initialfinaldiff") or {}
-# ride could be under added.ride typically
-ride = get_nested(iff, "added", "ride") or get_nested(iff, "updated", "ride") or {}
+# Helper: safely get nested ride/user from either added or updated blocks
 
-trips = ride.get("trips")
-if not isinstance(trips, list):
-    trips = []
+def get_section(data, key):
+    d = data.get('initialfinaldiff', {})
+    for container in ('added', 'updated'):
+        section = d.get(container, {}).get(key)
+        if section is not None:
+            return section
+    # Fallback: sometimes top-level under initialfinaldiff
+    return d.get(key)
 
-# Helper to match a location object to Alchemist or El Corazon
 
-def is_alchemist(loc):
+def norm(s):
+    return (s or '').strip().lower()
+
+
+def location_matches(loc, expected_name, expected_street, alt_substrings=None):
     if not isinstance(loc, dict):
         return False
-    # ID match
-    try:
-        if int(loc.get("id")) == ALCHEMIST_ID:
+    name = norm(loc.get('name'))
+    fa = norm(loc.get('formattedAddress'))
+    addr = norm(loc.get('address'))
+    street = norm((loc.get('addressComponents') or {}).get('street'))
+
+    # Exact name match
+    if name == norm(expected_name):
+        return True
+
+    # Exact street match from components
+    if expected_street and street == norm(expected_street):
+        return True
+
+    # Substring match on formatted/address
+    if alt_substrings:
+        alts = [norm(s) for s in alt_substrings]
+        if any(alt and (alt in fa or alt in addr) for alt in alts):
             return True
-    except Exception:
-        pass
-    # Name match
-    name = (loc.get("name") or "").strip().lower()
-    if name == ALCHEMIST_NAME:
-        return True
-    # formatted address heuristic
-    fmt = (loc.get("formattedAddress") or loc.get("address") or "").lower()
-    if "679 3rd" in fmt and "san francisco" in fmt:
-        return True
+
     return False
 
 
-def is_el_corazon(loc):
-    if not isinstance(loc, dict):
-        return False
-    # ID match
-    try:
-        if int(loc.get("id")) == ELCORAZON_ID:
+def verify(data):
+    ride = get_section(data, 'ride') or {}
+
+    trips = ride.get('trips')
+    if not isinstance(trips, list):
+        trips = []
+
+    # Expected endpoints
+    pickup_expected_name = '1001 Castro Street'
+    pickup_expected_street = '1001 Castro Street'
+    pickup_alt = ['1001 Castro St', '1001 Castro Street']
+
+    dest_expected_name = '1030 Post Street Apartments'
+    dest_expected_street = '1030 Post Street'
+    dest_alt = ['1030 Post St', '1030 Post Street']
+
+    # Look for a completed trip matching both endpoints
+    for t in trips:
+        status = norm(t.get('status'))
+        if status != 'completed':
+            continue
+        pickup = t.get('pickup') or {}
+        dest = t.get('destination') or {}
+        pickup_ok = location_matches(pickup, pickup_expected_name, pickup_expected_street, pickup_alt)
+        dest_ok = location_matches(dest, dest_expected_name, dest_expected_street, dest_alt)
+        if pickup_ok and dest_ok:
             return True
-    except Exception:
-        pass
-    # Name match
-    name = (loc.get("name") or "").strip().lower()
-    if name == ELCORAZON_NAME:
-        return True
-    # formatted address heuristic
-    fmt = (loc.get("formattedAddress") or loc.get("address") or "").lower()
-    if "4889 mission" in fmt and "san francisco" in fmt:
-        return True
+
     return False
 
-success = False
-valid_status = {"completed", "in progress"}
-for t in trips:
-    if not isinstance(t, dict):
-        continue
-    pickup = t.get("pickup")
-    dest = t.get("destination")
-    status = (t.get("status") or "").strip().lower()
-    if status not in valid_status:
-        continue
-    if is_alchemist(pickup) and is_el_corazon(dest):
-        success = True
-        break
 
-# Explicitly ignore bookedTrip-only scenarios (scheduled rides) by requiring trips evidence above.
-print("SUCCESS" if success else "FAILURE")
+def main():
+    try:
+        path = sys.argv[1]
+        data = load_json(path)
+        if verify(data):
+            print('SUCCESS')
+        else:
+            print('FAILURE')
+    except Exception:
+        # Any error defaults to failure
+        print('FAILURE')
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,22 @@
+{
+  "id": "opendining-17",
+  "goal": "Book me a dinner at Haight-Ashbury for anytime between 8pm to 10pm on september 22nd. It is for 6 people and is a business meal.",
+  "website": {
+    "id": "opendining",
+    "name": "Opendining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://real-opendining.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_opendining_17.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

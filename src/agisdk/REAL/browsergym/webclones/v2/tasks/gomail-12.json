@@ -1,12 +1,12 @@
 {
   "id": "gomail-12",
-  "goal": "Write an email to Kevin Moore to ask for the project details",
+  "goal": "Go Mail: Email Charles to see if he has found any new clients",
   "website": {
     "id": "gomail",
-    "name": "GoMail",
+    "name": "Gomail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app"
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

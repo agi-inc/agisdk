@@ -1,12 +1,12 @@
 {
   "id": "opendining-5",
-  "goal": "OpenDining: Make a reservation for any restaurant in Embarcadero today which is over 3 stars",
+  "goal": "Book me a 4+ star restaurant for my birthday tonight. It is going to be for my girlfriend and I.",
   "website": {
     "id": "opendining",
-    "name": "OpenDining",
+    "name": "Opendining",
     "similarTo": "OpenTable",
     "previewImage": "/websitePreviews/opendining_preview.jpg",
-    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app"
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

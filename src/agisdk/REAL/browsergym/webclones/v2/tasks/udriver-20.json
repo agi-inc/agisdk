@@ -1,0 +1,22 @@
+{
+  "id": "udriver-20",
+  "goal": "Book me the cheapest ride from Club 26 Mix to 100 Van Ness please. Thank you!",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_20.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -1,12 +1,12 @@
 {
   "id": "udriver-11",
-  "goal": "Get me a udriverXL from AVA Nob Hill to Alamo Rent a Car right now.",
+  "goal": "Book a ride from Club X to Fox Plaza Apartments. Choose whatever ride I have enough credits for.",
   "website": {
     "id": "udriver",
-    "name": "UDriver",
+    "name": "Udriver",
     "similarTo": "Uber",
     "previewImage": "/websitePreviews/udriver_preview.jpg",
-    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app"
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

@@ -1,12 +1,12 @@
 {
   "id": "dashdish-4",
-  "goal": "DashDish: I really want to eat rice, order me meals which contain rice for less than $30",
+  "goal": "order me any chicken sandwich and make sure the final price is under 25$.",
   "website": {
     "id": "dashdish",
-    "name": "DashDish",
+    "name": "Dashdish",
     "similarTo": "DoorDash",
     "previewImage": "/websitePreviews/dashdish_preview.jpg",
-    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app"
+    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

@@ -1,0 +1,22 @@
+{
+  "id": "staynb-17",
+  "goal": "Show me places in Provence, France for 2 adults and 1 child for the dates August 1st-4th. I need wifi.",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_17.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

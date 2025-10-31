@@ -1,104 +1,113 @@
 import json, sys
 
-# Verification script for task: "Write an email to alexa richardson and ask to let me know when the files come in."
+# Verification script for GoMail task: Send email to Carol about meeting time change to 8:30 AM
 # Strategy:
-# - Identify any newly added, sent email addressed to Alexa Richardson (recipient contains "alexa.richardson").
-# - Validate subject is present and not "No Subject".
-# - Validate body requests notification about files: must contain both "let me know" and the word "file" (case-insensitive).
-# - Aggregate added emails from both differences.emails.added and initialfinaldiff.added.email.emails, handling None safely.
+# 1) Gather all newly added emails from differences.emails.added and initialfinaldiff.added.email.emails
+# 2) For each, verify: sent==True, recipient includes 'carol' (case-insensitive), and text mentions 'meeting' and a time '8:30' variant
+# 3) If any email passes these checks, print SUCCESS; otherwise, FAILURE
 
 def load_json(path):
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def safe_get_map(obj, key):
-    if isinstance(obj, dict):
-        val = obj.get(key)
-        return val if isinstance(val, dict) else ({} if val is None else {})
-    return {}
-
-def gather_added_emails(data):
-    added = []
-    # From differences
-    diff = data.get('differences') or {}
-    emails_section = (diff.get('emails') or {}) if isinstance(diff, dict) else {}
-    diff_added = emails_section.get('added') or []
-    if isinstance(diff_added, list):
-        added.extend(diff_added)
-
-    # From initialfinaldiff added structure (dict of emails)
-    if isinstance(data.get('initialfinaldiff'), dict):
-        init_add = data['initialfinaldiff'].get('added') or {}
-        email_block = init_add.get('email') or {}
-        emails_dict = email_block.get('emails') or {}
+def get_added_emails(data):
+    emails = []
+    # From differences.emails.added
+    try:
+        added_list = data.get('differences', {}).get('emails', {}).get('added', [])
+        if isinstance(added_list, list):
+            for e in added_list:
+                if isinstance(e, dict):
+                    emails.append(e)
+    except Exception:
+        pass
+    # From initialfinaldiff.added.email.emails (values of dict)
+    try:
+        emails_dict = data.get('initialfinaldiff', {}).get('added', {}).get('email', {}).get('emails', {})
         if isinstance(emails_dict, dict):
-            added.extend(list(emails_dict.values()))
+            for k, v in emails_dict.items():
+                if isinstance(v, dict):
+                    emails.append(v)
+    except Exception:
+        pass
+    return emails
 
-    # Deduplicate by id if present
-    seen = set()
-    deduped = []
-    for e in added:
-        if not isinstance(e, dict):
+def strip_html(text):
+    # Simple removal of tags without regex: iterate and drop content between '<' and '>'
+    if not isinstance(text, str):
+        return ''
+    out = []
+    inside = False
+    for ch in text:
+        if ch == '<':
+            inside = True
             continue
-        eid = e.get('id')
-        key = ('id', eid) if eid is not None else ('obj', json.dumps(e, sort_keys=True))
-        if key in seen:
+        if ch == '>':
+            inside = False
             continue
-        seen.add(key)
-        deduped.append(e)
-    return deduped
+        if not inside:
+            out.append(ch)
+    return ''.join(out)
 
-def is_email_to_alexa(to_list):
+def contains_meeting_and_time(text):
+    # Normalize and check for 'meeting' and an '8:30' variant
+    if not text:
+        return False
+    norm = strip_html(text).lower()
+    # Normalize separators to ':' to catch '8.30'
+    norm = norm.replace('8.30', '8:30').replace('08.30', '08:30')
+    # Collapse whitespace (basic)
+    norm = ' '.join(norm.split())
+    has_meeting = 'meeting' in norm
+    # Check for 8:30 variants
+    has_time = ('8:30' in norm) or ('08:30' in norm)
+    return has_meeting and has_time
+
+def is_to_carol(to_list):
     if not isinstance(to_list, list):
         return False
     for addr in to_list:
         if not isinstance(addr, str):
             continue
-        a = addr.strip().lower()
-        if 'alexa.richardson' in a:
+        low = addr.strip().lower()
+        if 'carol' in low:
+            return True
+        # explicit known address
+        if low == 'carol.adams@example.com':
             return True
     return False
 
-def content_mentions_files_and_notify(content):
-    if not isinstance(content, str):
-        return False
-    text = content.strip().lower()
-    if not text:
-        return False
-    return ('let me know' in text) and ('file' in text)
-
-
-def subject_is_valid(subj):
-    if not isinstance(subj, str):
-        return False
-    s = subj.strip()
-    if not s:
-        return False
-    if s.lower() == 'no subject':
-        return False
-    return True
-
 
 def main():
-    path = sys.argv[1]
-    data = load_json(path)
+    try:
+        path = sys.argv[1]
+    except Exception:
+        print('FAILURE')
+        return
+    try:
+        data = load_json(path)
+    except Exception:
+        print('FAILURE')
+        return
 
-    added_emails = gather_added_emails(data)
+    emails = get_added_emails(data)
     success = False
-
-    for em in added_emails:
-        if not isinstance(em, dict):
+    for e in emails:
+        try:
+            sent = e.get('sent', False)
+            to_list = e.get('to', [])
+            subject = e.get('subject', '') or ''
+            content = e.get('content', '') or ''
+            if not sent:
+                continue
+            if not is_to_carol(to_list):
+                continue
+            # Check content or subject for meeting + time
+            if contains_meeting_and_time(content) or contains_meeting_and_time(subject):
+                success = True
+                break
+        except Exception:
             continue
-        if not em.get('sent', False):
-            continue
-        if not is_email_to_alexa(em.get('to')):
-            continue
-        if not subject_is_valid(em.get('subject')):
-            continue
-        if not content_mentions_files_and_notify(em.get('content', '')):
-            continue
-        success = True
-        break
 
     print('SUCCESS' if success else 'FAILURE')
 

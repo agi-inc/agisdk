@@ -1,12 +1,12 @@
 {
   "id": "gomail-4",
-  "goal": "Go Mail: Email Charles to see if he has found any new clients",
+  "goal": "Write an email to alexa richardson and ask to let me know when the files come in.",
   "website": {
     "id": "gomail",
-    "name": "GoMail",
+    "name": "Gomail",
     "similarTo": "Gmail",
     "previewImage": "/websitePreviews/gomail_preview.jpg",
-    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app"
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

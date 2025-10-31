@@ -1,12 +1,12 @@
 {
   "id": "zilloft-2",
-  "goal": "Contact an agent in San Jose, CA to hire.",
+  "goal": "Request a tour for a 3 bed 2 bath house in long beach.",
   "website": {
     "id": "zilloft",
-    "name": "ZilloFT",
+    "name": "Zilloft",
     "similarTo": "Zillow",
     "previewImage": "/websitePreviews/zilloft_preview.jpg",
-    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app"
+    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

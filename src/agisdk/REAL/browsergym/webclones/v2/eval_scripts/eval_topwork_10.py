@@ -1,96 +1,80 @@
-import json, sys, re
+import sys, json
 
-def parse_number(val):
-    # Robust numeric parsing for rates that may be int/float/str with symbols
-    if isinstance(val, (int, float)):
-        return float(val)
-    if isinstance(val, str):
-        s = val.strip().replace(',', '')
-        # Remove common currency symbols
-        s = s.replace('$', '')
-        try:
-            return float(s)
-        except Exception:
-            return None
+def contains_help_setup(text: str) -> bool:
+    if not isinstance(text, str):
+        return False
+    t = text.lower().strip()
+    # Core intent: communicate willingness to help get set up
+    return ('get set up' in t) and ('help' in t)
+
+
+def iter_added_messages(added):
+    try:
+        contact_list = added.get('messages', {}).get('contactList', {})
+        if isinstance(contact_list, dict):
+            for conv in contact_list.values():
+                msgs = conv.get('messages', {})
+                if isinstance(msgs, dict):
+                    for m in msgs.values():
+                        if isinstance(m, dict):
+                            yield m
+    except Exception:
+        return
+
+
+def find_updated_conv(updated, target_id: str):
+    # Find a conversation by id or name in updated contactList
+    contact_list = updated.get('messages', {}).get('contactList', {})
+    if not isinstance(contact_list, dict):
+        return None
+    for conv in contact_list.values():
+        if not isinstance(conv, dict):
+            continue
+        cid = conv.get('id')
+        cname = conv.get('name')
+        if cid == target_id or cname == 'Alex Rodriguez':
+            return conv
     return None
-
-# Strategy:
-# - Load final_state_diff.json and inspect initialfinaldiff.added.jobs.jobs for job postings.
-# - Declare SUCCESS if there exists at least one job with:
-#   * title mentions "financial" and "analyst" (case-insensitive)
-#   * hourlyRateFrom and hourlyRateTo are numbers within [45, 65] and from <= to
-#   * status == "published"
-# - Otherwise, FAILURE.
-
-def find_jobs(data):
-    jobs = []
-    root = data.get('initialfinaldiff', {})
-    # Primary source: added.jobs.jobs
-    added_jobs_map = (
-        root.get('added', {})
-            .get('jobs', {})
-            .get('jobs', {})
-    )
-    if isinstance(added_jobs_map, dict):
-        jobs.extend(v for v in added_jobs_map.values() if isinstance(v, dict))
-    # Fallback: if nothing there, try updated.jobs.jobs (unlikely but defensive)
-    if not jobs:
-        updated_jobs_map = (
-            root.get('updated', {})
-                .get('jobs', {})
-                .get('jobs', {})
-        )
-        if isinstance(updated_jobs_map, dict):
-            jobs.extend(v for v in updated_jobs_map.values() if isinstance(v, dict))
-    return jobs
-
-
-def title_matches_financial_analyst(title):
-    if not isinstance(title, str):
-        return False
-    t = title.strip().lower()
-    # Accept if phrase appears, or both tokens appear in any order
-    if 'financial analyst' in t:
-        return True
-    return ('financial' in t and 'analyst' in t)
-
-
-def job_matches(job):
-    title = job.get('title')
-    status = job.get('status')
-    if not title_matches_financial_analyst(title):
-        return False
-    if status is not None and str(status).lower() != 'published':
-        # If status exists and is not published, do not accept
-        return False
-    frm = parse_number(job.get('hourlyRateFrom'))
-    to = parse_number(job.get('hourlyRateTo'))
-    if frm is None or to is None:
-        return False
-    if frm > to:
-        return False
-    # Rates must be within 45 to 65 inclusive
-    if not (45 <= frm <= 65 and 45 <= to <= 65):
-        return False
-    return True
 
 
 def main():
-    try:
-        path = sys.argv[1]
-    except IndexError:
-        print('FAILURE')
-        return
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception:
-        print('FAILURE')
-        return
+    path = sys.argv[1]
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
 
-    jobs = find_jobs(data)
-    success = any(job_matches(j) for j in jobs)
-    print('SUCCESS' if success else 'FAILURE')
+    root = data.get('initialfinaldiff', {})
+    added = root.get('added', {})
+    updated = root.get('updated', {})
+
+    selected_chat_id = None
+    try:
+        selected_chat_id = added.get('messages', {}).get('selectedChatId')
+    except Exception:
+        selected_chat_id = None
+
+    # Strategy A: Check newly added message in the currently selected chat is to Alex Rodriguez and contains intent
+    success_a = False
+    if selected_chat_id == 'alexrodriguez':
+        for m in iter_added_messages(added):
+            author = m.get('author')
+            msg_text = m.get('message')
+            if author == 'Sarah Johnson' and contains_help_setup(msg_text):
+                success_a = True
+                break
+
+    # Strategy B: Fallback - Check updated conversation for Alex Rodriguez reflects the correct last message by Sarah Johnson
+    success_b = False
+    conv = find_updated_conv(updated, 'alexrodriguez')
+    if isinstance(conv, dict):
+        last_author = conv.get('lastMessageAuthor')
+        last_msg = conv.get('lastMessage')
+        if last_author == 'Sarah Johnson' and contains_help_setup(last_msg):
+            success_b = True
+
+    if success_a or success_b:
+        print('SUCCESS')
+    else:
+        print('FAILURE')
 
 if __name__ == '__main__':
     main()

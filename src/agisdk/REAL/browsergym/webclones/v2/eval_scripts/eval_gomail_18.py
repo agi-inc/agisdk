@@ -1,78 +1,84 @@
-import sys, json
+import json, sys
 
-def strip_html(text: str) -> str:
-    # Remove HTML tags without using regex; drop characters between < and >
-    if text is None:
-        return ''
-    s = []
-    in_tag = False
-    for ch in text:
-        if ch == '<':
-            in_tag = True
-            continue
-        if ch == '>':
-            in_tag = False
-            continue
-        if not in_tag:
-            s.append(ch)
-    out = ''.join(s)
-    # Replace common HTML entities and trim
-    out = out.replace('&nbsp;', ' ')
-    return out.strip()
-
-def is_non_empty_content(html: str) -> bool:
-    stripped = strip_html(html)
-    # Also consider if content is just whitespace/newlines after stripping
-    return len(stripped.strip()) > 0
-
-def main():
-    # Strategy: Find emails added in this run that are sent to exactly and only charles.davis@example.com
-    # Count qualifying emails with non-empty content; success iff exactly one such email exists.
-    path = sys.argv[1]
+def extract_added_emails(data):
+    emails = []
+    # Prefer differences.emails.added when available
     try:
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        added = data.get('differences', {}).get('emails', {}).get('added', [])
+        if isinstance(added, list):
+            emails.extend(added)
     except Exception:
-        print('FAILURE')
-        return
+        pass
+    # Fallback to initialfinaldiff.added.email.emails values
+    try:
+        iadd = (
+            data.get('initialfinaldiff', {})
+                .get('added', {})
+                .get('email', {})
+                .get('emails', {})
+        )
+        if isinstance(iadd, dict):
+            emails.extend(list(iadd.values()))
+        elif isinstance(iadd, list):
+            emails.extend(iadd)
+    except Exception:
+        pass
+    return emails
 
-    diffs = data.get('differences') or {}
-    emails = diffs.get('emails') or {}
-    added = emails.get('added') or []
-    if not isinstance(added, list):
-        added = []
 
-    target = 'charles.davis@example.com'
-    qualifying = 0
+def is_success(data):
+    # Strategy:
+    # 1) Find any added, actually-sent email to brian.king@example.com.
+    # 2) Ensure the message explicitly references meeting notes and makes a request (e.g., send/share/forward/provide), and is not trivial.
+    target_email = 'brian.king@example.com'
+    added_emails = extract_added_emails(data)
 
-    for em in added:
+    for em in added_emails:
         if not isinstance(em, dict):
             continue
-        # Must be a sent email (avoid drafts)
-        if not em.get('sent', False):
+        sent = bool(em.get('sent', False))
+        # Exclude drafts/spam/trash if flagged
+        if not sent or em.get('draft', False) or em.get('spam', False) or em.get('trash', False):
             continue
-        # Extract and normalize recipients
-        to_list = em.get('to') or []
-        if not isinstance(to_list, list):
+        # Collect recipients from to/cc/bcc
+        recipients = []
+        for k in ['to', 'cc', 'bcc']:
+            vals = em.get(k)
+            if isinstance(vals, list):
+                recipients.extend([str(v).lower() for v in vals])
+            elif isinstance(vals, str):
+                recipients.append(vals.lower())
+        if target_email.lower() not in recipients:
             continue
-        norm_to = []
-        for addr in to_list:
-            if isinstance(addr, str):
-                norm_to.append(addr.strip().lower())
-        # Must be exactly one recipient and it must be the target
-        if len(norm_to) != 1 or norm_to[0] != target:
-            continue
-        # Content must be non-empty (after stripping HTML)
-        content = em.get('content')
-        if not isinstance(content, str):
-            content = '' if content is None else str(content)
-        if not is_non_empty_content(content):
-            continue
-        qualifying += 1
 
-    if qualifying == 1:
-        print('SUCCESS')
-    else:
+        subject = str(em.get('subject', '') or '')
+        content = str(em.get('content', '') or '')
+        combined = (subject + ' ' + content).lower()
+
+        # Ensure it references meeting notes
+        topic_present = ('meeting notes' in combined) or ('meeting' in combined and 'notes' in combined)
+
+        # Ensure it contains a request verb indicating action from Brian
+        request_keywords = ['send', 'share', 'forward', 'provide']
+        request_present = any(kw in combined for kw in request_keywords)
+
+        # Content should not be trivial (like '.')
+        letters_count = sum(1 for c in content if c.isalpha())
+        non_trivial = letters_count >= 3 and content.strip() != '.'
+
+        if topic_present and request_present and non_trivial:
+            return True
+    return False
+
+
+def main():
+    try:
+        path = sys.argv[1]
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        print('SUCCESS' if is_success(data) else 'FAILURE')
+    except Exception:
+        # On any unexpected parsing error, fail safe
         print('FAILURE')
 
 if __name__ == '__main__':

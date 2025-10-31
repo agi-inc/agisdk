@@ -1,12 +1,12 @@
 {
   "id": "udriver-4",
-  "goal": "Book me a ride to Casa Loma Hotel from Aaha Indian Cuisine. Make sure I have enough credits for the ride.",
+  "goal": "Show me rides from 1000 Chestnut St  to Rooftop 25 and book one of the rides.",
   "website": {
     "id": "udriver",
-    "name": "UDriver",
+    "name": "Udriver",
     "similarTo": "Uber",
     "previewImage": "/websitePreviews/udriver_preview.jpg",
-    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app"
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",

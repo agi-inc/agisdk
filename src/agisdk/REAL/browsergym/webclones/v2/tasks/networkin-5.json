@@ -1,12 +1,12 @@
 {
   "id": "networkin-5",
-  "goal": "Connect with at least 5 people and like 3 random posts.",
+  "goal": "Find a software engineer I have connected with or not, and ask them if they are interested in working on a side project.",
   "website": {
     "id": "networkin",
-    "name": "NetworkIn",
+    "name": "Networkin",
     "similarTo": "LinkedIn",
     "previewImage": "/websitePreviews/networkin_preview.jpg",
-    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app"
+    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app/"
   },
   "difficulty": "medium",
   "challengeType": "action",
