@@ -112,6 +112,8 @@ pip install -e .
 
 ## 🌐 Available Tasks
 
+> **Versioning:** The SDK ships both `v1` and `v2` task sets; if you omit the version when selecting tasks or running experiments the harness defaults to `v1`. Specify `task_version="v2"` (or use `v2.*` task ids) to target the newer scenarios.
+
 The AGI SDK includes high-fidelity, fully-deterministic websites for agents to explore. These are modern web stack sites (React + Next.js) with rich functionality for core user flows, realistic mock data, and consistent behavior for testing and evaluation.
 
 The benchmark includes these environments:

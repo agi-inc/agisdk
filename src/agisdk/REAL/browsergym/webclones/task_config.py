@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional, Tuple, List
 import requests
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_VERSION = "v2"
+DEFAULT_VERSION = "v1"
 
 
 VERSION_DIRS: Dict[str, str] = {
