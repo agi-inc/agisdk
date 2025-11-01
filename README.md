@@ -68,7 +68,7 @@ from agisdk import REAL
 
 harness = REAL.harness(
     model="gpt-4o",       # any LLM tag
-    task_type="omnizon",  # Amazon-like store
+    task_name="v2.omnizon-1",,  # Amazon-like store
     headless=False        # watch it click in real-time!
 )
 
