@@ -1,0 +1,22 @@
+{
+  "id": "dashdish-10",
+  "goal": "DashDish: Order me fries from anywhere and keep the total under $15",
+  "website": {
+    "id": "dashdish",
+    "name": "Dashdish",
+    "similarTo": "DoorDash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_dashdish_10.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

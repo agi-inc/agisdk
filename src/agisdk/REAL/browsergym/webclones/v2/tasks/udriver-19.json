@@ -1,0 +1,22 @@
+{
+  "id": "udriver-19",
+  "goal": "Show me rides from AI Electronics Center to 333 Fremont Apartments and see if I have enough credits for the ride.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_19.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "networkin-5",
+  "goal": "Find a software engineer I have connected with or not, and ask them if they are interested in working on a side project.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_networkin_5.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

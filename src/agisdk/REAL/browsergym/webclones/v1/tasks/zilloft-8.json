@@ -1,0 +1,24 @@
+{
+  "id": "zilloft-8",
+  "goal": "Apply a filter for homes with 3 bedrooms, 2 bathrooms, and a price range between $600,000 and $800,000 for zipcode 92114. How many results are displayed?",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://evals-zilloft.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer correctly state that there is 1 result displayed when filtering for homes with 3 bedrooms, 2 bathrooms, and a price range between $600,000 and $800,000 for zipcode 92114?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,121 @@
+{
+  "id": "fly-unified-2",
+  "goal": "Book me a one-way flight from Indiana to New York on December 2nd 2024 at 12:00.\nPassenger: John Doe\nDate of Birth: 01/01/1990\nSex: Male\nSeat Selection: No\nPayment: Credit Card (378342143523967), Exp: 12/25, Security Code: 245, Address: 123 Main St, San Francisco, CA, 94105, USA, Phone: 555-123-4567, Email: johndoe@example.com.",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct departure city",
+      "type": "jmespath",
+      "expected_value": "Indianapolis",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct arrival city",
+      "type": "jmespath",
+      "expected_value": "New York/Newark",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.to.destination.city"
+    },
+    {
+      "description": "correct departure date",
+      "type": "jmespath",
+      "expected_value": "2024-12-02T20:00:00.000Z",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.date"
+    },
+    {
+      "description": "correct passenger first name",
+      "type": "jmespath",
+      "expected_value": "John",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].firstName"
+    },
+    {
+      "description": "correct passenger last name",
+      "type": "jmespath",
+      "expected_value": "Doe",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].lastName"
+    },
+    {
+      "description": "correct birth date - day",
+      "type": "jmespath",
+      "expected_value": "01",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].dateOfBirth.day"
+    },
+    {
+      "description": "correct birth date - month",
+      "type": "jmespath",
+      "expected_value": "1",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].dateOfBirth.month"
+    },
+    {
+      "description": "correct birth date - year",
+      "type": "jmespath",
+      "expected_value": "1990",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].dateOfBirth.year"
+    },
+    {
+      "description": "correct gender",
+      "type": "jmespath",
+      "expected_value": "Male",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].gender"
+    },
+    {
+      "description": "correct payment card number",
+      "type": "jmespath",
+      "expected_value": "3783 4214 3523 967",
+      "query": "differences.bookedFlights.added.\"0\".paymentInfo.cardNumber"
+    },
+    {
+      "description": "correct expiration date",
+      "type": "jmespath",
+      "expected_value": "12/25",
+      "query": "differences.bookedFlights.added.\"0\".paymentInfo.expDate"
+    },
+    {
+      "description": "correct security code",
+      "type": "jmespath",
+      "expected_value": "245",
+      "query": "differences.bookedFlights.added.\"0\".paymentInfo.securityCode"
+    },
+    {
+      "description": "correct billing address",
+      "type": "jmespath",
+      "expected_value": "123 Main St",
+      "query": "differences.bookedFlights.added.\"0\".paymentInfo.billingAddress1"
+    },
+    {
+      "description": "correct city",
+      "type": "jmespath",
+      "expected_value": "San Francisco",
+      "query": "differences.bookedFlights.added.\"0\".paymentInfo.city"
+    },
+    {
+      "description": "correct state",
+      "type": "jmespath",
+      "expected_value": "CA",
+      "query": "differences.bookedFlights.added.\"0\".paymentInfo.state"
+    },
+    {
+      "description": "correct zip code",
+      "type": "jmespath",
+      "expected_value": "94105",
+      "query": "differences.bookedFlights.added.\"0\".paymentInfo.zip"
+    },
+    {
+      "description": "correct email",
+      "type": "jmespath",
+      "expected_value": "johndoe@example.com",
+      "query": "differences.bookedFlights.added.\"0\".paymentInfo.email"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "topwork-7",
+  "goal": "Compare two front-end freelancers based on their work history, success rate, and client feedback, highlighting the pros and cons of hiring each. Please provide your comparison of the two front-end freelancers, including their pros and cons.",
+  "website": {
+    "id": "topwork",
+    "name": "TopWork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://evals-topwork.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer compare two front-end freelancers, mentioning their work history, success rate, client feedback, and providing pros and cons for each?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

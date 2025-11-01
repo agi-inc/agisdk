@@ -1,0 +1,22 @@
+{
+  "id": "staynb-6",
+  "goal": "Find me places in Cape Town for 4 guests for the dates October 1st to 6th. I need 2+ bedrooms and beds along with wifi. Add a place that fits these requirements to my wishlist.",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_6.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

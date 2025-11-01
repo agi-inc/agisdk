@@ -1,0 +1,22 @@
+{
+  "id": "topwork-12",
+  "goal": "I have some unread messages to reply too. If they ask anything about any time frames, tell them tomorrow.",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_12.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

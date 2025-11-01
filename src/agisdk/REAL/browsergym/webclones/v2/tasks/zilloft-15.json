@@ -1,0 +1,22 @@
+{
+  "id": "zilloft-15",
+  "goal": "Request a tour of a home in San Francisco Bay Area that is under $1,000,000 with at least 3 bedrooms. Make the tour any day on the weekend and after 12pm.",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_zilloft_15.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -265,7 +265,7 @@ class DemoAgentArgs(AbstractAgentArgs):
         )
 
 
-def run_demo_agent(model_name="gpt-4o", task_name="webclones.omnizon-1", headless=False, leaderboard=False, run_id=None):
+def run_demo_agent(model_name="gpt-4o", task_name="v2.omnizon-1", headless=False, leaderboard=False, run_id=None):
     """Run a test with the DemoAgent on a browsergym task."""
     logger.info(f"Starting DemoAgent test with model: {model_name} on task: {task_name}")
     
@@ -303,8 +303,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run DemoAgent on browsergym tasks")
     parser.add_argument("--model", type=str, default="gpt-4o",
                         help="Model to use with the agent (default: gpt-4o)")
-    parser.add_argument("--task", type=str, default="webclones.omnizon-1",
-                        help="Task to run (default: webclones.omnizon-1)")
+    parser.add_argument("--task", type=str, default="v2.omnizon-1",
+                        help="Task to run (default: v2.omnizon-1)")
     parser.add_argument("--headless", type=str2bool, default=False,
                         help="Run headless (default: False)")
     parser.add_argument("--run_id", type=str, default=None,

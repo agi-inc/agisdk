@@ -1,0 +1,22 @@
+{
+  "id": "omnizon-28",
+  "goal": "Omnizon: Buy me a silverware set as I have lost all my old spoons and forks",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://amazon-omnizon-z1-rea-lr9f-agi7-xw2-pq6s-git-b7a192-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_omnizon_28.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

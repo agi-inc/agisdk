@@ -1,0 +1,33 @@
+{
+  "id": "networkin-10",
+  "goal": "Generate a polite follow-up message for a previous unanswered chat, starting with \"Following up on\".",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://evals-networkin.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "description": "contact list updated",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contactListDiff.updated != null"
+    },
+    {
+      "possible": true,
+      "description": "message contains follow-up reference",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(to_string(contactListDiff.updated), 'follow') || contains(to_string(contactListDiff.updated), 'Follow')"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

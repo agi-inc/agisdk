@@ -1,0 +1,22 @@
+{
+  "id": "marrisuite-8",
+  "goal": "I want to stay in Goleta, California next weekend to visit my friend. Show me available hotels.",
+  "website": {
+    "id": "marrisuite",
+    "name": "Marrisuite",
+    "similarTo": "Marriott",
+    "previewImage": "/websitePreviews/marrisuite_preview.jpg",
+    "url": "https://real-marrisuite-jwg9pwssr-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_marrisuite_8.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

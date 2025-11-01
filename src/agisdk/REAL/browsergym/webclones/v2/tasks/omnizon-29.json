@@ -1,0 +1,22 @@
+{
+  "id": "omnizon-29",
+  "goal": "Order me a 40 inch desk and an office chair",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://amazon-omnizon-z1-rea-lr9f-agi7-xw2-pq6s-git-b7a192-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_omnizon_29.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "topwork-3",
+  "goal": "Invite someone looking for work who has experience in Python to my project.",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_3.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

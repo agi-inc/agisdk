@@ -1,0 +1,22 @@
+{
+  "id": "opendining-9",
+  "goal": "OpenDining: Reserve me a restaurant for breakfast today between 7am - 10am, make sure it is at least 3 stars",
+  "website": {
+    "id": "opendining",
+    "name": "Opendining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_opendining_9.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

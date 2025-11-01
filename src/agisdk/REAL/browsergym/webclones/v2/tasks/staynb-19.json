@@ -1,0 +1,22 @@
+{
+  "id": "staynb-19",
+  "goal": "Find me a place in Vancouver, Canada for the dates November 15th to 18th. I need this place for 5 people. When you find a good place, share it to my text groupchat.",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_19.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

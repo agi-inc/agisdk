@@ -1,0 +1,25 @@
+{
+  "id": "zilloft-5",
+  "goal": "Filter the listings in San Jose to display only \"Townhomes\" within a price range of $750,000 to $1,000,000. How many results are displayed?",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://evals-zilloft.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "description": "eval not implemented yet",
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer correctly state that there is 1 result displayed when filtering for Townhomes within a price range of $750,000 to $1,000,000?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

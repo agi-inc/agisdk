@@ -1,0 +1,22 @@
+{
+  "id": "omnizon-9",
+  "goal": "Omnizon: I want to create a gaming collection - buy any gaming device under $100",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://amazon-omnizon-z1-rea-lr9f-agi7-xw2-pq6s-git-b7a192-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_omnizon_9.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

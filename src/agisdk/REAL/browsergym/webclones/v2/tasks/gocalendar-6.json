@@ -1,0 +1,22 @@
+{
+  "id": "gocalendar-6",
+  "goal": "Remind me to pick up my sister on Wednesday at 11 am",
+  "website": {
+    "id": "gocalendar",
+    "name": "Gocalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://real-gocalendar-n1nw9ran1-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gocalendar_6.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

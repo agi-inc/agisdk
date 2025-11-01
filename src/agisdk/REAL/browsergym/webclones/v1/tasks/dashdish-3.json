@@ -1,0 +1,24 @@
+{
+  "id": "dashdish-3",
+  "goal": "How many restaurants in the \"Light & fresh\" category offer delivery?",
+  "website": {
+    "id": "dashdish",
+    "name": "DashDish",
+    "similarTo": "Doordash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://evals-dashdish.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer indicate that 5 restaurants in the \"Light & fresh\" category offer delivery?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

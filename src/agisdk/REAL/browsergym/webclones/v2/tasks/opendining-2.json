@@ -1,0 +1,22 @@
+{
+  "id": "opendining-2",
+  "goal": "Reserve me an American restaurant for any time that is available between 7pm to 8pm today for my friend and I as it's his birthday today.",
+  "website": {
+    "id": "opendining",
+    "name": "Opendining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_opendining_2.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

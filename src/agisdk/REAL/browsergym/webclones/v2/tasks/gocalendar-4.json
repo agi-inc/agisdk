@@ -1,0 +1,22 @@
+{
+  "id": "gocalendar-4",
+  "goal": "Starting September 20th, make a reminder for Monday through Friday to remind me to work out at the gym from 7:45pm to 8:45pm.",
+  "website": {
+    "id": "gocalendar",
+    "name": "Gocalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://real-gocalendar-n1nw9ran1-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gocalendar_4.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

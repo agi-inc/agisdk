@@ -1,0 +1,22 @@
+{
+  "id": "udriver-15",
+  "goal": "My friends and I need a ride from 388 Beale to Amber Indian Restaurants. We would like the XL option. Please book this ride.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_15.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

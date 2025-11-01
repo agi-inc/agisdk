@@ -1,0 +1,37 @@
+{
+  "id": "topwork-1",
+  "goal": "Create a new job post for a Frontend Developer with expertise in React and TypeScript, specifying project details such as estimated duration, required skills, and budget.",
+  "website": {
+    "id": "topwork",
+    "name": "TopWork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://evals-topwork.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct job title",
+      "type": "jmespath",
+      "expected_value": "Frontend Developer",
+      "query": "jobsDiff.added.\"0\".title"
+    },
+    {
+      "description": "includes React skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'React')"
+    },
+    {
+      "description": "includes TypeScript skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'TypeScript')"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

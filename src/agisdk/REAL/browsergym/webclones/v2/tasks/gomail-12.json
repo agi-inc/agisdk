@@ -1,0 +1,22 @@
+{
+  "id": "gomail-12",
+  "goal": "Go Mail: Email Charles to see if he has found any new clients",
+  "website": {
+    "id": "gomail",
+    "name": "Gomail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gomail_12.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}
