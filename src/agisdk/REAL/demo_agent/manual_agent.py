@@ -5,8 +5,8 @@ import textwrap
 import time
 from typing import Optional
 
-from agisdk.REAL.browsergym.experiments import Agent, AbstractAgentArgs
 from agisdk.REAL.browsergym.core.action.highlevel import HighLevelActionSet
+from agisdk.REAL.browsergym.experiments import AbstractAgentArgs, Agent
 from agisdk.REAL.browsergym.utils.obs import (
     flatten_axtree_to_str,
     flatten_dom_to_str,
@@ -142,11 +142,7 @@ class ManualAgent(Agent):
         self.last_observation = obs
 
         # Detect a fresh episode after a completed run and reset internal state.
-        if (
-            self._user_done
-            and self._settle_action_sent
-            and obs.get("last_action") in (None, "")
-        ):
+        if self._user_done and self._settle_action_sent and obs.get("last_action") in (None, ""):
             self._reset_episode_state()
             self.last_observation = obs
 

@@ -1,4 +1,6 @@
-import sys, json
+import json
+import sys
+
 
 def safe_get(d, *keys):
     cur = d
@@ -49,7 +51,7 @@ def extract_search_terms(ifd):
 def main():
     path = sys.argv[1]
     try:
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -95,6 +97,7 @@ def main():
         print("SUCCESS")
     else:
         print("FAILURE")
+
 
 if __name__ == "__main__":
     main()

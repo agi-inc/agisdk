@@ -1,4 +1,6 @@
-import json, sys
+import json
+import sys
+
 
 def get_nested(d, *keys):
     cur = d
@@ -10,6 +12,7 @@ def get_nested(d, *keys):
             return None
     return cur
 
+
 # Verification logic:
 # - Success requires evidence of replies sent by the agent (author "Sarah Johnson").
 # - Among the new replies, at least one must explicitly mention "tomorrow" (case-insensitive),
@@ -19,42 +22,44 @@ def get_nested(d, *keys):
 
 try:
     path = sys.argv[1]
-    with open(path, 'r') as f:
+    with open(path) as f:
         data = json.load(f)
 except Exception:
     print("FAILURE")
     sys.exit(0)
 
-added_contact_list = get_nested(data, 'initialfinaldiff', 'added', 'messages', 'contactList')
+added_contact_list = get_nested(data, "initialfinaldiff", "added", "messages", "contactList")
 count_out = 0
 count_tomorrow = 0
 
 if isinstance(added_contact_list, dict):
-    for contact_idx, contact_val in added_contact_list.items():
-        msgs = contact_val.get('messages', {}) if isinstance(contact_val, dict) else {}
+    for _contact_idx, contact_val in added_contact_list.items():
+        msgs = contact_val.get("messages", {}) if isinstance(contact_val, dict) else {}
         if isinstance(msgs, dict):
-            for msg_idx, msg_obj in msgs.items():
+            for _msg_idx, msg_obj in msgs.items():
                 if not isinstance(msg_obj, dict):
                     continue
-                author = str(msg_obj.get('author', '')).strip()
-                message = str(msg_obj.get('message', '')).lower()
-                if author.lower() == 'sarah johnson':
+                author = str(msg_obj.get("author", "")).strip()
+                message = str(msg_obj.get("message", "")).lower()
+                if author.lower() == "sarah johnson":
                     count_out += 1
-                    if 'tomorrow' in message:
+                    if "tomorrow" in message:
                         count_tomorrow += 1
 
 # Fallback: if no added outgoing messages found, inspect updated lastMessage fields
 if count_out == 0:
-    updated_contact_list = get_nested(data, 'initialfinaldiff', 'updated', 'messages', 'contactList')
+    updated_contact_list = get_nested(
+        data, "initialfinaldiff", "updated", "messages", "contactList"
+    )
     if isinstance(updated_contact_list, dict):
-        for k, v in updated_contact_list.items():
+        for _k, v in updated_contact_list.items():
             if not isinstance(v, dict):
                 continue
-            last_author = str(v.get('lastMessageAuthor', '')).strip().lower()
-            last_msg = str(v.get('lastMessage', '')).lower()
-            if last_author == 'sarah johnson' and last_msg:
+            last_author = str(v.get("lastMessageAuthor", "")).strip().lower()
+            last_msg = str(v.get("lastMessage", "")).lower()
+            if last_author == "sarah johnson" and last_msg:
                 count_out += 1
-                if 'tomorrow' in last_msg:
+                if "tomorrow" in last_msg:
                     count_tomorrow += 1
 
 if count_out >= 1 and count_tomorrow >= 1:

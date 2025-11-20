@@ -1,4 +1,6 @@
-import json, sys
+import json
+import sys
+
 
 def get_nested(d, path, default=None):
     cur = d
@@ -9,6 +11,7 @@ def get_nested(d, path, default=None):
             return default
     return cur
 
+
 # Strategy in code comments:
 # - Verify the task by confirming an actual placed order contains the target item.
 # - Search cartItems only within foodOrders (placed orders) found under differences.foodOrders.added and initialfinaldiff.added.cart.foodOrders.
@@ -16,7 +19,7 @@ def get_nested(d, path, default=None):
 
 try:
     path = sys.argv[1]
-    with open(path, 'r') as f:
+    with open(path) as f:
         data = json.load(f)
 except Exception:
     print("FAILURE")

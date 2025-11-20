@@ -1,4 +1,6 @@
-import json, sys
+import json
+import sys
+
 
 def get_nested(d, path, default=None):
     cur = d
@@ -9,11 +11,13 @@ def get_nested(d, path, default=None):
             return default
     return cur
 
+
 # Determine if an entry looks like a real tour request
 # We require: an id string and requestTourData containing either non-empty options list or non-empty formValues dict
 # Strategy: Check both potential locations observed in training data:
 # 1) differences.requestTours.added
 # 2) initialfinaldiff.added.tourRequests.requestTourList
+
 
 def is_valid_tour_request(entry):
     if not isinstance(entry, dict):
@@ -36,7 +40,7 @@ def is_valid_tour_request(entry):
 def main():
     try:
         path = sys.argv[1]
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -49,7 +53,9 @@ def main():
     if isinstance(added_req_tours, dict):
         candidates.extend(list(added_req_tours.values()))
 
-    initial_req_list = get_nested(data, ["initialfinaldiff", "added", "tourRequests", "requestTourList"], {})
+    initial_req_list = get_nested(
+        data, ["initialfinaldiff", "added", "tourRequests", "requestTourList"], {}
+    )
     if isinstance(initial_req_list, dict):
         candidates.extend(list(initial_req_list.values()))
 
@@ -57,6 +63,7 @@ def main():
     success = any(is_valid_tour_request(c) for c in candidates)
 
     print("SUCCESS" if success else "FAILURE")
+
 
 if __name__ == "__main__":
     main()

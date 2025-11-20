@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Strategy:
 # 1) Confirm an order was actually placed by finding entries in foodOrders (not just items in cart).
@@ -70,13 +71,14 @@ def evaluate(data):
 def main():
     try:
         path = sys.argv[1]
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
         return
     ok = evaluate(data)
     print("SUCCESS" if ok else "FAILURE")
+
 
 if __name__ == "__main__":
     main()

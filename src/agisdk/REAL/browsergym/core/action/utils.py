@@ -1,5 +1,6 @@
-import playwright.sync_api
 from typing import Literal
+
+import playwright.sync_api
 
 
 def get_elem_by_bid(
@@ -201,7 +202,10 @@ def smooth_move_visual_cursor_to(
 
 
 def check_for_overlay(
-    page: playwright.sync_api.Page, bid: str, element: playwright.sync_api.ElementHandle, box: dict
+    page: playwright.sync_api.Page,
+    bid: str,
+    element: playwright.sync_api.ElementHandle,
+    box: dict,
 ):
     if not element:
         return False

@@ -1,20 +1,25 @@
 import base64
 import dataclasses
-import numpy as np
 import io
 import logging
 import time
-
-from PIL import Image
 from typing import Literal, Optional
 
-from agisdk.REAL.browsergym.experiments import Agent, AbstractAgentArgs
+import numpy as np
+from PIL import Image
+
 from agisdk.REAL.browsergym.core.action.highlevel import HighLevelActionSet
-from agisdk.REAL.browsergym.core.action.python import PythonActionSet
-from agisdk.REAL.browsergym.utils.obs import flatten_axtree_to_str, flatten_dom_to_str, prune_html
+from agisdk.REAL.browsergym.experiments import AbstractAgentArgs, Agent
+from agisdk.REAL.browsergym.utils.obs import (
+    flatten_axtree_to_str,
+    flatten_dom_to_str,
+    prune_html,
+)
+
 from ..logging import logger as rich_logger
 
 logger = logging.getLogger(__name__)
+
 
 # Handling Screenshots
 def image_to_jpg_base64_url(image: np.ndarray | Image.Image):
@@ -36,7 +41,6 @@ class DemoAgent(Agent):
     """A basic agent using OpenAI API, to demonstrate BrowserGym's functionalities."""
 
     def obs_preprocessor(self, obs: dict) -> dict:
-
         return {
             "chat_messages": obs["chat_messages"],
             "screenshot": obs["screenshot"],
@@ -46,33 +50,33 @@ class DemoAgent(Agent):
             "axtree_txt": flatten_axtree_to_str(obs["axtree_object"]),
             "pruned_html": prune_html(flatten_dom_to_str(obs["dom_object"])),
         }
-        
+
     def close(self):
         """Called when the agent is being closed"""
         # Evaluate success if available
-        if hasattr(self, 'last_observation') and self.last_observation:
-            success = self.last_observation.get('success', None)
-            reward = self.last_observation.get('reward', 0)
+        if hasattr(self, "last_observation") and self.last_observation:
+            success = self.last_observation.get("success", None)
+            reward = self.last_observation.get("reward", 0)
             time_taken = None
-            if hasattr(self, 'session_start_time'):
+            if hasattr(self, "session_start_time"):
                 time_taken = time.time() - self.session_start_time
-            
+
             if success is not None:
                 rich_logger.task_complete(success, reward, time_taken)
             else:
                 rich_logger.info(f"🎯 Session completed - {len(self.action_history)} actions taken")
         else:
             rich_logger.info(f"🎯 Session completed - {len(self.action_history)} actions taken")
-        
+
         super().close()
-        
+
     def update_last_observation(self, obs):
         """Store the last observation for metrics"""
         self.last_observation = obs
 
     def __init__(
         self,
-        model_name: str, 
+        model_name: str,
         chat_mode: bool,
         demo_mode: str,
         use_html: bool,
@@ -95,16 +99,22 @@ class DemoAgent(Agent):
         self.thinking_budget = thinking_budget
 
         if not (use_html or use_axtree):
-            raise ValueError(f"Either use_html or use_axtree must be set to True.")
+            raise ValueError("Either use_html or use_axtree must be set to True.")
 
-        from openai import OpenAI
-        from anthropic import Anthropic
         import os
 
-        if model_name.startswith("gpt-") or model_name.startswith("o1") or model_name.startswith("o3"):
+        from anthropic import Anthropic
+        from openai import OpenAI
+
+        if (
+            model_name.startswith("gpt-")
+            or model_name.startswith("o1")
+            or model_name.startswith("o3")
+        ):
             # Use provided API key or fall back to environment variable
             self.client = OpenAI(api_key=openai_api_key)
             self.model_name = model_name
+
             # Define function to query OpenAI models
             def query_model(system_msgs, user_msgs):
                 if self.system_message_handling == "combined":
@@ -130,12 +140,13 @@ class DemoAgent(Agent):
                         ],
                     )
                 return response.choices[0].message.content
+
             self.query_model = query_model
-            
+
         elif model_name.startswith("openrouter/"):
             # Extract the actual model name without the openrouter/ prefix
             actual_model_name = model_name.replace("openrouter/", "", 1)
-            
+
             # Initialize OpenRouter client (using OpenAI client with custom base URL)
             self.client = OpenAI(
                 base_url="https://openrouter.ai/api/v1",
@@ -143,9 +154,11 @@ class DemoAgent(Agent):
             )
             # Store site info for headers
             self.openrouter_site_url = openrouter_site_url or os.getenv("OPENROUTER_SITE_URL", "")
-            self.openrouter_site_name = openrouter_site_name or os.getenv("OPENROUTER_SITE_NAME", "")
+            self.openrouter_site_name = openrouter_site_name or os.getenv(
+                "OPENROUTER_SITE_NAME", ""
+            )
             self.model_name = actual_model_name
-            
+
             # Define function to query OpenRouter models
             def query_model(system_msgs, user_msgs):
                 if self.system_message_handling == "combined":
@@ -170,18 +183,22 @@ class DemoAgent(Agent):
                     # Format messages properly - extract text content
                     formatted_messages = []
                     if system_msgs:
-                        formatted_messages.append({"role": "system", "content": system_msgs[0]["text"]})
-                    
+                        formatted_messages.append(
+                            {"role": "system", "content": system_msgs[0]["text"]}
+                        )
+
                     # Convert user messages to OpenAI format
                     user_content = []
                     for msg in user_msgs:
                         if msg["type"] == "text":
                             user_content.append({"type": "text", "text": msg["text"]})
                         elif msg["type"] == "image_url":
-                            user_content.append({"type": "image_url", "image_url": msg["image_url"]})
-                    
+                            user_content.append(
+                                {"type": "image_url", "image_url": msg["image_url"]}
+                            )
+
                     formatted_messages.append({"role": "user", "content": user_content})
-                    
+
                     response = self.client.chat.completions.create(
                         extra_headers={
                             "HTTP-Referer": self.openrouter_site_url,
@@ -191,35 +208,36 @@ class DemoAgent(Agent):
                         messages=formatted_messages,
                     )
                 return response.choices[0].message.content
+
             self.query_model = query_model
-        
+
         elif model_name.startswith("local"):
             actual_model_name = model_name.replace("local/", "", 1)
-            
+
             # Modify OpenAI's API key and API base to use vLLM's load balancer server.
             self.client = OpenAI(
                 base_url="http://localhost:7999/v1",
                 api_key="FEEL_THE_AGI",
             )
             self.model_name = actual_model_name
-            
+
             # Define function to query OpenRouter models
             def query_model(system_msgs, user_msgs):
                 completion = self.client.chat.completions.create(
                     model=self.model_name,
                     messages=[
                         {"role": "system", "content": system_msgs},
-                        {"role": "user", "content": user_msgs}
+                        {"role": "user", "content": user_msgs},
                     ],
                     max_tokens=500,
                     temperature=1.0,
                     top_p=0.95,
-                    extra_body={"top_k": 64}
+                    extra_body={"top_k": 64},
                 )
                 return completion.choices[0].message.content
-                
+
             self.query_model = query_model
-    
+
         elif any(model_name.startswith(prefix) for prefix in ["claude-", "sonnet-"]):
             # Comprehensive model mapping for all Claude models
             ANTHROPIC_MODELS = {
@@ -229,32 +247,29 @@ class DemoAgent(Agent):
                 "claude-3.5-sonnet": "claude-3-5-sonnet-20241022",
                 "claude-opus-4": "claude-opus-4-20250514",
                 "claude-sonnet-4": "claude-sonnet-4-20250514",
-                "sonnet-3.7": "claude-3-7-sonnet-20250219"
+                "sonnet-3.7": "claude-3-7-sonnet-20250219",
             }
-            
+
             # Parse model name and thinking mode
             base_model_name = model_name.replace(":thinking", "")
             thinking_enabled = model_name.endswith(":thinking")
-            
+
             # Get the actual model ID
             if base_model_name in ANTHROPIC_MODELS:
                 self.model_name = ANTHROPIC_MODELS[base_model_name]
             else:
                 # If not in mapping, assume it's a direct model ID
                 self.model_name = base_model_name
-            
+
             # Initialize Anthropic client
             self.client = Anthropic(api_key=anthropic_api_key or os.getenv("ANTHROPIC_API_KEY"))
-            
+
             # Configure thinking based on model capabilities and user request
             if thinking_enabled:
-                thinking = {
-                    "type": "enabled",
-                    "budget_tokens": self.thinking_budget
-                }
+                thinking = {"type": "enabled", "budget_tokens": self.thinking_budget}
             else:
                 thinking = {"type": "disabled"}
-                
+
             # Define function to query Anthropic models
             def query_model(system_msgs, user_msgs):
                 # Convert OpenAI format messages to Anthropic format
@@ -267,21 +282,28 @@ class DemoAgent(Agent):
                         image_url = msg["image_url"]
                         if isinstance(image_url, dict):
                             image_url = image_url["url"]
-                        
+
                         if image_url.startswith("data:image/jpeg;base64,"):
                             base64_data = image_url.replace("data:image/jpeg;base64,", "")
-                            anthropic_content.append({
-                                "type": "image",
-                                "source": {
-                                    "type": "base64",
-                                    "media_type": "image/jpeg",
-                                    "data": base64_data
+                            anthropic_content.append(
+                                {
+                                    "type": "image",
+                                    "source": {
+                                        "type": "base64",
+                                        "media_type": "image/jpeg",
+                                        "data": base64_data,
+                                    },
                                 }
-                            })
+                            )
                         else:
                             # Skip external URLs or unsupported image formats
-                            anthropic_content.append({"type": "text", "text": "[Image URL not supported by Anthropic API]"})
-                
+                            anthropic_content.append(
+                                {
+                                    "type": "text",
+                                    "text": "[Image URL not supported by Anthropic API]",
+                                }
+                            )
+
                 # Handle system message based on system_message_handling
                 if self.system_message_handling == "combined" and system_msgs:
                     # Prepend system message to user content
@@ -292,13 +314,10 @@ class DemoAgent(Agent):
                 else:
                     # Use separate system message - extract text from the list
                     system_content = system_msgs[0]["text"] if system_msgs else ""
-                
+
                 # Simple messages array - no manual thinking block management
-                messages = [{
-                    "role": "user", 
-                    "content": anthropic_content
-                }]
-                
+                messages = [{"role": "user", "content": anthropic_content}]
+
                 # Make API request - conditionally include system parameter
                 create_params = {
                     "model": self.model_name,
@@ -306,16 +325,18 @@ class DemoAgent(Agent):
                     "messages": messages,
                     "thinking": thinking,
                 }
-                
+
                 # Only add system parameter if we have content
                 if system_content is not None:
                     create_params["system"] = system_content
-                    
+
                 response = self.client.messages.create(**create_params)
-                
+
                 # Log response content types for debugging
-                logger.info(f"Response content types: {[content.type for content in response.content]}")
-                
+                logger.info(
+                    f"Response content types: {[content.type for content in response.content]}"
+                )
+
                 # Extract text content, handling all block types properly
                 text_content = None
                 for content_block in response.content:
@@ -328,16 +349,19 @@ class DemoAgent(Agent):
                     elif content_block.type == "redacted_thinking":
                         # Log that we encountered redacted thinking
                         logger.debug("Encountered redacted thinking block")
-                
+
                 if text_content is None:
                     logger.warning("No text content found in response")
                     # This shouldn't happen with a properly formed response
                     raise ValueError("No text content in Anthropic response")
-                
+
                 return text_content
+
             self.query_model = query_model
         else:
-            raise ValueError(f"Model {model_name} not supported. Use a model name starting with 'gpt-', 'claude-', 'sonnet-', or 'openrouter/' followed by the OpenRouter model ID.")
+            raise ValueError(
+                f"Model {model_name} not supported. Use a model name starting with 'gpt-', 'claude-', 'sonnet-', or 'openrouter/' followed by the OpenRouter model ID."
+            )
 
         self.action_set = HighLevelActionSet(
             subsets=["chat", "bid", "infeas"],  # define a subset of the action space
@@ -358,11 +382,14 @@ class DemoAgent(Agent):
             goal_str = str(obs.get("goal_object", ""))
             # Extract just the text content if it's a message object
             if isinstance(obs.get("goal_object"), list) and len(obs.get("goal_object")) > 0:
-                if isinstance(obs.get("goal_object")[0], dict) and "text" in obs.get("goal_object")[0]:
+                if (
+                    isinstance(obs.get("goal_object")[0], dict)
+                    and "text" in obs.get("goal_object")[0]
+                ):
                     goal_str = obs.get("goal_object")[0]["text"]
             rich_logger.task_start(goal_str, self.model_name)
             self.session_start_time = time.time()
-            
+
         system_msgs = []
         user_msgs = []
 
@@ -370,7 +397,7 @@ class DemoAgent(Agent):
             system_msgs.append(
                 {
                     "type": "text",
-                    "text": f"""\
+                    "text": """\
                             # Instructions
 
                             You are a UI Assistant, your goal is to help the user perform tasks using a web browser. You can
@@ -388,7 +415,7 @@ class DemoAgent(Agent):
             user_msgs.append(
                 {
                     "type": "text",
-                    "text": f"""\
+                    "text": """\
                             # Chat Messages
                             """,
                 }
@@ -399,7 +426,7 @@ class DemoAgent(Agent):
                         {
                             "type": "text",
                             "text": f"""\
-                                    - [{msg['role']}] {msg['message']}
+                                    - [{msg["role"]}] {msg["message"]}
                                     """,
                         }
                     )
@@ -413,7 +440,7 @@ class DemoAgent(Agent):
             system_msgs.append(
                 {
                     "type": "text",
-                    "text": f"""\
+                    "text": """\
                             # Instructions
 
                             Review the current state of the page and all other information to find the best
@@ -426,7 +453,7 @@ class DemoAgent(Agent):
             user_msgs.append(
                 {
                     "type": "text",
-                    "text": f"""\
+                    "text": """\
                             # Goal
                             """,
                 }
@@ -441,9 +468,9 @@ class DemoAgent(Agent):
                     "type": "text",
                     "text": f"""\
                             # Current page Accessibility Tree
-                            
+
                             {obs["axtree_txt"]}
-                            
+
                             """,
                 }
             )
@@ -454,9 +481,9 @@ class DemoAgent(Agent):
                     "type": "text",
                     "text": f"""\
                             # Current page DOM
-                            
+
                             {obs["pruned_html"]}
-                            
+
                             """,
                 }
             )
@@ -499,15 +526,15 @@ class DemoAgent(Agent):
                         ```send_msg_to_user("The price for a 15\\" laptop is 1499 USD.")```
 
                         """,
-                }
-            )
+            }
+        )
 
         # append past actions (and last error message) if any
         if self.action_history:
             user_msgs.append(
                 {
                     "type": "text",
-                    "text": f"""\
+                    "text": """\
                             # History of past actions
                             """,
                 }
@@ -527,7 +554,7 @@ class DemoAgent(Agent):
             if obs["last_action_error"]:
                 # Log error to console
                 rich_logger.error(f"Error: {str(obs['last_action_error'])[:100]}...")
-                
+
                 # Add error to message
                 user_msgs.append(
                     {
@@ -545,7 +572,7 @@ class DemoAgent(Agent):
         user_msgs.append(
             {
                 "type": "text",
-                "text": f"""\
+                "text": """\
                         # Next action
 
                         You will now think step by step and produce your next best action. Reflect on your past actions, any resulting error message, the current state of the page before deciding on your next action.
@@ -572,7 +599,7 @@ class DemoAgent(Agent):
                     raise ValueError(
                         f"Unknown message type {repr(message['type'])} in the task goal."
                     )
-        full_prompt_txt = "\n".join(prompt_text_strings)
+        "\n".join(prompt_text_strings)
         # Don't log the full prompt - too verbose
         # logger.info(full_prompt_txt)
 
@@ -588,11 +615,11 @@ class DemoAgent(Agent):
         action_summary = f"{action_type}"
         if action_args:
             action_summary += f"({action_args[:50]}{'...' if len(action_args) > 50 else ''})"
-        
+
         rich_logger.task_step(step_num, action_summary)
 
         self.action_history.append(action)
-        
+
         # Store observation for metrics
         self.update_last_observation(obs)
 
@@ -601,8 +628,6 @@ class DemoAgent(Agent):
 
 @dataclasses.dataclass
 class DemoAgentArgs(AbstractAgentArgs):
-   
-
     model_name: str = "gpt-4o"
     chat_mode: bool = False
     demo_mode: str = "off"
@@ -611,7 +636,7 @@ class DemoAgentArgs(AbstractAgentArgs):
     use_screenshot: bool = False
     system_message_handling: Literal["separate", "combined"] = "separate"
     thinking_budget: int = 10000
-    
+
     # API keys and configuration - these can be None and the agent will fall back to environment variables
     openai_api_key: Optional[str] = None
     openrouter_api_key: Optional[str] = None

@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Verification script for Topwork task:
 # Goal: Ensure both Ashley and Brandon were saved/favorited.
@@ -7,6 +8,7 @@ import json, sys
 # 2) Derive target freelancer IDs by scanning jobs -> applications for freelancerId containing 'ashley' and 'brandon' (case-insensitive).
 #    If not found, fallback to expected canonical IDs {'ashleycampbell', 'brandonmartinez'} based on platform conventions.
 # 3) SUCCESS if at least one Ashley-ID and one Brandon-ID are present in the saved set; otherwise FAILURE.
+
 
 def get(data, *keys, default=None):
     cur = data
@@ -21,12 +23,12 @@ def collect_saved_ids(data):
     saved_ids = set()
     if not isinstance(data, dict):
         return saved_ids
-    initialfinaldiff = data.get('initialfinaldiff', {})
-    for section in ('added', 'updated'):
-        saved = get(initialfinaldiff, section, 'saved', default={})
+    initialfinaldiff = data.get("initialfinaldiff", {})
+    for section in ("added", "updated"):
+        saved = get(initialfinaldiff, section, "saved", default={})
         saved_freelancers = None
         if isinstance(saved, dict):
-            saved_freelancers = saved.get('savedFreelancerIds')
+            saved_freelancers = saved.get("savedFreelancerIds")
         # Process the saved_freelancers in different possible formats
         if isinstance(saved_freelancers, list):
             for v in saved_freelancers:
@@ -44,9 +46,9 @@ def collect_saved_ids(data):
 
 def collect_target_ids(data):
     # Find freelancerIds containing 'ashley' and 'brandon' in applications
-    initialfinaldiff = data.get('initialfinaldiff', {})
-    added_jobs = get(initialfinaldiff, 'added', 'jobs', 'jobs', default={}) or {}
-    updated_jobs = get(initialfinaldiff, 'updated', 'jobs', 'jobs', default={}) or {}
+    initialfinaldiff = data.get("initialfinaldiff", {})
+    added_jobs = get(initialfinaldiff, "added", "jobs", "jobs", default={}) or {}
+    updated_jobs = get(initialfinaldiff, "updated", "jobs", "jobs", default={}) or {}
 
     def iter_jobs(jobs_obj):
         # jobs_obj can be a list-like dict with numeric keys
@@ -63,7 +65,7 @@ def collect_target_ids(data):
     brandon_ids = set()
 
     for job in list(iter_jobs(added_jobs)) + list(iter_jobs(updated_jobs)):
-        applications = job.get('applications', [])
+        applications = job.get("applications", [])
         if isinstance(applications, dict):
             apps_iter = applications.values()
         else:
@@ -71,19 +73,19 @@ def collect_target_ids(data):
         for app in apps_iter:
             if not isinstance(app, dict):
                 continue
-            fid = app.get('freelancerId')
+            fid = app.get("freelancerId")
             if isinstance(fid, str) and fid:
                 low = fid.lower()
-                if 'ashley' in low:
+                if "ashley" in low:
                     ashley_ids.add(fid)
-                if 'brandon' in low:
+                if "brandon" in low:
                     brandon_ids.add(fid)
 
     # Fallback to canonical IDs if none discovered from the page state
     if not ashley_ids:
-        ashley_ids = {'ashleycampbell'}
+        ashley_ids = {"ashleycampbell"}
     if not brandon_ids:
-        brandon_ids = {'brandonmartinez'}
+        brandon_ids = {"brandonmartinez"}
     return ashley_ids, brandon_ids
 
 
@@ -93,7 +95,7 @@ def main():
         return
     path = sys.argv[1]
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -116,5 +118,6 @@ def main():
     else:
         print("FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

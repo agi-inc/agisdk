@@ -1,4 +1,6 @@
-import json, sys
+import json
+import sys
+
 # Strategy:
 # - Load final_state_diff.json
 # - Determine if a tour request was successfully created by checking the presence of requestTours added entries
@@ -17,9 +19,10 @@ def get_nested(d, path, default=None):
             return default
     return cur
 
+
 try:
     fp = sys.argv[1]
-    with open(fp, 'r') as f:
+    with open(fp) as f:
         data = json.load(f)
 except Exception:
     print("FAILURE")
@@ -43,7 +46,9 @@ if isinstance(reqs, dict):
         if not isinstance(options, list) or len(options) == 0:
             continue
         # Validate option has either date or time
-        opt_ok = any(isinstance(opt, dict) and (opt.get("date") or opt.get("time")) for opt in options)
+        opt_ok = any(
+            isinstance(opt, dict) and (opt.get("date") or opt.get("time")) for opt in options
+        )
         if not opt_ok:
             continue
         # Basic form validation

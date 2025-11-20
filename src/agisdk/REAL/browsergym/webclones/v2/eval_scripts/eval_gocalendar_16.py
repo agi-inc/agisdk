@@ -1,4 +1,6 @@
-import sys, json
+import json
+import sys
+
 
 def get_nested(d, keys, default=None):
     cur = d
@@ -9,13 +11,14 @@ def get_nested(d, keys, default=None):
             return default
     return cur
 
+
 # Strategy:
 # - Task requires canceling (deleting) the "Reading Time" event on Wednesday. In diffs, a successful run shows the event under events.deleted.
 # - We generalize: SUCCESS if any deleted event has a title containing "reading" (case-insensitive). Otherwise FAILURE.
 
 try:
     path = sys.argv[1]
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
 except Exception:
     print("FAILURE")

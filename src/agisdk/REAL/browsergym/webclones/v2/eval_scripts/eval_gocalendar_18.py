@@ -1,11 +1,13 @@
-import sys, json
+import json
+import sys
 
 # Strategy:
 # Success if at least one deleted event's title or description contains both 'coffee' and 'sister' (case-insensitive).
 # Failure if no events were deleted or none match the keyword conjunction.
 
+
 def load_json(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -18,17 +20,17 @@ def text_contains_both(text, a, b):
 
 def event_matches(ev):
     # Check title and description fields for both keywords
-    title = ev.get('title')
-    desc = ev.get('description')
-    combined = ''
+    title = ev.get("title")
+    desc = ev.get("description")
+    combined = ""
     if isinstance(title, str):
-        combined += title + ' '
+        combined += title + " "
     if isinstance(desc, str):
         combined += desc
     combined = combined.strip().lower()
     if not combined:
         return False
-    return ('coffee' in combined) and ('sister' in combined)
+    return ("coffee" in combined) and ("sister" in combined)
 
 
 def main():
@@ -44,9 +46,9 @@ def main():
         print("FAILURE")
         return
 
-    diffs = data.get('differences') or {}
-    events = diffs.get('events') or {}
-    deleted = events.get('deleted') or {}
+    diffs = data.get("differences") or {}
+    events = diffs.get("events") or {}
+    deleted = events.get("deleted") or {}
 
     found = False
     if isinstance(deleted, dict):
@@ -57,5 +59,6 @@ def main():
 
     print("SUCCESS" if found else "FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -1,4 +1,5 @@
-import sys, json
+import json
+import sys
 
 # Verification logic:
 # - Find any contact/tour request entries containing selectedDate with date and time
@@ -14,30 +15,30 @@ def parse_time_to_minutes(t):
     if not s:
         return None
     # Normalize spacing before AM/PM
-    s_up = s.upper().replace('.', '')
+    s_up = s.upper().replace(".", "")
     ampm = None
     # Ensure there's a space before AM/PM if missing (e.g., 1:00PM)
-    if s_up.endswith('AM'):
-        ampm = 'AM'
+    if s_up.endswith("AM"):
+        ampm = "AM"
         core = s_up[:-2].strip()
-    elif s_up.endswith('PM'):
-        ampm = 'PM'
+    elif s_up.endswith("PM"):
+        ampm = "PM"
         core = s_up[:-2].strip()
     else:
         # If no AM/PM marker, cannot confidently parse in this context
         return None
     # Split hours and minutes
-    if ':' in core:
-        hh_str, mm_str = core.split(':', 1)
+    if ":" in core:
+        hh_str, mm_str = core.split(":", 1)
         # If minutes include extra, trim non-digits
-        mm = ''
+        mm = ""
         for ch in mm_str:
             if ch.isdigit():
                 mm += ch
             else:
                 break
-        if mm == '':
-            mm = '0'
+        if mm == "":
+            mm = "0"
         try:
             hh = int(hh_str.strip())
             mi = int(mm)
@@ -52,7 +53,7 @@ def parse_time_to_minutes(t):
     if not (1 <= hh <= 12) or not (0 <= mi < 60):
         return None
     # Convert to 24h minutes
-    if ampm == 'AM':
+    if ampm == "AM":
         if hh == 12:
             hh = 0
     else:  # PM
@@ -69,37 +70,37 @@ def is_july_19(date_str):
         return False
     # Prefer ISO-like: YYYY-MM-DD[...]
     # Extract date part before 'T' if present
-    if 'T' in ds:
-        ds_part = ds.split('T', 1)[0]
+    if "T" in ds:
+        ds_part = ds.split("T", 1)[0]
     else:
         ds_part = ds
     # Try YYYY-MM-DD
-    if '-' in ds_part:
-        parts = ds_part.split('-')
+    if "-" in ds_part:
+        parts = ds_part.split("-")
         if len(parts) >= 3:
-            y, m, d = parts[0], parts[1], parts[2]
+            _y, m, d = parts[0], parts[1], parts[2]
             try:
                 m_i = int(m)
                 d_i = int(d)
-                return (m_i == 7 and d_i == 19)
+                return m_i == 7 and d_i == 19
             except:
                 pass
     # Try MM/DD/YYYY
-    if '/' in ds_part:
-        parts = ds_part.split('/')
+    if "/" in ds_part:
+        parts = ds_part.split("/")
         if len(parts) >= 3:
             try:
                 m_i = int(parts[0])
                 d_i = int(parts[1])
-                return (m_i == 7 and d_i == 19)
+                return m_i == 7 and d_i == 19
             except:
                 pass
     # Fallback: substring heuristics
-    if '07-19' in ds_part or '7-19' in ds_part or '07/19' in ds_part or '7/19' in ds_part:
+    if "07-19" in ds_part or "7-19" in ds_part or "07/19" in ds_part or "7/19" in ds_part:
         return True
     # Could be named month
     ds_upper = ds_part.upper()
-    if 'JUL' in ds_upper and '19' in ds_upper:
+    if "JUL" in ds_upper and "19" in ds_upper:
         return True
     return False
 
@@ -122,19 +123,19 @@ def find_selected_date_entries(data):
     # Look for structures with 'selectedDate' nested or as field
     for d in iter_dicts(data):
         # Case 1: contactAgentData contains selectedDate
-        if 'contactAgentData' in d and isinstance(d['contactAgentData'], dict):
-            cad = d['contactAgentData']
-            if isinstance(cad.get('selectedDate'), dict):
-                entries.append(cad['selectedDate'])
+        if "contactAgentData" in d and isinstance(d["contactAgentData"], dict):
+            cad = d["contactAgentData"]
+            if isinstance(cad.get("selectedDate"), dict):
+                entries.append(cad["selectedDate"])
         # Case 2: selectedDate directly in dict
-        if isinstance(d.get('selectedDate'), dict):
-            entries.append(d['selectedDate'])
+        if isinstance(d.get("selectedDate"), dict):
+            entries.append(d["selectedDate"])
     return entries
 
 
 def main():
     path = sys.argv[1]
-    with open(path, 'r') as f:
+    with open(path) as f:
         data = json.load(f)
 
     # Collect all selectedDate dicts
@@ -142,8 +143,8 @@ def main():
 
     success_found = False
     for sd in selected_dates:
-        date_val = sd.get('date')
-        time_val = sd.get('time')
+        date_val = sd.get("date")
+        time_val = sd.get("time")
         if not date_val or not time_val:
             continue
         if not is_july_19(date_val):
@@ -156,7 +157,8 @@ def main():
             success_found = True
             break
 
-    print('SUCCESS' if success_found else 'FAILURE')
+    print("SUCCESS" if success_found else "FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

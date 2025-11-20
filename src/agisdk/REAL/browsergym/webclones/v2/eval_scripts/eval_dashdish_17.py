@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Strategy:
 # - Extract the placed order(s) from final_state_diff (prefer initialfinaldiff.added.cart.foodOrders, fallback to differences.foodOrders.added)
@@ -10,13 +11,10 @@ def get_orders(data):
     orders = []
     try:
         food_orders = (
-            data.get("initialfinaldiff", {})
-                .get("added", {})
-                .get("cart", {})
-                .get("foodOrders", {})
+            data.get("initialfinaldiff", {}).get("added", {}).get("cart", {}).get("foodOrders", {})
         )
         if isinstance(food_orders, dict) and food_orders:
-            for k, v in food_orders.items():
+            for _k, v in food_orders.items():
                 if isinstance(v, dict):
                     orders.append(v)
     except Exception:
@@ -24,13 +22,9 @@ def get_orders(data):
 
     # Fallback: differences.foodOrders.added
     try:
-        diff_added = (
-            data.get("differences", {})
-                .get("foodOrders", {})
-                .get("added", {})
-        )
+        diff_added = data.get("differences", {}).get("foodOrders", {}).get("added", {})
         if isinstance(diff_added, dict) and diff_added:
-            for k, v in diff_added.items():
+            for _k, v in diff_added.items():
                 if isinstance(v, dict):
                     orders.append(v)
     except Exception:
@@ -41,10 +35,7 @@ def get_orders(data):
 
 def is_success_order(order):
     # Check shipping is delivery
-    shipping = (
-        order.get("checkoutDetails", {})
-             .get("shipping", {})
-    )
+    shipping = order.get("checkoutDetails", {}).get("shipping", {})
     shipping_option = str(shipping.get("shippingOption", ""))
     if shipping_option.lower() != "delivery":
         return False
@@ -91,7 +82,7 @@ def is_success_order(order):
 def main():
     try:
         path = sys.argv[1]
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -104,6 +95,7 @@ def main():
             return
 
     print("FAILURE")
+
 
 if __name__ == "__main__":
     main()

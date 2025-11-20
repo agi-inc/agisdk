@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 
 # Load all task JSON files
@@ -10,7 +9,7 @@ all = []
 
 for file_path in tasks_dir.glob("*.json"):
     # Load JSON and add to list
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         task = json.load(f)
         # Add filename to task for reference
         task["_filename"] = file_path.name

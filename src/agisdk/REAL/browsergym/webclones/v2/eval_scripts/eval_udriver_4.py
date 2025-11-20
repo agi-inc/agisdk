@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Verification logic for: Show me rides from 1000 Chestnut St to Rooftop 25 and book one of the rides.
 # Strategy:
@@ -7,16 +8,16 @@ import json, sys
 
 
 def load_json(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def get_sections(data):
     sections = []
-    if isinstance(data, dict) and 'initialfinaldiff' in data:
-        if isinstance(data['initialfinaldiff'], dict):
-            for k in ['added', 'updated']:
-                sec = data['initialfinaldiff'].get(k)
+    if isinstance(data, dict) and "initialfinaldiff" in data:
+        if isinstance(data["initialfinaldiff"], dict):
+            for k in ["added", "updated"]:
+                sec = data["initialfinaldiff"].get(k)
                 if isinstance(sec, dict):
                     sections.append(sec)
     else:
@@ -62,14 +63,20 @@ def location_matches(loc, needle):
     if not isinstance(loc, dict):
         return False
     low = needle.lower()
-    fields = [loc.get('name'), loc.get('formattedAddress'), loc.get('address')]
+    fields = [loc.get("name"), loc.get("formattedAddress"), loc.get("address")]
     for f in fields:
         if text_contains(f, low):
             return True
     # also check nested addressComponents street if available
-    ac = loc.get('addressComponents')
+    ac = loc.get("addressComponents")
     if isinstance(ac, dict):
-        for f in [ac.get('street'), ac.get('city'), ac.get('state'), ac.get('zipCode'), ac.get('country')]:
+        for f in [
+            ac.get("street"),
+            ac.get("city"),
+            ac.get("state"),
+            ac.get("zipCode"),
+            ac.get("country"),
+        ]:
             if text_contains(f, low):
                 return True
     return False
@@ -80,16 +87,16 @@ def route_shown_correct(ride):
     if not isinstance(ride, dict):
         return False
     # Prefer ride.trip if present
-    trip = ride.get('trip')
+    trip = ride.get("trip")
     if isinstance(trip, dict):
-        p = trip.get('pickup')
-        d = trip.get('destination')
-        if location_matches(p, '1000 chestnut') and location_matches(d, 'rooftop 25'):
+        p = trip.get("pickup")
+        d = trip.get("destination")
+        if location_matches(p, "1000 chestnut") and location_matches(d, "rooftop 25"):
             return True
     # Fall back to pickupLocation/dropoffLocation if present
-    p2 = ride.get('pickupLocation')
-    d2 = ride.get('dropoffLocation')
-    if location_matches(p2, '1000 chestnut') and location_matches(d2, 'rooftop 25'):
+    p2 = ride.get("pickupLocation")
+    d2 = ride.get("dropoffLocation")
+    if location_matches(p2, "1000 chestnut") and location_matches(d2, "rooftop 25"):
         return True
     return False
 
@@ -98,18 +105,18 @@ def completed_trip_correct(ride):
     # Search ride.trips for a completed trip with the requested route
     if not isinstance(ride, dict):
         return False
-    trips = ride.get('trips')
+    trips = ride.get("trips")
     if not isinstance(trips, list):
         return False
     for t in trips:
         if not isinstance(t, dict):
             continue
-        status = str(t.get('status', '')).lower()
-        if status != 'completed':
+        status = str(t.get("status", "")).lower()
+        if status != "completed":
             continue
-        pickup = t.get('pickup')
-        dest = t.get('destination')
-        if location_matches(pickup, '1000 chestnut') and location_matches(dest, 'rooftop 25'):
+        pickup = t.get("pickup")
+        dest = t.get("destination")
+        if location_matches(pickup, "1000 chestnut") and location_matches(dest, "rooftop 25"):
             return True
     return False
 
@@ -118,18 +125,18 @@ def wallet_has_rooftop_debit(user):
     # Check wallet transactions for a debit related to Rooftop 25
     if not isinstance(user, dict):
         return False
-    wallet = user.get('wallet')
+    wallet = user.get("wallet")
     if not isinstance(wallet, dict):
         return False
-    txs = wallet.get('transactions')
+    txs = wallet.get("transactions")
     if not isinstance(txs, list):
         return False
     for tx in txs:
         if not isinstance(tx, dict):
             continue
-        ttype = str(tx.get('type', '')).lower()
-        desc = tx.get('description', '')
-        if ttype == 'debit' and text_contains(desc, 'rooftop 25'):
+        ttype = str(tx.get("type", "")).lower()
+        desc = tx.get("description", "")
+        if ttype == "debit" and text_contains(desc, "rooftop 25"):
             return True
     return False
 
@@ -138,8 +145,8 @@ def main():
     path = sys.argv[1]
     data = load_json(path)
     sections = get_sections(data)
-    ride = find_first_with_key(sections, 'ride')
-    user = find_first_with_key(sections, 'user')
+    ride = find_first_with_key(sections, "ride")
+    user = find_first_with_key(sections, "user")
 
     # Primary condition: a completed trip with correct route exists
     if completed_trip_correct(ride):
@@ -153,5 +160,6 @@ def main():
 
     print("FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

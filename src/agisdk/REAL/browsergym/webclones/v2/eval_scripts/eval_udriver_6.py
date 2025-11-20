@@ -1,9 +1,12 @@
-import json, sys
+import json
+import sys
+
 
 def norm(s):
     if s is None:
         return ""
     return str(s).strip().lower()
+
 
 def get_section(data, key):
     # Prefer 'added', then 'updated'
@@ -14,16 +17,18 @@ def get_section(data, key):
                 return sec_dict.get(key)
     return {}
 
+
 def approx_equal(a, b, tol=0.05):
     try:
         return abs(float(a) - float(b)) <= tol
     except Exception:
         return False
 
+
 def main():
     try:
         path = sys.argv[1]
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -45,7 +50,7 @@ def main():
         dest_name = norm((t.get("destination") or {}).get("name"))
         if target_pick in pickup_name and target_dest in dest_name:
             # Require wallet payment to satisfy "credits" condition
-            pm = (t.get("paymentMethod") or {})
+            pm = t.get("paymentMethod") or {}
             if norm(pm.get("type")) == "wallet" or "credit" in norm(pm.get("displayName")):
                 matched_trip = t
                 break
@@ -54,8 +59,10 @@ def main():
         return
 
     # 2) Confirm wallet debit transaction for Casa Loma Hotel
-    wallet = (user.get("wallet") or {})
-    txns = wallet.get("transactions", []) if isinstance(wallet.get("transactions", []), list) else []
+    wallet = user.get("wallet") or {}
+    txns = (
+        wallet.get("transactions", []) if isinstance(wallet.get("transactions", []), list) else []
+    )
     debit_found = False
     txn_amount = None
     for tx in txns:
@@ -101,6 +108,7 @@ def main():
         return
 
     print("SUCCESS")
+
 
 if __name__ == "__main__":
     main()

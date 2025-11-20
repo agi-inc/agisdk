@@ -1,9 +1,12 @@
-import sys, json
+import json
+import sys
+
 
 def norm(s):
     if s is None:
         return ""
     return str(s).strip().lower()
+
 
 EXPECTED_PICKUP_NAME = "1 hotel san francisco"
 EXPECTED_PICKUP_ADDR_HINT = "8 mission"
@@ -108,7 +111,7 @@ def main():
         print("FAILURE")
         return
     try:
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -125,6 +128,7 @@ def main():
         print("SUCCESS")
     else:
         print("FAILURE")
+
 
 if __name__ == "__main__":
     main()

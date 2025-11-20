@@ -40,16 +40,16 @@ tasks = [
 ]
 # Run each task
 for task_name in tasks:
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"🚀 Running task: {task_name}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Create harness for this task
     harness = REAL.harness(
-        model="o3",           # GPT-4o agent
-        task_name=task_name,      # Current task
+        model="o3",  # GPT-4o agent
+        task_name=task_name,  # Current task
         headless=False,
-        use_cache=False
+        use_cache=False,
     )
 
     # Run and print results
@@ -57,7 +57,7 @@ for task_name in tasks:
 
     # Display results
     for task, result in results.items():
-        success = result.get('cum_reward', 0) == 1
+        success = result.get("cum_reward", 0) == 1
         print(f"\n{'✅ SUCCESS' if success else '❌ FAILURE'}: {task}")
         print(f"Time: {result.get('elapsed_time', 0):.2f}s")
         print(f"Reward: {result.get('cum_reward', 0)}")

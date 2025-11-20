@@ -10,12 +10,11 @@ from agisdk.REAL.demo_agent.manual_agent import ManualAgentArgs
 
 CONFIG = {
     # Task selection -------------------------------------------------------
-    "task_version": "v2",          # harness will prepend this when sampling
-    "task_type": "omnizon",        # run every omnizon-* task in v2
-    "task_id": None,                # set to an int for a single task like omnizon-3
-    "sample_tasks": 5,              # repeat each task N times
-    "tasks": None,                  # optional explicit list of task names (overrides type/id)
-
+    "task_version": "v2",  # harness will prepend this when sampling
+    "task_type": "omnizon",  # run every omnizon-* task in v2
+    "task_id": None,  # set to an int for a single task like omnizon-3
+    "sample_tasks": 5,  # repeat each task N times
+    "tasks": None,  # optional explicit list of task names (overrides type/id)
     # Environment controls -------------------------------------------------
     "headless": False,
     "max_steps": 25,
@@ -24,9 +23,8 @@ CONFIG = {
     "use_axtree": True,
     "use_screenshot": True,
     "results_dir": "./results/manual_agent",
-
     # Manual agent tweaks --------------------------------------------------
-    "demo_mode": "default",         # "off" disables cursor highlights
+    "demo_mode": "default",  # "off" disables cursor highlights
     "wait_prompt": "Type your final summary (optional), then press Enter once you have finished the task.",
     "settle_wait_ms": 3000,
     "show_goal_panel": True,

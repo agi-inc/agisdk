@@ -1,22 +1,24 @@
-import os
 import json
-import urllib.parse
-import requests
 import logging
+import os
+import urllib.parse
 
 import playwright.sync_api
+import requests
+
 from agisdk.REAL.browsergym.core.task import AbstractBrowserTask
+from agisdk.REAL.browsergym.webclones.evaluate import WebCloneEvaluator
 from agisdk.REAL.browsergym.webclones.task_config import (
-    TaskConfig,
     DEFAULT_VERSION,
+    TaskConfig,
     split_task_reference,
 )
-from agisdk.REAL.browsergym.webclones.evaluate import WebCloneEvaluator
 from agisdk.REAL.logging import logger as rich_logger
 
 RAILWAY_API_BASE = "https://evaluate-production.up.railway.app/"
 
 logger = logging.getLogger(__name__)
+
 
 def get_run_id_from_api(api_key: str, model_id_name: str, run_name: str):
     """
@@ -51,12 +53,15 @@ def get_run_id_from_api(api_key: str, model_id_name: str, run_name: str):
             else:
                 logger.error(f"API response did not contain newRunId: {data}")
         else:
-            logger.error(f"API request failed with status code {response.status_code}: {response.text}")
+            logger.error(
+                f"API request failed with status code {response.status_code}: {response.text}"
+            )
 
     except Exception as e:
         logger.error(f"Error getting run ID from API: {e}")
 
     return None
+
 
 class AbstractWebCloneTask(AbstractBrowserTask):
     """
@@ -76,7 +81,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         run_id: str = None,
         api_key: str = None,
         model_id_name: str = None,
-        run_name: str = None
+        run_name: str = None,
     ) -> None:
         """
         Args:
@@ -129,7 +134,9 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         else:
             if api_key is not None and model_id_name is not None and run_name is not None:
                 # Try to get run_id from API
-                logger.info(f"Attempting to get run_id from API for model '{model_id_name}' and run '{run_name}'")
+                logger.info(
+                    f"Attempting to get run_id from API for model '{model_id_name}' and run '{run_name}'"
+                )
                 api_run_id = get_run_id_from_api(api_key, model_id_name, run_name)
                 if api_run_id:
                     self.run_id = api_run_id
@@ -138,17 +145,17 @@ class AbstractWebCloneTask(AbstractBrowserTask):
                     logger.info(f"Successfully obtained run_id from API: {self.run_id}")
                 else:
                     # Fall back to task config or default
-                    if 'run_id' in self.task_config.task.config:
-                        self.run_id = self.task_config.task.config['run_id']
+                    if "run_id" in self.task_config.task.config:
+                        self.run_id = self.task_config.task.config["run_id"]
                         logger.info(f"Using run_id from task config: {self.run_id}")
                     else:
-                        self.run_id = '0'
+                        self.run_id = "0"
                         logger.info(f"Using default run_id: {self.run_id}")
-            elif 'run_id' in self.task_config.task.config:
-                self.run_id = self.task_config.task.config['run_id']
+            elif "run_id" in self.task_config.task.config:
+                self.run_id = self.task_config.task.config["run_id"]
                 logger.info(f"Using run_id from task config: {self.run_id}")
             else:
-                self.run_id = '0'
+                self.run_id = "0"
                 logger.info(f"Using default run_id: {self.run_id}")
 
         self.evaluator = WebCloneEvaluator(task_config=self.task_config)
@@ -158,7 +165,9 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             if "WEBCLONE_URL" in os.environ:
                 self.url = os.environ["WEBCLONE_URL"]
             else:
-                raise ValueError("Provide a WebClones base URL or set it up as WEBCLONES_URL env var.")
+                raise ValueError(
+                    "Provide a WebClones base URL or set it up as WEBCLONES_URL env var."
+                )
         rich_logger.info(f"⚙️ Initialized {self.canonical_task_id} task.")
         rich_logger.info(f"🎯 Goal: {self.goal}")
 
@@ -169,9 +178,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         config_task_id = self.canonical_task_id
         if self.task_version == "v1" and getattr(self, "run_id", "0") != "0":
             config_task_id = self.task_name
-        config_url = self.url + (
-            f"/config?run_id={self.run_id}&task_id={config_task_id}&latency=0"
-        )
+        config_url = self.url + (f"/config?run_id={self.run_id}&task_id={config_task_id}&latency=0")
         self.background_page.goto(config_url)
         self.background_page.wait_for_load_state("networkidle")
         finish_url = self.url + "/finish"
@@ -191,7 +198,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         try:
             try:
                 logger.debug("Navigating to finish endpoint for env state")
-                self.background_page.goto(self.url+"/finish", timeout=timeout)
+                self.background_page.goto(self.url + "/finish", timeout=timeout)
                 self.background_page.wait_for_load_state("networkidle", timeout=timeout)
                 pre_element = self.background_page.wait_for_selector("pre")
                 if pre_element:
@@ -219,8 +226,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             logger.debug("Task config missing evals list")
             return False
         return any(
-            getattr(eval_config, "type", "") == "script"
-            or getattr(eval_config, "script", "")
+            getattr(eval_config, "type", "") == "script" or getattr(eval_config, "script", "")
             for eval_config in evals
         )
 
@@ -244,7 +250,7 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             "points": getattr(task, "points", 0.0) or 0.0,
         }
         script_names = [
-            getattr(eval_config, "script")
+            eval_config.script
             for eval_config in getattr(task, "evals", [])
             if getattr(eval_config, "script", "")
         ]
@@ -266,7 +272,9 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             "task_id": self.canonical_task_id,
         }
 
-        logger.info("🚂 Script task: sending to Railway for evaluation and leaderboard submission...")
+        logger.info(
+            "🚂 Script task: sending to Railway for evaluation and leaderboard submission..."
+        )
         try:
             logger.debug(f"POST {railway_url} with payload keys: {list(payload.keys())}")
             railway_response = requests.post(railway_url, json=payload, timeout=30)
@@ -299,9 +307,13 @@ class AbstractWebCloneTask(AbstractBrowserTask):
             logger.debug(f"Railway result payload: {railway_result}")
 
             if local_reward != railway_reward:
-                logger.warning(f"⚠️ Evaluation mismatch! Local: {local_reward}, Railway: {railway_reward}")
+                logger.warning(
+                    f"⚠️ Evaluation mismatch! Local: {local_reward}, Railway: {railway_reward}"
+                )
         else:
-            logger.error(f"❌ Railway returned status {railway_response.status_code}: {railway_response.text}")
+            logger.error(
+                f"❌ Railway returned status {railway_response.status_code}: {railway_response.text}"
+            )
             info["railway_verified"] = False
             info["leaderboard_submitted"] = False
 
@@ -323,21 +335,22 @@ class AbstractWebCloneTask(AbstractBrowserTask):
         except Exception as exc:
             print(f"Warning: Failed to submit response to server: {exc}")
 
-
     def validate(
         self,
         page: playwright.sync_api.Page,
         chat_messages: list[str],
         timeout: int = 1000,
-        verbose: bool = True
+        verbose: bool = True,
     ) -> tuple[float, bool, str, dict]:
         reward, done, message, info = 0.0, False, "", {}
         # Treat model response as a challenge solution submission
         assistant_messages = [m for m in chat_messages if m["role"] == "assistant"]
-        model_response = assistant_messages[-1]['message']
-        if len(assistant_messages)>1:
+        model_response = assistant_messages[-1]["message"]
+        if len(assistant_messages) > 1:
             done = True
-        logger.debug(f"Validation called. done={done}, leaderboard_run={getattr(self, 'run_id', '0')}")
+        logger.debug(
+            f"Validation called. done={done}, leaderboard_run={getattr(self, 'run_id', '0')}"
+        )
         if done:
             env_state_json = self.get_finish_json(timeout=timeout)
             reward, _, message, info = self.evaluator.evaluate(env_state_json, model_response)

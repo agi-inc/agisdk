@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Verification script for task: Order exactly one neck pillow
 # Strategy:
@@ -20,8 +21,8 @@ def safe_get(d, path, default=None):
 def collect_orders(data):
     orders_list = []
     # Check both 'added' and 'updated' sections for robustness
-    for section in ('added', 'updated'):
-        orders = safe_get(data, ['initialfinaldiff', section, 'order', 'orders'])
+    for section in ("added", "updated"):
+        orders = safe_get(data, ["initialfinaldiff", section, "order", "orders"])
         if isinstance(orders, dict) and orders:
             orders_list.append(orders)
     return orders_list
@@ -30,7 +31,7 @@ def collect_orders(data):
 def is_valid_neck_pillow_order(order_obj):
     # Allowed neck pillow product IDs observed in training data
     allowed_ids = {"167", "170"}
-    items = order_obj.get('items')
+    items = order_obj.get("items")
     if not isinstance(items, list) or not items:
         return False
     total_qty = 0
@@ -38,14 +39,14 @@ def is_valid_neck_pillow_order(order_obj):
     for it in items:
         if not isinstance(it, dict):
             continue
-        qty = it.get('quantity', 1)
+        qty = it.get("quantity", 1)
         # Ensure numeric quantity
         try:
             q = int(qty)
         except Exception:
             return False
         total_qty += q
-        item_id = str(it.get('id')) if 'id' in it else None
+        item_id = str(it.get("id")) if "id" in it else None
         if item_id in allowed_ids:
             allowed_qty += q
     # Exactly one unit ordered and it's a neck pillow
@@ -58,7 +59,7 @@ def main():
         return
     path = sys.argv[1]
     try:
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -78,5 +79,6 @@ def main():
 
     print("FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -1,17 +1,17 @@
 import base64
 import io
 import logging
-import numpy as np
-import playwright.sync_api
-import PIL.Image
 import pkgutil
 import re
-
 from typing import Literal
 
+import numpy as np
+import PIL.Image
+import playwright.sync_api
+
 from .constants import BROWSERGYM_ID_ATTRIBUTE as BID_ATTR
-from .constants import BROWSERGYM_VISIBILITY_ATTRIBUTE as VIS_ATTR
 from .constants import BROWSERGYM_SETOFMARKS_ATTRIBUTE as SOM_ATTR
+from .constants import BROWSERGYM_VISIBILITY_ATTRIBUTE as VIS_ATTR
 
 MARK_FRAMES_MAX_TRIES = 3
 
@@ -24,7 +24,8 @@ class MarkingError(Exception):
 
 
 def _pre_extract(
-    page: playwright.sync_api.Page, tags_to_mark: Literal["all", "standard_html"] = "standard_html"
+    page: playwright.sync_api.Page,
+    tags_to_mark: Literal["all", "standard_html"] = "standard_html",
 ):
     """
     pre-extraction routine, marks dom elements (set bid and dynamic attributes like value and checked)
@@ -161,7 +162,7 @@ def extract_data_items_from_aria(string: str, with_warning: bool = True):
 
 def extract_dom_snapshot(
     page: playwright.sync_api.Page,
-    computed_styles=[],
+    computed_styles=None,
     include_dom_rects: bool = True,
     include_paint_order: bool = True,
     temp_data_cleanup: bool = True,
@@ -183,6 +184,8 @@ def extract_dom_snapshot(
         DOM tree is flattened.
 
     """
+    if computed_styles is None:
+        computed_styles = []
     cdp = page.context.new_cdp_session(page)
     dom_snapshot = cdp.send(
         "DOMSnapshot.captureSnapshot",
@@ -224,9 +227,9 @@ def pop_bids_from_attribute(dom_snapshot, attr: str):
                             _, new_attr_value = extract_data_items_from_aria(
                                 attr_value, with_warning=False
                             )
-                            dom_snapshot["strings"][
-                                attr_value_id
-                            ] = new_attr_value  # update the string in the metadata
+                            dom_snapshot["strings"][attr_value_id] = (
+                                new_attr_value  # update the string in the metadata
+                            )
                             processed_string_ids.add(
                                 attr_value_id
                             )  # mark string as processed (in case several nodes share the same target attribute string value)
@@ -395,7 +398,12 @@ def extract_dom_extra_properties(dom_snapshot):
                     logger.warning(f"duplicate {BID_ATTR}={repr(bid)} attribute detected")
                 extra_properties[bid] = {
                     extra_prop: node[extra_prop]
-                    for extra_prop in ("visibility", "bbox", "clickable", "set_of_marks")
+                    for extra_prop in (
+                        "visibility",
+                        "bbox",
+                        "clickable",
+                        "set_of_marks",
+                    )
                 }
 
     return extra_properties
