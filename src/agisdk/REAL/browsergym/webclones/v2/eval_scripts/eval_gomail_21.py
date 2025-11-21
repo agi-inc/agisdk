@@ -1,4 +1,6 @@
-import json, sys
+import json
+import sys
+
 
 def get_in(d, path, default=None):
     cur = d
@@ -9,9 +11,10 @@ def get_in(d, path, default=None):
             return default
     return cur
 
+
 try:
     path = sys.argv[1]
-    with open(path, 'r') as f:
+    with open(path) as f:
         data = json.load(f)
 except Exception:
     print("FAILURE")
@@ -23,11 +26,13 @@ alerts_ids = set()
 deleted_emails = get_in(data, ["differences", "emails", "deleted"], []) or []
 for e in deleted_emails:
     try:
-        text = " ".join([
-            str(e.get("from", "")),
-            str(e.get("subject", "")),
-            str(e.get("content", "")),
-        ]).lower()
+        text = " ".join(
+            [
+                str(e.get("from", "")),
+                str(e.get("subject", "")),
+                str(e.get("content", "")),
+            ]
+        ).lower()
         if "alerts" in text:
             eid = str(e.get("id"))
             if eid and eid != "None":
@@ -58,12 +63,25 @@ initialfinaldiff = initialfinaldiff or {}
 
 # 3a) Snoozed IDs from search results when searching for 'alerts'
 search_has_words = None
-if isinstance(get_in(initialfinaldiff, ["updated", "filter", "searchData"]) , dict):
-    search_has_words = get_in(initialfinaldiff, ["updated", "filter", "searchData", "hasWords"]) or search_has_words
-if search_has_words is None and isinstance(get_in(initialfinaldiff, ["added", "filter", "searchData"]) , dict):
-    search_has_words = get_in(initialfinaldiff, ["added", "filter", "searchData", "hasWords"]) or search_has_words
-search_input_val = get_in(initialfinaldiff, ["updated", "ui", "searchInputValue"]) or get_in(initialfinaldiff, ["added", "ui", "searchInputValue"]) or None
-performed_alerts_search = (str(search_has_words).lower() == "alerts") or (str(search_input_val).lower() == "alerts")
+if isinstance(get_in(initialfinaldiff, ["updated", "filter", "searchData"]), dict):
+    search_has_words = (
+        get_in(initialfinaldiff, ["updated", "filter", "searchData", "hasWords"])
+        or search_has_words
+    )
+if search_has_words is None and isinstance(
+    get_in(initialfinaldiff, ["added", "filter", "searchData"]), dict
+):
+    search_has_words = (
+        get_in(initialfinaldiff, ["added", "filter", "searchData", "hasWords"]) or search_has_words
+    )
+search_input_val = (
+    get_in(initialfinaldiff, ["updated", "ui", "searchInputValue"])
+    or get_in(initialfinaldiff, ["added", "ui", "searchInputValue"])
+    or None
+)
+performed_alerts_search = (str(search_has_words).lower() == "alerts") or (
+    str(search_input_val).lower() == "alerts"
+)
 
 snoozed_ids_from_search = set()
 search_results = get_in(initialfinaldiff, ["added", "filter", "searchResults"], {}) or {}
@@ -72,13 +90,16 @@ if isinstance(search_results, dict):
         if isinstance(v, dict):
             vid = str(v.get("id")) if v.get("id") is not None else None
             snoozed_flag = bool(v.get("snoozed"))
-            has_snooze_until = ("snoozeUntil" in v and v.get("snoozeUntil"))
+            has_snooze_until = "snoozeUntil" in v and v.get("snoozeUntil")
             if vid and (snoozed_flag or has_snooze_until):
                 snoozed_ids_from_search.add(vid)
 
 # 3b) Total snoozed count parsed from snackbar message (e.g., "3 conversations snoozed until ...")
-snackbar_msg = get_in(initialfinaldiff, ["updated", "ui", "snackbar", "message"]) or \
-               get_in(initialfinaldiff, ["added", "ui", "snackbar", "message"]) or ""
+snackbar_msg = (
+    get_in(initialfinaldiff, ["updated", "ui", "snackbar", "message"])
+    or get_in(initialfinaldiff, ["added", "ui", "snackbar", "message"])
+    or ""
+)
 
 snackbar_snooze_count = None
 msg = str(snackbar_msg)
@@ -114,17 +135,17 @@ only_alerts_snoozed = True  # we'll invalidate if counts suggest otherwise
 # Prefer exact ID match if we performed an alerts search and have search results
 if performed_alerts_search and search_results:
     # Success if exactly all alerts are snoozed in the search results
-    all_alerts_snoozed = (snoozed_ids_from_search == alerts_ids and len(alerts_ids) > 0)
+    all_alerts_snoozed = snoozed_ids_from_search == alerts_ids and len(alerts_ids) > 0
     # If search results contain snoozed IDs outside alerts set, that indicates oversnoozing within search
     if snoozed_ids_from_search - alerts_ids:
         only_alerts_snoozed = False
 else:
     # Fallback to counts via snackbar or added snoozes
     if snackbar_snooze_count is not None:
-        all_alerts_snoozed = (alert_count > 0 and snackbar_snooze_count == alert_count)
+        all_alerts_snoozed = alert_count > 0 and snackbar_snooze_count == alert_count
         only_alerts_snoozed = only_alerts_snoozed and (snackbar_snooze_count == alert_count)
     elif added_snooze_count > 0:
-        all_alerts_snoozed = (alert_count > 0 and added_snooze_count == alert_count)
+        all_alerts_snoozed = alert_count > 0 and added_snooze_count == alert_count
         only_alerts_snoozed = only_alerts_snoozed and (added_snooze_count == alert_count)
     else:
         all_alerts_snoozed = False

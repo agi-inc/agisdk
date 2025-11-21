@@ -10,7 +10,7 @@ import sys
 
 
 def load_json(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -24,20 +24,20 @@ def collect_labels_from_custom_labels_node(node):
         # Values may be objects representing labels
         for v in node.values():
             if isinstance(v, dict):
-                lbl = v.get('label')
+                lbl = v.get("label")
                 if isinstance(lbl, str):
                     labels.append(lbl)
             elif isinstance(v, list):
                 # In case nested list under dict
                 for item in v:
                     if isinstance(item, dict):
-                        lbl = item.get('label')
+                        lbl = item.get("label")
                         if isinstance(lbl, str):
                             labels.append(lbl)
     elif isinstance(node, list):
         for item in node:
             if isinstance(item, dict):
-                lbl = item.get('label')
+                lbl = item.get("label")
                 if isinstance(lbl, str):
                     labels.append(lbl)
     return labels
@@ -51,7 +51,7 @@ def recursive_find_custom_labels(root):
     found = []
     if isinstance(root, dict):
         for k, v in root.items():
-            if k == 'customLabels':
+            if k == "customLabels":
                 found.extend(collect_labels_from_custom_labels_node(v))
             # Recurse into all values to be robust to structure variations
             found.extend(recursive_find_custom_labels(v))
@@ -65,12 +65,12 @@ def has_target_label(data, target):
     # Focus primarily on initialfinaldiff where additions/updates are recorded
     if not isinstance(data, dict):
         return False
-    diff_root = data.get('initialfinaldiff', {})
+    diff_root = data.get("initialfinaldiff", {})
 
     # Consider both 'added' and 'updated' to be robust (some systems may record as updated)
     search_scopes = []
     if isinstance(diff_root, dict):
-        for scope_key in ('added', 'updated'):
+        for scope_key in ("added", "updated"):
             scope = diff_root.get(scope_key)
             if scope is not None:
                 search_scopes.append(scope)

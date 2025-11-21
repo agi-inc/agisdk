@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # - Validate that the order items are exclusively PS5 controllers (id "16") and total ordered quantity equals 2.
 
@@ -12,9 +13,10 @@ def safe_get(d, path, default=None):
             return default
     return cur
 
+
 try:
     path = sys.argv[1]
-    with open(path, 'r') as f:
+    with open(path) as f:
         data = json.load(f)
 
     root = data if isinstance(data, dict) else {}

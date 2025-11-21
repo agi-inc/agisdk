@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, Optional, Tuple, List
+from dataclasses import asdict, dataclass
+from typing import Any
 
 import requests
 
@@ -15,7 +15,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_VERSION = "v1"
 
 
-VERSION_DIRS: Dict[str, str] = {
+VERSION_DIRS: dict[str, str] = {
     "v1": os.path.join(CURRENT_DIR, "v1"),
     "v2": os.path.join(CURRENT_DIR, "v2"),
 }
@@ -29,17 +29,13 @@ def _tasks_for_version(version: str) -> list[str]:
     if version not in VERSION_DIRS:
         raise ValueError(f"Unknown task version '{version}'")
     tasks_dir = os.path.join(VERSION_DIRS[version], "tasks")
-    return sorted(
-        task[:-5]
-        for task in os.listdir(tasks_dir)
-        if task.endswith(".json")
-    )
+    return sorted(task[:-5] for task in os.listdir(tasks_dir) if task.endswith(".json"))
 
 
 TASKS_BY_VERSION = {version: _tasks_for_version(version) for version in VERSION_DIRS}
 
 
-TASK_INDEX: Dict[str, Tuple[str, str]] = {
+TASK_INDEX: dict[str, tuple[str, str]] = {
     f"{version}.{task_name}": (version, task_name)
     for version, task_names in TASKS_BY_VERSION.items()
     for task_name in task_names
@@ -49,7 +45,7 @@ TASK_INDEX: Dict[str, Tuple[str, str]] = {
 TASKS = sorted(TASK_INDEX.keys())
 
 
-def split_task_reference(task_reference: str) -> Tuple[str, str]:
+def split_task_reference(task_reference: str) -> tuple[str, str]:
     """
     Split a task reference into (version, task_name).
 
@@ -80,6 +76,7 @@ class Eval:
     :param description: A description of the evaluation
     :param script: The Python script filename for subprocess-based evaluation
     """
+
     type: str = ""
     expected_value: str = ""
     state_variable_path: str = ""
@@ -89,9 +86,7 @@ class Eval:
     possible: bool = True
     script: str = ""
 
-
-
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:
         return asdict(self)
 
 
@@ -99,17 +94,17 @@ class Eval:
 class Task:
     id: str
     version: str
-    evals: List[Eval]
+    evals: list[Eval]
     start_url: str
     goal: str
     difficulty: str
     challengeType: str
     points: float
-    config: Optional[Dict[str, Any]] = None
+    config: dict[str, Any] | None = None
     possible: bool = True
     description: str = ""
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:
         return asdict(self)
 
 
@@ -121,7 +116,7 @@ class TaskConfig:
     def __init__(
         self,
         task_name: str,
-        version: Optional[str] = None,
+        version: str | None = None,
         *,
         is_path: bool = False,
     ) -> None:
@@ -131,7 +126,7 @@ class TaskConfig:
         self.tasks_dir = ""
         self.eval_scripts_dir = ""
         self.canonical_id = ""
-        self.config_json: Dict[str, Any] = {}
+        self.config_json: dict[str, Any] = {}
 
         if is_path:
             abs_path = os.path.abspath(task_name)
@@ -165,14 +160,14 @@ class TaskConfig:
         if not self.is_valid_config():
             raise ValueError(f"Invalid task configuration for task ID: {self.id}")
         # Create Eval instance
-        eval_configs = self.config_json['evals']
+        eval_configs = self.config_json["evals"]
         eval_instances = []
         for eval_config in eval_configs:
             # Check if this is a script-based eval
-            if 'script' in eval_config and eval_config['script']:
+            if "script" in eval_config and eval_config["script"]:
                 # Set type to 'script' for subprocess-based evaluation
-                if 'type' not in eval_config or not eval_config['type']:
-                    eval_config['type'] = 'script'
+                if "type" not in eval_config or not eval_config["type"]:
+                    eval_config["type"] = "script"
             eval_instances.append(Eval(**eval_config))
 
         start_url = self.config_json["website"]["url"]
@@ -196,11 +191,11 @@ class TaskConfig:
         self.tasks_dir = os.path.join(self.base_dir, "tasks")
         self.eval_scripts_dir = os.path.join(self.base_dir, "eval_scripts")
 
-    def from_json_file(self, file_path: str) -> Dict[str, Any]:
-        with open(file_path, "r", encoding="utf-8") as file:
+    def from_json_file(self, file_path: str) -> dict[str, Any]:
+        with open(file_path, encoding="utf-8") as file:
             return json.load(file)
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:
         return self.task.to_json()
 
     def get_task_id(self) -> str:

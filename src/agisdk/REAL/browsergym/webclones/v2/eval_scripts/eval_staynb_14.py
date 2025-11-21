@@ -1,6 +1,6 @@
 import json
 import sys
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
 
 # Strategy:
 # - Extract destination, dates, guests, filters, and UI state from initialfinaldiff.
@@ -29,8 +29,8 @@ def parse_iso_date(s):
         return None
     try:
         # Accept strings ending with Z (UTC) or with timezone offset or naive ISO.
-        if s.endswith('Z'):
-            dt = datetime.fromisoformat(s.replace('Z', '+00:00'))
+        if s.endswith("Z"):
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
         else:
             dt = datetime.fromisoformat(s)
         return dt.date()
@@ -53,9 +53,9 @@ def first_jan_weekend(year):
 
 def extract_total_guests(search):
     # Prefer appliedGuestCounts (Adults + Children). Fall back to recentSearches 'guests' string.
-    guest_counts = get_in(search, ['appliedGuestCounts'], {}) or {}
-    adults = guest_counts.get('Adults', 0) or 0
-    children = guest_counts.get('Children', 0) or 0
+    guest_counts = get_in(search, ["appliedGuestCounts"], {}) or {}
+    adults = guest_counts.get("Adults", 0) or 0
+    children = guest_counts.get("Children", 0) or 0
     total = 0
     try:
         total = int(adults) + int(children)
@@ -64,7 +64,7 @@ def extract_total_guests(search):
 
     if total == 0:
         # fallback to string like "4 Guests"
-        gstr = get_in(search, ['recentSearches', '0', 'guests'])
+        gstr = get_in(search, ["recentSearches", "0", "guests"])
         if isinstance(gstr, str):
             try:
                 total = int(gstr.strip().split()[0])
@@ -79,7 +79,7 @@ def normalize_amenity_value(a):
         return ""
     # If amenity is a dict with name/key fields, try to extract a human-readable value
     if isinstance(a, dict):
-        for key in ('name', 'title', 'label'):
+        for key in ("name", "title", "label"):
             if key in a and isinstance(a[key], str):
                 return a[key].strip().lower()
         # Otherwise, stringify the dict
@@ -107,11 +107,11 @@ def has_wifi_in_amenities(amenities):
     for a in candidates:
         norm = normalize_amenity_value(a)
         # remove hyphens and spaces to match wifi/wi-fi/wi fi variants
-        compact = norm.replace('-', '').replace(' ', '')
-        if 'wifi' in compact:
+        compact = norm.replace("-", "").replace(" ", "")
+        if "wifi" in compact:
             return True
         # also accept common synonyms
-        if 'wirelessinternet' in compact or 'wireless' == compact:
+        if "wirelessinternet" in compact or "wireless" == compact:
             return True
     return False
 
@@ -122,25 +122,31 @@ def main():
         return
     fp = sys.argv[1]
     try:
-        with open(fp, 'r') as f:
+        with open(fp) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
         return
 
-    root = data.get('initialfinaldiff', {})
-    added = root.get('added', {}) if isinstance(root.get('added', {}), dict) else {}
-    updated = root.get('updated', {}) if isinstance(root.get('updated', {}), dict) else {}
+    root = data.get("initialfinaldiff", {})
+    added = root.get("added", {}) if isinstance(root.get("added", {}), dict) else {}
+    updated = root.get("updated", {}) if isinstance(root.get("updated", {}), dict) else {}
 
-    search = added.get('search') or updated.get('search') or {}
+    search = added.get("search") or updated.get("search") or {}
 
     # Destination
-    dest = get_in(search, ['appliedDestination']) or get_in(search, ['recentSearches', '0', 'destination'])
-    is_rome = isinstance(dest, str) and dest.strip().lower() == 'rome, italy'
+    dest = get_in(search, ["appliedDestination"]) or get_in(
+        search, ["recentSearches", "0", "destination"]
+    )
+    is_rome = isinstance(dest, str) and dest.strip().lower() == "rome, italy"
 
     # Dates
-    start_iso = get_in(search, ['appliedDates', 'startDate']) or get_in(search, ['recentSearches', '0', 'dates', 'startDate'])
-    end_iso = get_in(search, ['appliedDates', 'endDate']) or get_in(search, ['recentSearches', '0', 'dates', 'endDate'])
+    start_iso = get_in(search, ["appliedDates", "startDate"]) or get_in(
+        search, ["recentSearches", "0", "dates", "startDate"]
+    )
+    end_iso = get_in(search, ["appliedDates", "endDate"]) or get_in(
+        search, ["recentSearches", "0", "dates", "endDate"]
+    )
     start_date = parse_iso_date(start_iso)
     end_date = parse_iso_date(end_iso)
 
@@ -149,28 +155,30 @@ def main():
     if start_date and end_date:
         try:
             ff, fsun = first_jan_weekend(start_date.year)
-            is_first_weekend = (start_date == ff and end_date == fsun)
+            is_first_weekend = start_date == ff and end_date == fsun
         except Exception:
             is_first_weekend = False
-        alt_three_to_five = ((end_date - start_date).days == 2 and start_date.day == 3 and end_date.day == 5)
+        alt_three_to_five = (
+            (end_date - start_date).days == 2 and start_date.day == 3 and end_date.day == 5
+        )
 
     # Guests
     total_guests = extract_total_guests(search)
 
     # UI state (used to ensure task not blocked)
-    config = added.get('config') or updated.get('config') or {}
-    remove_popup = get_in(config, ['staynb', 'removePopup'], True)
+    config = added.get("config") or updated.get("config") or {}
+    remove_popup = get_in(config, ["staynb", "removePopup"], True)
 
     # Filters: bedrooms and amenities
-    applied_filters = get_in(search, ['appliedFilters']) or {}
+    applied_filters = get_in(search, ["appliedFilters"]) or {}
     try:
-        bedrooms = int(applied_filters.get('bedrooms', 0))
+        bedrooms = int(applied_filters.get("bedrooms", 0))
     except Exception:
         bedrooms = 0
 
-    amenities = applied_filters.get('amenities', []) or []
+    amenities = applied_filters.get("amenities", []) or []
     wifi_ok = has_wifi_in_amenities(amenities)
-    bedrooms_ok = (bedrooms >= 2)
+    bedrooms_ok = bedrooms >= 2
 
     # Final success logic:
     success = (
@@ -185,5 +193,5 @@ def main():
     print("SUCCESS" if success else "FAILURE")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

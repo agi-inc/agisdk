@@ -1,10 +1,12 @@
-import json, sys
+import json
+import sys
 
 # Strategy:
 # - Identify the three emails that belong to the "Today" group (ids '46','47','48') used across this dataset.
 # - Consider the task successful if ALL of these emails have been archived or trashed.
 # - We detect this by scanning both 'initialfinaldiff' (added/updated -> email.emails) and 'differences' (emails.updated) for archived:true or trash:true flags.
 # - Ignore snackbar counts/messages; rely on concrete flags to avoid false positives.
+
 
 def get_nested(d, *keys):
     cur = d
@@ -14,9 +16,10 @@ def get_nested(d, *keys):
         cur = cur.get(k)
     return cur
 
+
 try:
     path = sys.argv[1]
-    with open(path, 'r') as f:
+    with open(path) as f:
         data = json.load(f)
 except Exception:
     print("FAILURE")

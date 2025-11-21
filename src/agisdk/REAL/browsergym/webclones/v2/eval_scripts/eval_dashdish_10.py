@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Strategy:
 # - Recursively search the JSON for any order objects containing cartItems and checkoutDetails.charges.totalAmount
@@ -7,7 +8,7 @@ import json, sys
 
 
 def load_json(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -16,7 +17,7 @@ def to_float(val):
         if isinstance(val, (int, float)):
             return float(val)
         if isinstance(val, str):
-            s = val.strip().replace('$', '').replace(',', '')
+            s = val.strip().replace("$", "").replace(",", "")
             return float(s)
     except Exception:
         return None
@@ -29,17 +30,18 @@ def find_orders(obj):
     def recurse(o):
         if isinstance(o, dict):
             # Identify an order-like object
-            if 'cartItems' in o and isinstance(o.get('cartItems'), list) and 'checkoutDetails' in o:
-                cd = o.get('checkoutDetails')
+            if "cartItems" in o and isinstance(o.get("cartItems"), list) and "checkoutDetails" in o:
+                cd = o.get("checkoutDetails")
                 if isinstance(cd, dict):
-                    charges = cd.get('charges', {})
-                    if isinstance(charges, dict) and 'totalAmount' in charges:
+                    charges = cd.get("charges", {})
+                    if isinstance(charges, dict) and "totalAmount" in charges:
                         orders.append(o)
             for v in o.values():
                 recurse(v)
         elif isinstance(o, list):
             for it in o:
                 recurse(it)
+
     recurse(obj)
     return orders
 
@@ -48,22 +50,22 @@ def contains_fries(text):
     if not text:
         return False
     t = text.lower()
-    return 'fries' in t
+    return "fries" in t
 
 
 def order_has_fries(order):
-    items = order.get('cartItems', [])
+    items = order.get("cartItems", [])
     for it in items:
-        name = it.get('name', '')
-        desc = it.get('description', '')
+        name = it.get("name", "")
+        desc = it.get("description", "")
         if contains_fries(name) or contains_fries(desc):
             return True
     return False
 
 
 def order_total(order):
-    charges = order.get('checkoutDetails', {}).get('charges', {})
-    return to_float(charges.get('totalAmount'))
+    charges = order.get("checkoutDetails", {}).get("charges", {})
+    return to_float(charges.get("totalAmount"))
 
 
 def main():
@@ -82,7 +84,8 @@ def main():
             success = True
             break
 
-    print('SUCCESS' if success else 'FAILURE')
+    print("SUCCESS" if success else "FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

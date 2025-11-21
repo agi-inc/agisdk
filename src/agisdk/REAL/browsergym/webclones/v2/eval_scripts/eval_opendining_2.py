@@ -1,4 +1,7 @@
-import json, sys, re
+import json
+import re
+import sys
+
 
 def parse_time_12h(t):
     """Parse a 12-hour time string like '7:30 PM' or '8 PM' to minutes since midnight.
@@ -16,7 +19,7 @@ def parse_time_12h(t):
     ampm = m.group(3).lower()
     if hour == 12:
         hour = 0
-    if ampm == 'pm':
+    if ampm == "pm":
         hour += 12
     return hour * 60 + minute
 
@@ -33,12 +36,12 @@ def get_nested(d, keys, default=None):
 def extract_booking_objects(state):
     objs = []
     root = state if isinstance(state, dict) else {}
-    for section in ('added', 'updated'):
-        b = get_nested(root, ['initialfinaldiff', section, 'booking'])
+    for section in ("added", "updated"):
+        b = get_nested(root, ["initialfinaldiff", section, "booking"])
         if isinstance(b, dict):
             objs.append(b)
     # Also consider if booking is directly under root (fallback)
-    b2 = get_nested(root, ['booking'])
+    b2 = get_nested(root, ["booking"])
     if isinstance(b2, dict):
         objs.append(b2)
     return objs
@@ -70,31 +73,31 @@ def is_two_guests(guest_str):
 
 def matches_criteria(entry, top_level_booking):
     # Cuisine American
-    food_type = get_nested(entry, ['restaurant', 'food_type'])
-    if not isinstance(food_type, str) or 'american' not in food_type.lower():
+    food_type = get_nested(entry, ["restaurant", "food_type"])
+    if not isinstance(food_type, str) or "american" not in food_type.lower():
         return False
 
     # Guests = 2
-    guests = entry.get('guests')
+    guests = entry.get("guests")
     if guests is None:
-        guests = get_nested(top_level_booking, ['guests'])
+        guests = get_nested(top_level_booking, ["guests"])
     if not is_two_guests(guests):
         return False
 
     # Occasion = Birthday
-    occasion = get_nested(entry, ['optionals', 'occasion'])
-    if not isinstance(occasion, str) or occasion.strip().lower() != 'birthday':
+    occasion = get_nested(entry, ["optionals", "occasion"])
+    if not isinstance(occasion, str) or occasion.strip().lower() != "birthday":
         return False
 
     # Time between 7:00 PM and 8:00 PM inclusive
-    time_str = entry.get('time')
+    time_str = entry.get("time")
     if not time_str:
-        time_str = get_nested(top_level_booking, ['time'])
+        time_str = get_nested(top_level_booking, ["time"])
     minutes = parse_time_12h(time_str)
     if minutes is None:
         return False
     start = 19 * 60  # 7:00 PM
-    end = 20 * 60    # 8:00 PM
+    end = 20 * 60  # 8:00 PM
     if not (start <= minutes <= end):
         return False
 
@@ -104,24 +107,25 @@ def matches_criteria(entry, top_level_booking):
 def main():
     try:
         path = sys.argv[1]
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
         return
 
     booking_objs = extract_booking_objects(data)
     # Must have bookingDetails to count as reserved
     for b in booking_objs:
-        booking_details = b.get('bookingDetails')
+        booking_details = b.get("bookingDetails")
         for entry in normalize_iterable(booking_details):
             if isinstance(entry, dict) and matches_criteria(entry, b):
-                print('SUCCESS')
+                print("SUCCESS")
                 return
     # If no matching entry found
-    print('FAILURE')
+    print("FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Strategy in code comments: We require bookingDetails presence and validate cuisine, guests, occasion, and time window (7-8 PM inclusive).
     # We parse 12-hour times robustly and iterate all bookingDetails entries to find any that match.
     main()

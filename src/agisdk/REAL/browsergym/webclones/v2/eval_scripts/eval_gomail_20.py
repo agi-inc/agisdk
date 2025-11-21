@@ -1,4 +1,6 @@
-import sys, json
+import json
+import sys
+
 
 def get_nested(d, path, default=None):
     cur = d
@@ -9,10 +11,11 @@ def get_nested(d, path, default=None):
             return default
     return cur
 
+
 def parse_first_int(s):
     if not isinstance(s, str):
         return None
-    num = ''
+    num = ""
     found = False
     for ch in s:
         if ch.isdigit():
@@ -28,14 +31,14 @@ def parse_first_int(s):
             return None
     return None
 
+
 def main():
-    import sys, json
     if len(sys.argv) < 2:
         print("FAILURE")
         return
     path = sys.argv[1]
     try:
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -60,11 +63,13 @@ def main():
 
     # Extract additional updates from initialfinaldiff (earlier changes in the session)
     if isinstance(data.get("initialfinaldiff"), dict):
-        email_updates_map = get_nested(data, ["initialfinaldiff", "updated", "email", "emails"], {}) or {}
+        email_updates_map = (
+            get_nested(data, ["initialfinaldiff", "updated", "email", "emails"], {}) or {}
+        )
         init_trash_true = 0
         init_trash_false = 0
         if isinstance(email_updates_map, dict):
-            for k, v in email_updates_map.items():
+            for _k, v in email_updates_map.items():
                 if isinstance(v, dict) and "trash" in v:
                     if bool(v.get("trash")) is True:
                         init_trash_true += 1
@@ -75,9 +80,15 @@ def main():
         init_trash_false = 0
 
     # Look for UI snackbar confirmation like "54 conversations moved to Trash"
-    snackbar_msg = get_nested(data, ["initialfinaldiff", "updated", "ui", "snackbar", "message"], None)
+    snackbar_msg = get_nested(
+        data, ["initialfinaldiff", "updated", "ui", "snackbar", "message"], None
+    )
     moved_count_from_ui = None
-    if snackbar_msg and isinstance(snackbar_msg, str) and ("moved to Trash" in snackbar_msg or "moved to trash" in snackbar_msg.lower()):
+    if (
+        snackbar_msg
+        and isinstance(snackbar_msg, str)
+        and ("moved to Trash" in snackbar_msg or "moved to trash" in snackbar_msg.lower())
+    ):
         moved_count_from_ui = parse_first_int(snackbar_msg)
 
     # Decision logic:
@@ -115,6 +126,7 @@ def main():
 
     # If we reach here, evidence is insufficient
     print("FAILURE")
+
 
 if __name__ == "__main__":
     main()

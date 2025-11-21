@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Strategy:
 # - Confirm an order was placed by checking for 'order.orders' in the 'added' (and fallback 'updated') section.
@@ -20,8 +21,8 @@ def get_nested(d, *keys):
 def extract_orders(data):
     orders = []
     # Search both 'added' and 'updated' to be robust, though typically it's in 'added'
-    for section in ('added', 'updated'):
-        container = get_nested(data, 'initialfinaldiff', section, 'order', 'orders')
+    for section in ("added", "updated"):
+        container = get_nested(data, "initialfinaldiff", section, "order", "orders")
         if isinstance(container, dict):
             for _, order in container.items():
                 if isinstance(order, dict):
@@ -32,11 +33,11 @@ def extract_orders(data):
 def collect_item_ids(orders):
     ids = []
     for order in orders:
-        items = order.get('items')
+        items = order.get("items")
         if isinstance(items, list):
             for it in items:
                 if isinstance(it, dict):
-                    _id = it.get('id')
+                    _id = it.get("id")
                     if _id is not None:
                         ids.append(str(_id))
     return ids
@@ -45,16 +46,16 @@ def collect_item_ids(orders):
 def main():
     path = sys.argv[1]
     try:
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
         return
 
     orders = extract_orders(data)
     if not orders:
         # No order was placed
-        print('FAILURE')
+        print("FAILURE")
         return
 
     item_ids = collect_item_ids(orders)
@@ -65,10 +66,10 @@ def main():
     is_pot_ordered = any(iid in cooking_pot_ids for iid in item_ids)
 
     if is_pot_ordered:
-        print('SUCCESS')
+        print("SUCCESS")
     else:
-        print('FAILURE')
+        print("FAILURE")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

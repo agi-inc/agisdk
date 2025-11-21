@@ -1,4 +1,5 @@
-import sys, json
+import json
+import sys
 
 # Strategy:
 # - Confirm navigation reached the confirmation page and an order was added.
@@ -22,7 +23,7 @@ def main():
         print("FAILURE")
         return
     try:
-        with open(sys.argv[1], 'r', encoding='utf-8') as f:
+        with open(sys.argv[1], encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -50,8 +51,15 @@ def main():
 
     # Disqualify obvious non-headphone intents
     bad_keywords = [
-        "keyboard", "gaming keyboard", "earbud", "earbuds", "ear pod", "earpod",
-        "earpods", "earphone", "earphones"
+        "keyboard",
+        "gaming keyboard",
+        "earbud",
+        "earbuds",
+        "ear pod",
+        "earpod",
+        "earpods",
+        "earphone",
+        "earphones",
     ]
     if any(bad in search_text for bad in bad_keywords):
         has_headphones_intent = False

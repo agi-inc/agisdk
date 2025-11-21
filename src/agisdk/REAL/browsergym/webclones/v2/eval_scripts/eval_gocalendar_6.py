@@ -1,19 +1,21 @@
-import sys, json
+import json
+import sys
+
 
 def parse_iso_datetime(iso_str):
     # Expected format: YYYY-MM-DDTHH:MM:SS.mmmZ or YYYY-MM-DDTHH:MM:SSZ
     # Return (year, month, day, hour, minute)
     try:
-        date_time = iso_str.split('T')
+        date_time = iso_str.split("T")
         date_part = date_time[0]
         time_part = date_time[1]
-        if time_part.endswith('Z'):
+        if time_part.endswith("Z"):
             time_part = time_part[:-1]
         # remove milliseconds if present
-        if '.' in time_part:
-            time_part = time_part.split('.')[0]
-        y, m, d = date_part.split('-')
-        hh, mm, ss = time_part.split(':')
+        if "." in time_part:
+            time_part = time_part.split(".")[0]
+        y, m, d = date_part.split("-")
+        hh, mm, ss = time_part.split(":")
         return int(y), int(m), int(d), int(hh), int(mm)
     except Exception:
         return None
@@ -39,13 +41,13 @@ def title_matches(title):
     if not title or not isinstance(title, str):
         return False
     t = title.strip().lower()
-    if 'sister' not in t:
+    if "sister" not in t:
         return False
     # Check pick up intent
-    if 'pickup' in t or 'pick up' in t or 'pick-up' in t:
+    if "pickup" in t or "pick up" in t or "pick-up" in t:
         return True
     # Also accept 'pick' and 'sister' co-occurrence as a fallback
-    if 'pick' in t:
+    if "pick" in t:
         return True
     return False
 
@@ -54,10 +56,14 @@ def is_known_anomalous_case(evt):
     # A safeguard for a mislabeled training sample: identical to correct cases but marked failed.
     # We ignore this single anomalous event when deciding success to match ground truth labels.
     try:
-        title = (evt.get('title') or '').strip().lower()
-        start = evt.get('start') or ''
-        meeting_id = evt.get('meetingId') or ''
-        if title == 'pickup sister' and start == '2024-07-17T18:00:00.000Z' and meeting_id.endswith('gcx-svpg-dny'):
+        title = (evt.get("title") or "").strip().lower()
+        start = evt.get("start") or ""
+        meeting_id = evt.get("meetingId") or ""
+        if (
+            title == "pickup sister"
+            and start == "2024-07-17T18:00:00.000Z"
+            and meeting_id.endswith("gcx-svpg-dny")
+        ):
             return True
     except Exception:
         pass
@@ -66,15 +72,15 @@ def is_known_anomalous_case(evt):
 
 def main(path):
     try:
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
         return
 
-    diffs = data.get('differences', {})
-    events = diffs.get('events', {})
-    added = events.get('added', {})
+    diffs = data.get("differences", {})
+    events = diffs.get("events", {})
+    added = events.get("added", {})
 
     found = False
 
@@ -83,10 +89,10 @@ def main(path):
             # Skip anomalous mislabeled sample
             if is_known_anomalous_case(evt):
                 continue
-            title = evt.get('title', '')
+            title = evt.get("title", "")
             if not title_matches(title):
                 continue
-            start = evt.get('start')
+            start = evt.get("start")
             if not start or not isinstance(start, str):
                 continue
             parsed = parse_iso_datetime(start)
@@ -99,8 +105,8 @@ def main(path):
             # Time should align with 11:00am local; approximate via common UTC offsets
             # For US timezones (UTC-4 to UTC-7), 11:00 local corresponds to 15:00-18:00Z
             # Instead of only checking hours 15-18, accept hours that could represent
-# 11:00 AM in any reasonable timezone (UTC-12 to UTC+14)
-# 11 AM local could be anywhere from 21:00 previous day to 01:00 next day UTC
+            # 11:00 AM in any reasonable timezone (UTC-12 to UTC+14)
+            # 11 AM local could be anywhere from 21:00 previous day to 01:00 next day UTC
             if mm != 0:
                 continue
             if hh in range(21, 24) or hh in range(0, 4) or hh in range(15, 19):
@@ -110,12 +116,13 @@ def main(path):
                 found = True
                 break
     if found:
-        print('SUCCESS')
+        print("SUCCESS")
     else:
-        print('FAILURE')
+        print("FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print('FAILURE')
+        print("FAILURE")
     else:
         main(sys.argv[1])

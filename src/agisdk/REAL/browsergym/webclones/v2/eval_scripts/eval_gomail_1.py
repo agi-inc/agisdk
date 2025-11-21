@@ -1,4 +1,6 @@
-import json, sys
+import json
+import sys
+
 
 def get_in(d, path, default=None):
     cur = d
@@ -9,6 +11,7 @@ def get_in(d, path, default=None):
             return default
     return cur
 
+
 # Strategy in code (revised):
 # - Collect isRead=True updates to confirm bulk marking.
 # - For deletions, compute trash counts separately from initialfinaldiff and differences to avoid double-counting.
@@ -17,7 +20,7 @@ def get_in(d, path, default=None):
 
 try:
     path = sys.argv[1]
-    with open(path, 'r') as f:
+    with open(path) as f:
         data = json.load(f)
 except Exception:
     print("FAILURE")
@@ -29,45 +32,45 @@ trash_ids_union = set()
 trash_ids_initial = set()
 trash_ids_diff = set()
 
-idiff = data.get('initialfinaldiff')
+idiff = data.get("initialfinaldiff")
 snackbar_msg = None
 if isinstance(idiff, dict):
     # isRead/trash from initialfinaldiff.updated.email.emails
-    updated_emails = get_in(idiff, ['updated', 'email', 'emails'], {})
+    updated_emails = get_in(idiff, ["updated", "email", "emails"], {})
     if isinstance(updated_emails, dict):
         for eid, changes in updated_emails.items():
             if isinstance(changes, dict):
-                if changes.get('isRead') is True:
+                if changes.get("isRead") is True:
                     isread_ids.add(str(eid))
-                if changes.get('trash') is True:
+                if changes.get("trash") is True:
                     trash_ids_initial.add(str(eid))
                     trash_ids_union.add(str(eid))
     # Snackbar message may be in added or updated
-    for branch in ['updated', 'added']:
-        m = get_in(idiff, [branch, 'ui', 'snackbar', 'message'])
+    for branch in ["updated", "added"]:
+        m = get_in(idiff, [branch, "ui", "snackbar", "message"])
         if isinstance(m, str):
             snackbar_msg = m
             break
 
 # differences.emails.updated
-updated_list = get_in(data, ['differences', 'emails', 'updated'], [])
+updated_list = get_in(data, ["differences", "emails", "updated"], [])
 if isinstance(updated_list, list):
     for item in updated_list:
         if not isinstance(item, dict):
             continue
-        eid = item.get('id')
+        eid = item.get("id")
         if eid is None:
             continue
-        if item.get('isRead') is True:
+        if item.get("isRead") is True:
             isread_ids.add(str(eid))
-        if item.get('trash') is True:
+        if item.get("trash") is True:
             trash_ids_diff.add(str(eid))
             trash_ids_union.add(str(eid))
 
-msg = (snackbar_msg or '').lower() if isinstance(snackbar_msg, str) else ''
+msg = (snackbar_msg or "").lower() if isinstance(snackbar_msg, str) else ""
 
 # Condition A: all marked read
-all_read = ('marked as read' in msg) or (len(isread_ids) >= 15)
+all_read = ("marked as read" in msg) or (len(isread_ids) >= 15)
 
 # Condition B: amazon deletions
 # Prefer counts per source; success if any source (or snackbar) indicates ~4 deletions.
@@ -77,7 +80,7 @@ if len(trash_ids_initial) > 0:
 if len(trash_ids_diff) > 0:
     counts.append(len(trash_ids_diff))
 
-moved_to_trash_snackbar = ('moved to trash' in msg and '4' in msg)
+moved_to_trash_snackbar = "moved to trash" in msg and "4" in msg
 
 amazon_deleted = False
 for c in counts:

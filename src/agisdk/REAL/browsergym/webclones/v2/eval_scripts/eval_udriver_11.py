@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Strategy in code comments:
 # 1) Confirm the CURRENT ride.trip pickup and destination are Club X -> Fox Plaza Apartments.
@@ -7,18 +8,23 @@ import json, sys
 #    whose amount approximately matches one of the expected prices (trip.car.finalPrice, calculatedPrice.finalPrice, or the completed trip's car.finalPrice).
 # Only if all three conditions are met, print SUCCESS; otherwise, FAILURE.
 
+
 def normalize(s):
     return (s or "").strip().lower()
+
 
 def matches_location(loc, target_name=None, target_id=None):
     if not isinstance(loc, dict):
         return False
-    name_ok = normalize(loc.get("name")) == normalize(target_name) if target_name is not None else True
+    name_ok = (
+        normalize(loc.get("name")) == normalize(target_name) if target_name is not None else True
+    )
     id_ok = (loc.get("id") == target_id) if target_id is not None else True
     # If both target_name and target_id provided, allow match by either (names can vary in formatting)
     if target_name is not None and target_id is not None:
         return normalize(loc.get("name")) == normalize(target_name) or loc.get("id") == target_id
     return name_ok and id_ok
+
 
 def approx_equal(a, b, tol=0.05):
     try:
@@ -26,9 +32,10 @@ def approx_equal(a, b, tol=0.05):
     except Exception:
         return False
 
+
 try:
     path = sys.argv[1]
-    with open(path, 'r') as f:
+    with open(path) as f:
         data = json.load(f)
 except Exception:
     print("FAILURE")
@@ -41,13 +48,14 @@ user = added.get("user", {}) if isinstance(added.get("user", {}), dict) else {}
 
 ride_trip = ride.get("trip", {}) if isinstance(ride.get("trip", {}), dict) else {}
 pickup = ride_trip.get("pickup", {}) if isinstance(ride_trip.get("pickup", {}), dict) else {}
-dest = ride_trip.get("destination", {}) if isinstance(ride_trip.get("destination", {}), dict) else {}
+dest = (
+    ride_trip.get("destination", {}) if isinstance(ride_trip.get("destination", {}), dict) else {}
+)
 
 # 1) Validate current trip is the correct route
-current_correct = (
-    matches_location(pickup, target_name="Club X", target_id=201) and
-    matches_location(dest, target_name="Fox Plaza Apartments", target_id=723)
-)
+current_correct = matches_location(
+    pickup, target_name="Club X", target_id=201
+) and matches_location(dest, target_name="Fox Plaza Apartments", target_id=723)
 
 # 2) Look for a completed trip of the correct route
 completed_trips = []
@@ -58,7 +66,9 @@ for t in ride.get("trips", []) or []:
         continue
     tp = t.get("pickup", {}) if isinstance(t.get("pickup", {}), dict) else {}
     td = t.get("destination", {}) if isinstance(t.get("destination", {}), dict) else {}
-    if matches_location(tp, target_name="Club X", target_id=201) and matches_location(td, target_name="Fox Plaza Apartments", target_id=723):
+    if matches_location(tp, target_name="Club X", target_id=201) and matches_location(
+        td, target_name="Fox Plaza Apartments", target_id=723
+    ):
         completed_trips.append(t)
 
 has_completed_trip = len(completed_trips) > 0

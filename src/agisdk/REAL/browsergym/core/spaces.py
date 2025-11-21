@@ -3,10 +3,9 @@
 from typing import Any
 
 import numpy as np
-from gymnasium.spaces import Space, Box, Text
+from gymnasium.spaces import Box, Space, Text
 from gymnasium.spaces.utils import flatdim, flatten, flatten_space, unflatten
 from numpy.typing import NDArray
-
 
 MAX_UNICODE_CODEPOINT = 0x10FFFF
 
@@ -72,7 +71,7 @@ class AnyDict(Space):
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""
-        return f"AnyDict()"
+        return "AnyDict()"
 
     def __eq__(self, other: Any) -> bool:
         """Check whether ``other`` is equivalent to this instance."""
@@ -86,7 +85,7 @@ class Anything(Space):
         return True
 
     def __repr__(self) -> str:
-        return f"Anything()"
+        return "Anything()"
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Anything)
@@ -111,7 +110,7 @@ class AnyBox(Space[NDArray[Any]]):
         return bool(
             np.can_cast(x.dtype, self.dtype)
             and len(x.shape) == len(self.shape)
-            and all([dim in (xdim, -1) for xdim, dim in zip(x.shape, self.shape)])
+            and all(dim in (xdim, -1) for xdim, dim in zip(x.shape, self.shape))
             and np.all(x >= self.low)
             and np.all(x <= self.high)
         )

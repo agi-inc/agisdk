@@ -1,13 +1,15 @@
-import sys, json
+import json
+import sys
 
 # Strategy: The task is successful only if a purchase was made and the purchased
 # items include a pack of sports balls. From training examples, item id "114"
 # corresponds to a sports balls pack. We verify by checking for an added order
 # and confirming at least one item in the order has id "114" with quantity > 0.
 
+
 def load_json(path):
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return {}
@@ -65,6 +67,7 @@ def main():
         print("SUCCESS")
     else:
         print("FAILURE")
+
 
 if __name__ == "__main__":
     main()

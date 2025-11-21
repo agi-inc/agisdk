@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Verification script for task: Clear all no reply emails
 # Strategy:
@@ -20,7 +21,7 @@ def get_in(d, path, default=None):
 def main():
     fp = sys.argv[1]
     try:
-        with open(fp, 'r') as f:
+        with open(fp) as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -43,7 +44,9 @@ def main():
     # If UI snackbar mentions archived, it's a failure for this task
     snackbar_msg = None
     # Look for snackbar in initialfinaldiff.updated.ui.snackbar.message
-    snackbar_msg = get_in(data, ["initialfinaldiff", "updated", "ui", "snackbar", "message"]) or snackbar_msg
+    snackbar_msg = (
+        get_in(data, ["initialfinaldiff", "updated", "ui", "snackbar", "message"]) or snackbar_msg
+    )
     if isinstance(snackbar_msg, str) and "archive" in snackbar_msg.lower():
         print("FAILURE")
         return

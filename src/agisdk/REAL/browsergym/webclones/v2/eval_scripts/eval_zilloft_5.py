@@ -1,9 +1,11 @@
-import json, sys
+import json
+import sys
 
 # Strategy:
 # Determine success if the final state indicates a contact agent action occurred.
 # Specifically, look for at least one entry in either initialfinaldiff.added.tourRequests.contactAgentList
 # or differences.contactAgents.added that contains contactAgentData.formValues with non-empty identifying fields.
+
 
 def safe_get(d, path, default=None):
     cur = d
@@ -36,7 +38,9 @@ def extract_form_values(container):
 
 def has_valid_contact_submission(data):
     # Paths to check
-    contact_list = safe_get(data, ["initialfinaldiff", "added", "tourRequests", "contactAgentList"], {})
+    contact_list = safe_get(
+        data, ["initialfinaldiff", "added", "tourRequests", "contactAgentList"], {}
+    )
     contact_added = safe_get(data, ["differences", "contactAgents", "added"], {})
 
     def fv_has_identity(fv):
@@ -65,7 +69,7 @@ def main():
         print("FAILURE")
         return
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
@@ -75,6 +79,7 @@ def main():
         print("SUCCESS")
     else:
         print("FAILURE")
+
 
 if __name__ == "__main__":
     main()

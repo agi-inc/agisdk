@@ -1,4 +1,5 @@
-import sys, json
+import json
+import sys
 
 # Strategy inside code:
 # - Search for an event whose title includes both 'email' and 'ashley' in any location.
@@ -7,6 +8,7 @@ import sys, json
 # - Use Zeller's congruence (no external libraries) to verify the date is a Monday.
 # - Treat "morning" as UTC hours 14..19 inclusive (covering 7am-12pm US local time when stored in UTC).
 # - If any event matches all criteria, print SUCCESS; otherwise FAILURE.
+
 
 def is_monday(y, m, d):
     # Zeller's congruence for Gregorian calendar
@@ -43,17 +45,17 @@ def check_events(events_dict):
     """Check events in a dictionary for matching criteria"""
     if not isinstance(events_dict, dict) or not events_dict:
         return False
-    
+
     # Morning window in UTC hours approximating US-local morning (7am-12pm local)
     MORNING_UTC_START = 13  # 13:00Z (expanded to include 1pm UTC)
-    MORNING_UTC_END = 19    # 19:59Z
+    MORNING_UTC_END = 19  # 19:59Z
 
     for ev in events_dict.values():
-        title = ev.get('title', '')
+        title = ev.get("title", "")
         if not title_matches(title):
             continue
         # Try start/startTime first, then fall back to createdAt/updatedAt
-        start = ev.get('start') or ev.get('startTime') or ev.get('createdAt') or ev.get('updatedAt')
+        start = ev.get("start") or ev.get("startTime") or ev.get("createdAt") or ev.get("updatedAt")
         parsed = parse_iso_basic(start) if isinstance(start, str) else None
         if not parsed:
             continue
@@ -69,8 +71,8 @@ def search_recursively(obj):
     """Recursively search for events with matching criteria anywhere in the JSON"""
     if isinstance(obj, dict):
         # Check if this dict looks like an event with title
-        if 'title' in obj and isinstance(obj.get('title'), str):
-            if check_events({'_': obj}):
+        if "title" in obj and isinstance(obj.get("title"), str):
+            if check_events({"_": obj}):
                 return True
         # Recursively search all values
         for value in obj.values():
@@ -86,27 +88,27 @@ def search_recursively(obj):
 def main():
     path = sys.argv[1]
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
         print("FAILURE")
         return
 
     # Check differences.events.added
-    diffs = data.get('differences', {})
-    events = diffs.get('events', {})
-    added_events = events.get('added', {})
-    
+    diffs = data.get("differences", {})
+    events = diffs.get("events", {})
+    added_events = events.get("added", {})
+
     if check_events(added_events):
         print("SUCCESS")
         return
 
     # Check initialfinaldiff.added.calendar.myTasks
-    initial_final_diff = data.get('initialfinaldiff', {})
-    added = initial_final_diff.get('added', {})
-    calendar = added.get('calendar', {})
-    my_tasks = calendar.get('myTasks', {})
-    
+    initial_final_diff = data.get("initialfinaldiff", {})
+    added = initial_final_diff.get("added", {})
+    calendar = added.get("calendar", {})
+    my_tasks = calendar.get("myTasks", {})
+
     if check_events(my_tasks):
         print("SUCCESS")
         return
@@ -118,5 +120,6 @@ def main():
 
     print("FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

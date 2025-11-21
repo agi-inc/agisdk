@@ -47,8 +47,5 @@ def test_domain_can_be_overridden_with_env():
 
         get_run_id_from_api("API", "foo", "bar")
 
-        expected = (
-            "https://custom.example.com/api/runKey?"
-            "api_key=API&model_name=foo&run_name=bar"
-        )
+        expected = "https://custom.example.com/api/runKey?api_key=API&model_name=foo&run_name=bar"
         mock_get.assert_called_once_with(expected, timeout=10)

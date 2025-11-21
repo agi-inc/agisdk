@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 
 # Verification logic for task:
 # "Calendar: My friends just told me they are not free for dinner anymore, cancel that plan on Wednesday"
@@ -9,14 +10,14 @@ import json, sys
 
 
 def load_json(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def is_success(data):
-    diffs = data.get('differences', {})
-    events = diffs.get('events', {})
-    deleted = events.get('deleted', {})
+    diffs = data.get("differences", {})
+    events = diffs.get("events", {})
+    deleted = events.get("deleted", {})
 
     if not isinstance(deleted, dict) or len(deleted) == 0:
         return False
@@ -25,22 +26,22 @@ def is_success(data):
     for _eid, evt in deleted.items():
         if not isinstance(evt, dict):
             continue
-        title = evt.get('title')
+        title = evt.get("title")
         if not isinstance(title, str):
             continue
         t = title.strip().lower()
         # Must include both dinner and friend to reduce false positives
-        if ('dinner' in t) and ('friend' in t):
+        if ("dinner" in t) and ("friend" in t):
             return True
 
     return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         path = sys.argv[1]
         data = load_json(path)
-        print('SUCCESS' if is_success(data) else 'FAILURE')
+        print("SUCCESS" if is_success(data) else "FAILURE")
     except Exception:
         # Any error means we couldn't verify; mark as failure.
-        print('FAILURE')
+        print("FAILURE")

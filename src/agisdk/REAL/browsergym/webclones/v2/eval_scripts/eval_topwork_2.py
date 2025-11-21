@@ -1,24 +1,29 @@
-import json, sys
+import json
+import sys
+
 
 def is_backend_or_fullstack(job):
     if not job or not isinstance(job, str):
         return False
     s = job.strip().lower()
     # Match variations: Full-Stack, Full Stack, Backend, Back-End, Back end
-    return (('full' in s and 'stack' in s) or ('back' in s and 'end' in s)) and ('developer' in s or 'engineer' in s or True)
+    return (("full" in s and "stack" in s) or ("back" in s and "end" in s)) and (
+        "developer" in s or "engineer" in s or True
+    )
 
 
 def collect_contacts(initialfinaldiff):
     contacts_by_id = {}
+
     # Helper to merge contacts from a container
     def add_from(container):
-        messages = (((container or {}).get('messages') or {}).get('contactList'))
+        messages = ((container or {}).get("messages") or {}).get("contactList")
         if not isinstance(messages, dict):
             return
-        for k, contact in messages.items():
+        for _k, contact in messages.items():
             if not isinstance(contact, dict):
                 continue
-            cid = contact.get('id')
+            cid = contact.get("id")
             if not cid:
                 # skip contacts without explicit id (aggregate rows)
                 continue
@@ -28,15 +33,16 @@ def collect_contacts(initialfinaldiff):
             merged.update(prev)
             merged.update(contact)
             contacts_by_id[cid] = merged
-    add_from((initialfinaldiff or {}).get('added'))
-    add_from((initialfinaldiff or {}).get('updated'))
+
+    add_from((initialfinaldiff or {}).get("added"))
+    add_from((initialfinaldiff or {}).get("updated"))
     return contacts_by_id
 
 
 def iter_contact_messages(contact):
     # Yield all textual messages and offer descriptions inside a contact
     # messages can be dict of indices or a list
-    msgs_container = contact.get('messages')
+    msgs_container = contact.get("messages")
     if isinstance(msgs_container, list):
         items = msgs_container
     elif isinstance(msgs_container, dict):
@@ -46,31 +52,33 @@ def iter_contact_messages(contact):
         items = []
     for item in items:
         # normal text message
-        msg = item.get('message')
+        msg = item.get("message")
         if isinstance(msg, str) and msg.strip():
             yield msg
         # offer nested object
-        off = item.get('offer')
+        off = item.get("offer")
         if isinstance(off, dict):
-            desc = off.get('description')
+            desc = off.get("description")
             if isinstance(desc, str) and desc.strip():
                 yield desc
     # Also consider lastMessage as textual evidence
-    last_msg = contact.get('lastMessage')
+    last_msg = contact.get("lastMessage")
     if isinstance(last_msg, str) and last_msg.strip():
         yield last_msg
 
 
 def collect_offers(initialfinaldiff):
     offers_list = []
+
     def add_offers(container):
-        offers = (((container or {}).get('offers') or {}).get('offers'))
+        offers = ((container or {}).get("offers") or {}).get("offers")
         if isinstance(offers, dict):
-            for k, off in offers.items():
+            for _k, off in offers.items():
                 if isinstance(off, dict):
                     offers_list.append(off)
-    add_offers((initialfinaldiff or {}).get('added'))
-    add_offers((initialfinaldiff or {}).get('updated'))
+
+    add_offers((initialfinaldiff or {}).get("added"))
+    add_offers((initialfinaldiff or {}).get("updated"))
     return offers_list
 
 
@@ -80,8 +88,8 @@ def text_invites_fitness_app(text):
     s = text.lower()
     # Must clearly ask about a fitness app and interest
     # Require both keywords to avoid false positives
-    has_fitness_app = ('fitness app' in s) or ('fitness' in s and 'app' in s)
-    asks_interest = ('interested' in s)
+    has_fitness_app = ("fitness app" in s) or ("fitness" in s and "app" in s)
+    asks_interest = "interested" in s
     return has_fitness_app and asks_interest
 
 
@@ -89,16 +97,16 @@ def main():
     try:
         path = sys.argv[1]
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
         return
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
         return
 
-    initialfinaldiff = (data or {}).get('initialfinaldiff') or {}
+    initialfinaldiff = (data or {}).get("initialfinaldiff") or {}
 
     # Strategy:
     # 1) Find contacts whose job indicates backend/full-stack developer.
@@ -108,29 +116,30 @@ def main():
     contacts = collect_contacts(initialfinaldiff)
 
     # Fast path: scan messages for qualified contacts
-    for cid, contact in contacts.items():
-        job = contact.get('job')
+    for _cid, contact in contacts.items():
+        job = contact.get("job")
         if not is_backend_or_fullstack(job):
             continue
         for text in iter_contact_messages(contact):
             if text_invites_fitness_app(text):
-                print('SUCCESS')
+                print("SUCCESS")
                 return
 
     # Also check offers and map to contact job
     offers = collect_offers(initialfinaldiff)
     for off in offers:
-        desc = off.get('description')
+        desc = off.get("description")
         if not text_invites_fitness_app(desc):
             continue
-        fid = off.get('freelancerId')
+        fid = off.get("freelancerId")
         # map to contact job if available
-        if fid and fid in contacts and is_backend_or_fullstack(contacts[fid].get('job')):
-            print('SUCCESS')
+        if fid and fid in contacts and is_backend_or_fullstack(contacts[fid].get("job")):
+            print("SUCCESS")
             return
 
     # If nothing matched, it's a failure
-    print('FAILURE')
+    print("FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

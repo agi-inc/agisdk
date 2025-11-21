@@ -1,4 +1,6 @@
-import json, sys
+import json
+import sys
+
 
 def iter_contacts(cl):
     if not isinstance(cl, dict):
@@ -23,11 +25,35 @@ def contains_availability_intent(text: str) -> bool:
     t = text.strip().lower()
     # Core availability/meeting intent keywords
     keywords = [
-        'free', 'available', 'availability', 'schedule', 'scheduled', 'scheduling',
-        'meet', 'meeting', 'call', 'chat', 'interview', 'time', 'slot', 'connect',
-        'today', 'tomorrow', 'tonight', 'morning', 'afternoon', 'evening',
-        'monday','tuesday','wednesday','thursday','friday','saturday','sunday',
-        'this week', 'next week'
+        "free",
+        "available",
+        "availability",
+        "schedule",
+        "scheduled",
+        "scheduling",
+        "meet",
+        "meeting",
+        "call",
+        "chat",
+        "interview",
+        "time",
+        "slot",
+        "connect",
+        "today",
+        "tomorrow",
+        "tonight",
+        "morning",
+        "afternoon",
+        "evening",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+        "this week",
+        "next week",
     ]
     return any(k in t for k in keywords)
 
@@ -40,16 +66,18 @@ def find_success(diff: dict) -> bool:
 
     def check_contact(contact) -> bool:
         # Check lastMessageAuthor + lastMessage first
-        last_author = str(contact.get('lastMessageAuthor', '')).strip().lower()
-        last_msg = contact.get('lastMessage')
-        if last_author == 'sarah johnson' and contains_availability_intent(str(last_msg) if last_msg is not None else ''):
+        last_author = str(contact.get("lastMessageAuthor", "")).strip().lower()
+        last_msg = contact.get("lastMessage")
+        if last_author == "sarah johnson" and contains_availability_intent(
+            str(last_msg) if last_msg is not None else ""
+        ):
             return True
         # Then inspect individual messages for a new outgoing authored by Sarah Johnson
-        msgs = iter_messages(contact.get('messages'))
+        msgs = iter_messages(contact.get("messages"))
         for m in msgs:
-            author = str(m.get('author', '')).strip().lower()
-            msg_text = str(m.get('message', '') if m.get('message') is not None else '')
-            if author == 'sarah johnson' and contains_availability_intent(msg_text):
+            author = str(m.get("author", "")).strip().lower()
+            msg_text = str(m.get("message", "") if m.get("message") is not None else "")
+            if author == "sarah johnson" and contains_availability_intent(msg_text):
                 return True
         return False
 
@@ -57,13 +85,13 @@ def find_success(diff: dict) -> bool:
     added_contacts = []
     try:
         updated_contacts = iter_contacts(
-            diff.get('updated', {}).get('messages', {}).get('contactList', {})
+            diff.get("updated", {}).get("messages", {}).get("contactList", {})
         )
     except Exception:
         updated_contacts = []
     try:
         added_contacts = iter_contacts(
-            diff.get('added', {}).get('messages', {}).get('contactList', {})
+            diff.get("added", {}).get("messages", {}).get("contactList", {})
         )
     except Exception:
         added_contacts = []
@@ -81,19 +109,20 @@ def main():
     try:
         path = sys.argv[1]
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
         return
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
-        print('FAILURE')
+        print("FAILURE")
         return
-    diff = data.get('initialfinaldiff', {})
+    diff = data.get("initialfinaldiff", {})
     if find_success(diff):
-        print('SUCCESS')
+        print("SUCCESS")
     else:
-        print('FAILURE')
+        print("FAILURE")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

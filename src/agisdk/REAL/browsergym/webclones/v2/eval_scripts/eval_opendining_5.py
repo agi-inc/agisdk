@@ -1,10 +1,14 @@
-import json, sys
+import json
+import sys
+
 
 def load_json(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
+
 # Helper to safely get nested keys
+
 
 def get_in(d, path, default=None):
     cur = d
@@ -15,7 +19,9 @@ def get_in(d, path, default=None):
             return default
     return cur
 
+
 # Extract the booking object from possible locations
+
 
 def extract_booking(state):
     # Common path in examples
@@ -32,7 +38,9 @@ def extract_booking(state):
         return booking
     return None
 
+
 # Extract the first booking detail entry from dict-with-numeric-keys or list
+
 
 def extract_first_detail(booking):
     details = booking.get("bookingDetails") if isinstance(booking, dict) else None
@@ -44,21 +52,28 @@ def extract_first_detail(booking):
         # Sort keys to make deterministic; keys might be numeric strings like "0"
         try:
             # Try to sort by integer value if possible
-            keys = sorted(details.keys(), key=lambda k: int(k) if isinstance(k, str) and k.isdigit() else k)
+            keys = sorted(
+                details.keys(),
+                key=lambda k: int(k) if isinstance(k, str) and k.isdigit() else k,
+            )
         except Exception:
             keys = list(details.keys())
         for k in keys:
             return details[k]
     return None
 
+
 # Normalize a guest string like "2 people"
+
 
 def normalize_guests(val):
     if not isinstance(val, str):
         return None
     return val.strip().lower()
 
+
 # Main verification logic
+
 
 def verify(state):
     booking = extract_booking(state)
@@ -99,6 +114,7 @@ def verify(state):
         return False
 
     return True
+
 
 if __name__ == "__main__":
     try:

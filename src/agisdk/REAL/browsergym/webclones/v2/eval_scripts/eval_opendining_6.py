@@ -1,4 +1,6 @@
-import json, sys
+import json
+import sys
+
 
 def normalize_time(t):
     if not isinstance(t, str):
@@ -34,11 +36,11 @@ def is_july_18(date_str):
         return True
     # Fallback: split by 'T' and inspect the date part
     try:
-        date_part = date_str.split('T')[0]
-        parts = date_part.split('-')
+        date_part = date_str.split("T")[0]
+        parts = date_part.split("-")
         if len(parts) >= 3:
             mm, dd = parts[1], parts[2]
-            if mm == '07' and dd == '18':
+            if mm == "07" and dd == "18":
                 return True
     except Exception:
         pass
@@ -49,16 +51,16 @@ def extract_booking(obj):
     # Try to find booking under added or updated
     b = None
     try:
-        b = obj.get('initialfinaldiff', {}).get('added', {}).get('booking')
+        b = obj.get("initialfinaldiff", {}).get("added", {}).get("booking")
         if b is None:
-            b = obj.get('initialfinaldiff', {}).get('updated', {}).get('booking')
+            b = obj.get("initialfinaldiff", {}).get("updated", {}).get("booking")
     except Exception:
         b = None
     return b if isinstance(b, dict) else None
 
 
 def iter_booking_details(booking):
-    details = booking.get('bookingDetails')
+    details = booking.get("bookingDetails")
     if not details:
         return []
     # Could be dict with numeric keys as strings, or a list
@@ -71,7 +73,7 @@ def iter_booking_details(booking):
 
 def main():
     path = sys.argv[1]
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
     booking = extract_booking(data)
@@ -80,7 +82,7 @@ def main():
         return
 
     # If loading is explicitly true, reservation not completed
-    if isinstance(booking.get('loading'), bool) and booking.get('loading') is True:
+    if isinstance(booking.get("loading"), bool) and booking.get("loading") is True:
         print("FAILURE")
         return
 
@@ -88,8 +90,8 @@ def main():
     details_list = iter_booking_details(booking)
 
     # Also capture top-level fields as fallback
-    top_date = booking.get('date')
-    top_time = booking.get('time')
+    top_date = booking.get("date")
+    top_time = booking.get("time")
 
     success = False
 
@@ -97,8 +99,8 @@ def main():
         for det in details_list:
             if not isinstance(det, dict):
                 continue
-            d_date = det.get('date', top_date)
-            d_time = det.get('time', top_time)
+            d_date = det.get("date", top_date)
+            d_time = det.get("time", top_time)
             if is_july_18(d_date) and is_time_130(d_time):
                 success = True
                 break
@@ -109,6 +111,7 @@ def main():
             success = True
 
     print("SUCCESS" if success else "FAILURE")
+
 
 if __name__ == "__main__":
     main()
