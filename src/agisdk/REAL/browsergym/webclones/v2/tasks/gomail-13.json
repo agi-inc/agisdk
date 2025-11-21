@@ -1,0 +1,22 @@
+{
+  "id": "gomail-13",
+  "goal": "GoMail: Send an email to Carol notifying her there has been a time change for the meeting and it is now moved to 8:30 AM",
+  "website": {
+    "id": "gomail",
+    "name": "Gomail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gomail_13.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

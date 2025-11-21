@@ -1,0 +1,31 @@
+{
+  "id": "omnizon-10",
+  "goal": "Click on \"buy now\" on any product, increase its quantity to the maximum allowed, update the delivery date to the last available, and place the order.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "quantity of 30 (max)",
+      "type": "jmespath",
+      "expected_value": 30,
+      "query": "orderDetailsDiff.added.\"0\".order.cart[0].quantity"
+    },
+    {
+      "description": "latest delivery date",
+      "type": "jmespath",
+      "expected_value": "Monday, Jul 21",
+      "query": "orderDetailsDiff.added.\"0\".order.selected_delivery"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

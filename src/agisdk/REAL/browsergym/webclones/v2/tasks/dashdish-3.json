@@ -1,0 +1,22 @@
+{
+  "id": "dashdish-3",
+  "goal": "DashDish: Its my son\u2019s birthday, please order me a Pizza from anywhere and keep it under $30",
+  "website": {
+    "id": "dashdish",
+    "name": "Dashdish",
+    "similarTo": "DoorDash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_dashdish_3.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

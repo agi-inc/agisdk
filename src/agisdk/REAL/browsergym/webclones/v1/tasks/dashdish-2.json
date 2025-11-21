@@ -1,0 +1,43 @@
+{
+  "id": "dashdish-2",
+  "goal": "Add a \"Medium Pepperoni Pizza\" from the restaurant \"Papa Johns Pizza\" to the shopping cart and purchase it.",
+  "website": {
+    "id": "dashdish",
+    "name": "DashDish",
+    "similarTo": "Doordash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://evals-dashdish.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct restaurant",
+      "type": "jmespath",
+      "expected_value": "Papa Johns Pizza",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].restaurantName"
+    },
+    {
+      "description": "correct food",
+      "type": "jmespath",
+      "expected_value": "Pepperoni Pizza",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].name"
+    },
+    {
+      "description": "correct size",
+      "type": "jmespath",
+      "expected_value": "Medium",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].size"
+    },
+    {
+      "description": "correct quantity",
+      "type": "jmespath",
+      "expected_value": 1,
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].quantity"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

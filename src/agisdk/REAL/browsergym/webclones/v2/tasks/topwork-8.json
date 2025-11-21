@@ -1,0 +1,22 @@
+{
+  "id": "topwork-8",
+  "goal": "Topwork: Remove data related job postings",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_8.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

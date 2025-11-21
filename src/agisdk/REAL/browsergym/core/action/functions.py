@@ -1,7 +1,8 @@
 # these are placeholders
 # all these symbols will be available in browsergym actions
-import playwright.sync_api
 from typing import Literal
+
+import playwright.sync_api
 
 from .utils import (
     add_demo_mode_effects,
@@ -73,7 +74,7 @@ def fill(bid: str, value: str):
     if retry_with_force:
         try:
             elem.fill(value, timeout=500)
-        except Exception as e:
+        except Exception:
             elem.fill(value, force=True, timeout=500)
     else:
         elem.fill(value, timeout=500)
@@ -92,7 +93,7 @@ def check(bid: str):
     if retry_with_force:
         try:
             elem.check(timeout=500)
-        except Exception as e:
+        except Exception:
             elem.check(force=True, timeout=500)
     else:
         elem.check(timeout=500)
@@ -111,7 +112,7 @@ def uncheck(bid: str):
     if retry_with_force:
         try:
             elem.uncheck(timeout=500)
-        except Exception as e:
+        except Exception:
             elem.uncheck(force=True, timeout=500)
     else:
         elem.uncheck(timeout=500)
@@ -132,7 +133,7 @@ def select_option(bid: str, options: str | list[str]):
     if retry_with_force:
         try:
             elem.select_option(options, timeout=500)
-        except Exception as e:
+        except Exception:
             elem.select_option(options, force=True, timeout=500)
     else:
         elem.select_option(options, timeout=500)
@@ -142,7 +143,7 @@ def select_option(bid: str, options: str | list[str]):
 def click(
     bid: str,
     button: Literal["left", "middle", "right"] = "left",
-    modifiers: list[Literal["Alt", "Control", "Meta", "Shift"]] = [],
+    modifiers: list[Literal["Alt", "Control", "Meta", "Shift"]] = None,
 ):
     """
     Click an element.
@@ -152,12 +153,14 @@ def click(
         click('b22', button="right")
         click('48', button="middle", modifiers=["Shift"])
     """
+    if modifiers is None:
+        modifiers = []
     elem = get_elem_by_bid(page, bid, demo_mode != "off")
     add_demo_mode_effects(page, elem, bid, demo_mode=demo_mode, move_cursor=True)
     if retry_with_force:
         try:
             elem.click(button=button, modifiers=modifiers, timeout=500)
-        except Exception as e:
+        except Exception:
             elem.click(button=button, modifiers=modifiers, force=True, timeout=500)
     else:
         elem.click(button=button, modifiers=modifiers, timeout=500)
@@ -167,7 +170,7 @@ def click(
 def dblclick(
     bid: str,
     button: Literal["left", "middle", "right"] = "left",
-    modifiers: list[Literal["Alt", "Control", "Meta", "Shift"]] = [],
+    modifiers: list[Literal["Alt", "Control", "Meta", "Shift"]] = None,
 ):
     """
     Double click an element.
@@ -177,12 +180,14 @@ def dblclick(
         dblclick('ca42', button="right")
         dblclick('178', button="middle", modifiers=["Shift"])
     """
+    if modifiers is None:
+        modifiers = []
     elem = get_elem_by_bid(page, bid, demo_mode != "off")
     add_demo_mode_effects(page, elem, bid, demo_mode=demo_mode, move_cursor=True)
     if retry_with_force:
         try:
             elem.dblclick(button=button, modifiers=modifiers, timeout=500)
-        except Exception as e:
+        except Exception:
             elem.dblclick(button=button, modifiers=modifiers, force=True, timeout=500)
     else:
         elem.dblclick(button=button, modifiers=modifiers, timeout=500)
@@ -200,12 +205,15 @@ def hover(bid: str):
     if demo_mode != "off":
         box = elem.bounding_box()
         if box:
-            center_x, center_y = box["x"] + box["width"] / 2, box["y"] + box["height"] / 2
+            center_x, center_y = (
+                box["x"] + box["width"] / 2,
+                box["y"] + box["height"] / 2,
+            )
             smooth_move_visual_cursor_to(page, center_x, center_y)
     if retry_with_force:
         try:
             elem.hover(timeout=500)
-        except Exception as e:
+        except Exception:
             elem.hover(force=True, timeout=500)
     else:
         elem.hover(timeout=500)

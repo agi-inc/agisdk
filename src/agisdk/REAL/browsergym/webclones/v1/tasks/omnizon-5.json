@@ -1,0 +1,24 @@
+{
+  "id": "omnizon-5",
+  "goal": "Search for the \"KTC 24 inch 1500R Curved Gaming Monitor\" click on it, and display the specifications from its product page.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer list multiple specifications of the KTC 24 inch 1500R Curved Gaming Monitor, such as size, resolution, refresh rate, or other technical details?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

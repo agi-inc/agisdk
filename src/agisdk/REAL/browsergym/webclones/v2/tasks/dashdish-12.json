@@ -1,0 +1,22 @@
+{
+  "id": "dashdish-12",
+  "goal": "DashDish: I really want to eat rice, order me meals which contain rice for less than $30",
+  "website": {
+    "id": "dashdish",
+    "name": "Dashdish",
+    "similarTo": "DoorDash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_dashdish_12.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

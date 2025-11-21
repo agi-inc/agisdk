@@ -1,0 +1,24 @@
+{
+  "id": "dashdish-6",
+  "goal": "What is the price of a regular \"Chicken Biryani\" from \"Mashaallah Halal Food Pakistani Food\"?",
+  "website": {
+    "id": "dashdish",
+    "name": "DashDish",
+    "similarTo": "Doordash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://evals-dashdish.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer indicate that the price is $17.11?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

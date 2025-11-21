@@ -19,7 +19,7 @@ The simplest agent implementation that works with any model. This is the best st
 python starter.py
 
 # Run with custom model or configuration
-python starter.py --model gpt-4o --task webclones.omnizon-1 --headless False
+python starter.py --model gpt-4o --task v1.omnizon-1 --headless False
 ```
 
 ### 2. `custom.py`
@@ -53,7 +53,7 @@ A more advanced, feature-rich agent implementation designed for others to use an
 python hackable.py
 
 # Run with custom parameters
-python hackable.py --model gpt-4o --task webclones.omnizon-1 --headless False --leaderboard True --run_id your-run-id
+python hackable.py --model gpt-4o --task v1.omnizon-1 --headless False --leaderboard True --run_id your-run-id
 ```
 
 ### 4. `nova.py`
@@ -90,7 +90,7 @@ python nova.py
    export REAL_RUN_NAME=<RUN>
    ```
    Skip these variables if you want to run locally without submitting.
-4. Run the example (e.g., `python leaderboard_example.py`). The harness uses those values, sets `RUNID`, and the clone will forward results to the leaderboard. Inside the SDK reference tasks as `webclones.omnizon-1`; when querying portal APIs use the bare id (`omnizon-1`).
+4. Run the example (e.g., `python leaderboard_example.py`). The harness uses those values, sets `RUNID`, and the clone will forward results to the leaderboard. Inside the SDK reference tasks as `v2.omnizon-1`; when querying portal APIs use the bare id (`omnizon-1`).
 
 ## Harness Configuration
 
@@ -105,7 +105,7 @@ REAL.harness(
     agentargs=MyAgentArgs(),                       # Or custom agent arguments
 
     # Task selection (provide one of these)
-    task_name="webclones.omnizon-1",  # Specific task to run
+    task_name="v1.omnizon-1",  # Specific task to run
     task_type="omnizon",              # Run all tasks of this type
     task_id=1,                        # Run specific task ID within a type
 

@@ -1,0 +1,49 @@
+{
+  "id": "staynb-5",
+  "goal": "Use the search bar to look for a stay. For the \"Where\" section, use the \"Search by region\" popover and select \"Europe\". Set the check-in date to October 13th and the check-out date to October 23rd. For the \"Who\" section, select 1 infant, 2 children, and 2 adults. Press the search button, select the first stay, and book it.",
+  "website": {
+    "id": "staynb",
+    "name": "StayNB",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://evals-staynb.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "booking was made",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\" != null"
+    },
+    {
+      "description": "correct check-in date",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(bookingDetailsDiff.added.\"0\".checkin, 'Oct 13 2025')"
+    },
+    {
+      "description": "correct check-out date",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(bookingDetailsDiff.added.\"0\".checkout, 'Oct 23 2025')"
+    },
+    {
+      "description": "correct guest information",
+      "type": "jmespath",
+      "expected_value": "4 Guests, 1 Infant",
+      "query": "bookingDetailsDiff.added.\"0\".guests"
+    },
+    {
+      "description": "stay was selected",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\".stay != null"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

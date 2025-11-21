@@ -1,0 +1,24 @@
+{
+  "id": "fly-unified-7",
+  "goal": "How many flights are available from Dallas to Fresno on December 4th?",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer indicate that there are 4 flights available from Dallas to Fresno on December 4th, 2024?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

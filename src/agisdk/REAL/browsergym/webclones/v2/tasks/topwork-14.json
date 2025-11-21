@@ -1,0 +1,22 @@
+{
+  "id": "topwork-14",
+  "goal": "Topwork: Save/favorite Ashley and Brandon as we will need to reach out to them in a few days",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_14.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

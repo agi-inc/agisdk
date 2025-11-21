@@ -1,0 +1,25 @@
+{
+  "id": "gomail-4",
+  "goal": "How many emails are in the \"Starred\" category?",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://evals-gomail.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer reflect that there are 13 emails in the \"Starred\" category?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

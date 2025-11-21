@@ -1,0 +1,31 @@
+{
+  "id": "gocalendar-3",
+  "goal": "Delete the event titled \"Breakfast Meeting with Client\" scheduled for July 19, 2024",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct delete event title",
+      "type": "jmespath",
+      "expected_value": "Breakfast Meeting with Client",
+      "query": "(eventsDiff.deleted.*.title)[0]"
+    },
+    {
+      "description": "correct deleted start time",
+      "type": "jmespath",
+      "expected_value": "2024-07-19T17:00:00.000Z",
+      "query": "(eventsDiff.deleted.*.start)[0]"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

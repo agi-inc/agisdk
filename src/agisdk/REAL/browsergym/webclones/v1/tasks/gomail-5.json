@@ -1,0 +1,39 @@
+{
+  "id": "gomail-5",
+  "goal": "Schedule an email to jane.doe@example.com with the subject \"Weekly Update\" to be sent next Monday at 9:00 AM.",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://evals-gomail.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct recipient, broken because of missing functionality",
+      "type": "jmespath",
+      "expected_value": "jane.doe@example.com",
+      "query": "differences.emails.added[0].to[0]"
+    },
+    {
+      "possible": true,
+      "description": "correct subject",
+      "type": "jmespath",
+      "expected_value": "Weekly Update",
+      "query": "differences.emails.added[0].subject"
+    },
+    {
+      "possible": true,
+      "description": "email is scheduled",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "differences.emails.added[0].scheduled"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

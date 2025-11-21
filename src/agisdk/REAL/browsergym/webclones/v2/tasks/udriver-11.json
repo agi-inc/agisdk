@@ -1,0 +1,22 @@
+{
+  "id": "udriver-11",
+  "goal": "Book a ride from Club X to Fox Plaza Apartments. Choose whatever ride I have enough credits for.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_11.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "fly-unified-14",
+  "goal": "Can you find the closest window seat to the front of the plane for a one-way flight from Indianapolis (IND) to Boise (BOI) on December 5th, 2024, departing at the first time in the morning in Economy class?",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "description": "eval not implemented yet",
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer identify seat 6A or 6F as the closest window seat to the front of the plane?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

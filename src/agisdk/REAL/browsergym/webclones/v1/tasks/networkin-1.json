@@ -1,0 +1,33 @@
+{
+  "id": "networkin-1",
+  "goal": "Create a new text post for the feed with a professional update about AI trends in 2025, mentioning three key advancements and their impact on the job market.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://evals-networkin.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "description": "at least one post added",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "length(feedPostsDiff.added) >= `1`"
+    },
+    {
+      "possible": true,
+      "description": "post contains AI mention",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(feedPostsDiff.added[0].description, 'AI')"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

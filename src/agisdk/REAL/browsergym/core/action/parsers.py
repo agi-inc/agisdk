@@ -1,8 +1,8 @@
 import ast
-import pyparsing as pp
-
 from dataclasses import dataclass
 from typing import Any
+
+import pyparsing as pp
 
 
 @dataclass
@@ -70,7 +70,8 @@ def _build_highlevel_action_parser() -> pp.ParserElement:
     )
     list_named_args = pp.DelimitedList(named_arg, allow_trailing_delim=True).set_name(None)
     function_call = pp.pyparsing_common.identifier() + pp.Group(
-        LPAREN + pp.Optional(list_args) + pp.Optional(list_named_args) + RPAREN, aslist=True
+        LPAREN + pp.Optional(list_args) + pp.Optional(list_named_args) + RPAREN,
+        aslist=True,
     )
 
     multiple_function_calls = pp.DelimitedList(pp.Group(function_call), delim="")

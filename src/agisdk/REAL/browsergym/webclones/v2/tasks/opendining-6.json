@@ -1,0 +1,22 @@
+{
+  "id": "opendining-6",
+  "goal": "OpenDining: Reserve me a restaurant for 1:30 today, July 18th.",
+  "website": {
+    "id": "opendining",
+    "name": "Opendining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_opendining_6.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

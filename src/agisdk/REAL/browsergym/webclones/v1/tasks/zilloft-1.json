@@ -1,0 +1,24 @@
+{
+  "id": "zilloft-1",
+  "goal": "Search for homes in San Francisco with a price range of $500,000 to $750,000. How many listings are displayed?",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://evals-zilloft.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer correctly state that there are 8 listings displayed for homes in San Francisco with a price range of $500,000 to $750,000?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

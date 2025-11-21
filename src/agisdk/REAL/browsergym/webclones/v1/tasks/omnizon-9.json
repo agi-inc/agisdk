@@ -1,0 +1,61 @@
+{
+  "id": "omnizon-9",
+  "goal": "Search for \"PlayStation DualSense\", purchase it using the \"buy now\" button after opening the first result and change the default payment method to:\nname: Jack Fulton\ncard number: 9231 3432 8927 7764\nexp date: 1/2029\nsecurity code: 128\n before placing your order. ",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "quantity of 1",
+      "type": "jmespath",
+      "expected_value": 1,
+      "query": "orderDetailsDiff.added.\"0\".order.cart[0].quantity"
+    },
+    {
+      "type": "jmespath",
+      "description": "id match",
+      "expected_value": "16",
+      "query": "orderDetailsDiff.added.\"0\".order.cart[0].id"
+    },
+    {
+      "description": "card name",
+      "type": "jmespath",
+      "expected_value": "Jack Fulton",
+      "query": "orderDetailsDiff.added.\"0\".order.selected_card.cardName"
+    },
+    {
+      "description": "card number",
+      "type": "jmespath",
+      "expected_value": "9231 3432 8927 7764",
+      "query": "orderDetailsDiff.added.\"0\".order.selected_card.cardNumber"
+    },
+    {
+      "description": "card expiration month",
+      "type": "jmespath",
+      "expected_value": "1",
+      "query": "orderDetailsDiff.added.\"0\".order.selected_card.month"
+    },
+    {
+      "description": "card expiration year",
+      "type": "jmespath",
+      "expected_value": "2029",
+      "query": "orderDetailsDiff.added.\"0\".order.selected_card.year"
+    },
+    {
+      "description": "card security code",
+      "type": "jmespath",
+      "expected_value": "128",
+      "query": "orderDetailsDiff.added.\"0\".order.selected_card.security_code"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

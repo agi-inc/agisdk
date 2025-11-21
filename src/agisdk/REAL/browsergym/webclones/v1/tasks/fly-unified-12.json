@@ -1,0 +1,25 @@
+{
+  "id": "fly-unified-12",
+  "goal": "Book me a flight from San Francisco to Chicago in Basic Economy on December 18th at 10:00. Ensure no seat selection is made. Tell me if there are any issues with the booking.\nPassenger: David Lee\nDate of Birth: 07/22/1985\nSex: Male\nSeat Selection: No\nPayment: Credit Card (9999 8888 7777), Exp: 11/24, Address: 987 Cedar St, Chicago, IL, 60601, USA, Phone: 555-987-1234, Email: davidlee@example.com.",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "description": "eval not implemented yet",
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the response indicate that the booking process failed due to an expired credit card (expiration 11/24)?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

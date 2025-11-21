@@ -1,5 +1,6 @@
-import playwright.sync_api
 from abc import ABC, abstractmethod
+
+import playwright.sync_api
 
 
 class AbstractActionSet(ABC):

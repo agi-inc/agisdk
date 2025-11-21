@@ -1,0 +1,24 @@
+{
+  "id": "zilloft-7",
+  "goal": "How many \"Manufactured\" homes are available in San Francisco under $1,000,000?",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://evals-zilloft.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer correctly state that there are 24 \"Manufactured\" homes available in San Francisco under $1,000,000?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "fly-unified-8",
+  "goal": "Find the cheapest Economy flight from Charlotte to Norfolk on December 10th, and book it if it departs before noon. Tell me what time the flight departs and whether you booked it.\nPassenger: Sarah White\nDate of Birth: 04/10/1990\nSex: Female\nSeat Selection: No\nPayment: Credit Card (2222 3333 4444), Exp: 08/29, Security: 244 Address: 654 Maple St, Boston, MA, 02108, USA, Phone: 555-654-3210, Email: sarahwhite@example.com.",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer indicate that the cheapest Economy flight from Charlotte to Norfolk on December 10th departs before noon (specifically at 8:00 AM) and that the agent booked the flight?"
+    },
+    {
+      "description": "correct departure city",
+      "type": "jmespath",
+      "expected_value": "Charlotte",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct destination city",
+      "type": "jmespath",
+      "expected_value": "Norfolk",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.to.destination.city"
+    },
+    {
+      "description": "correct passenger first name",
+      "type": "jmespath",
+      "expected_value": "Sarah",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].firstName"
+    },
+    {
+      "description": "correct passenger last name",
+      "type": "jmespath",
+      "expected_value": "White",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].lastName"
+    },
+    {
+      "description": "correct fare type (Economy)",
+      "type": "jmespath",
+      "expected_value": "Economy",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.selectedPrice.type"
+    },
+    {
+      "description": "correct departure time (before noon)",
+      "type": "jmespath",
+      "expected_value": "2024-12-10T16:00:00.000Z",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.segments[0].departureTime"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

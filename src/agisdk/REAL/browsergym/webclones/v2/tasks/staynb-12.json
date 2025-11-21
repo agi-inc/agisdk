@@ -1,0 +1,22 @@
+{
+  "id": "staynb-12",
+  "goal": "Show me places in Delhi, India for 2 guests on the dates Sept 7th to 9th.",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_12.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -1,0 +1,43 @@
+{
+  "id": "udriver-9",
+  "goal": "Book me a ride from the thai restaurant I last took a ride to for later today at 2pm, I'll be at 333 Apartments on Fremont",
+  "website": {
+    "id": "udriver",
+    "name": "UDriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://evals-udriver.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct pickup location",
+      "type": "jmespath",
+      "expected_value": "333 Fremont Apartments",
+      "query": "differences.bookedTrips.added.\"0\".pickup.name"
+    },
+    {
+      "description": "correct destination (previously visited thai restaurant)",
+      "type": "jmespath",
+      "expected_value": "Phat Thai",
+      "query": "differences.bookedTrips.added.\"0\".destination.name"
+    },
+    {
+      "description": "correct scheduled time",
+      "type": "jmespath",
+      "expected_value": "02:00 PM",
+      "query": "differences.bookedTrips.added.\"0\".time"
+    },
+    {
+      "description": "correct car type",
+      "type": "jmespath",
+      "expected_value": "UdriverX",
+      "query": "differences.bookedTrips.added.\"0\".car.type"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

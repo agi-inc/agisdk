@@ -44,7 +44,7 @@ When `harness.run()` is called, the system first determines which tasks to execu
 
 **Task Sampling:**
 - Each selected task is repeated `sample_tasks` times (default: 1)
-- Tasks are formatted as `"webclones.{task_name}"` for browsergym
+- Tasks are formatted as `"<version>.{task_name}"` (e.g., `"v1.omnizon-1"`)
 
 ### 3. Execution Planning (`_run_tasks`)
 

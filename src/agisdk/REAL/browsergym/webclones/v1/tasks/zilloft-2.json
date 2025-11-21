@@ -1,0 +1,25 @@
+{
+  "id": "zilloft-2",
+  "goal": "Filter the listings in San Francisco to show only homes with exactly 3 bedrooms and 2 bathrooms. How many listings are displayed?",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://evals-zilloft.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "description": "eval not implemented yet",
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer correctly state that there are 16 listings displayed when filtering for homes in San Francisco with 3 bedrooms and 2 bathrooms?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,55 @@
+{
+  "id": "dashdish-4",
+  "goal": "Schedule a delivery order from \"Taco Bell\" adding a \"Classic Cheeseburger\" large size for later and add the note \"Leave at the front door\".",
+  "website": {
+    "id": "dashdish",
+    "name": "DashDish",
+    "similarTo": "Doordash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://evals-dashdish.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct restaurant",
+      "type": "jmespath",
+      "expected_value": "Taco Bell",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].restaurantName"
+    },
+    {
+      "description": "correct food",
+      "type": "jmespath",
+      "expected_value": "Classic Cheeseburger",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].name"
+    },
+    {
+      "description": "correct size",
+      "type": "jmespath",
+      "expected_value": "Large",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].size"
+    },
+    {
+      "description": "correct delivery option",
+      "type": "jmespath",
+      "expected_value": "Schedule",
+      "query": "differences.foodOrders.added.\"0\".checkoutDetails.shipping.deliveryOption"
+    },
+    {
+      "description": "correct drop off option",
+      "type": "jmespath",
+      "expected_value": "Leave it at my door",
+      "query": "differences.foodOrders.added.\"0\".checkoutDetails.shipping.dropOffOption"
+    },
+    {
+      "description": "correct drop off instructions",
+      "type": "jmespath",
+      "expected_value": "Leave at the front door",
+      "query": "differences.foodOrders.added.\"0\".checkoutDetails.shipping.dropOffInstructions"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

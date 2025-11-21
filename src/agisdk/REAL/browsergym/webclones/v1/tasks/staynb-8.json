@@ -1,0 +1,43 @@
+{
+  "id": "staynb-8",
+  "goal": "Scroll through the homepage and book the last stay located in Paris.",
+  "website": {
+    "id": "staynb",
+    "name": "StayNB",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://evals-staynb.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "booking was made",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\" != null"
+    },
+    {
+      "description": "correct stay title",
+      "type": "jmespath",
+      "expected_value": "Parisian Charm",
+      "query": "bookingDetailsDiff.added.\"0\".stay.title"
+    },
+    {
+      "description": "correct stay location",
+      "type": "jmespath",
+      "expected_value": "Paris",
+      "query": "bookingDetailsDiff.added.\"0\".stay.city"
+    },
+    {
+      "description": "correct stay price",
+      "type": "jmespath",
+      "expected_value": 530,
+      "query": "bookingDetailsDiff.added.\"0\".stay.price"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

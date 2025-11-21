@@ -1,0 +1,22 @@
+{
+  "id": "gocalendar-23",
+  "goal": "GoCalendar: Delete the project sync from the calendar on Wednesday",
+  "website": {
+    "id": "gocalendar",
+    "name": "Gocalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://real-gocalendar-n1nw9ran1-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gocalendar_23.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

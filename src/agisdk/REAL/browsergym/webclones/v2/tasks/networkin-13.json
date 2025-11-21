@@ -1,0 +1,22 @@
+{
+  "id": "networkin-13",
+  "goal": "Network In: Make a post about your summer internship",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_networkin_13.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

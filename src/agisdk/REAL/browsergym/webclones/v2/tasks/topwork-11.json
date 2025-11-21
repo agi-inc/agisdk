@@ -1,0 +1,22 @@
+{
+  "id": "topwork-11",
+  "goal": "Rehire someone I've already hired as a project lead.",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_11.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

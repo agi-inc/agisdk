@@ -1,0 +1,24 @@
+{
+  "id": "opendining-9",
+  "goal": "Search all menus and identify the restaurant offering the cheapest dish, along with its name and price.",
+  "website": {
+    "id": "opendining",
+    "name": "OpenDining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://evals-opendining.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer identify 'Taco Loco' as the restaurant and 'Carnitas Taco' as the cheapest dish, or another dish with a price of approximately $3-5?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "dashdish-1",
+  "goal": "Order me some noodles and make sure the final price is under 26$",
+  "website": {
+    "id": "dashdish",
+    "name": "Dashdish",
+    "similarTo": "DoorDash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_dashdish_1.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

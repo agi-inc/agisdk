@@ -1,0 +1,22 @@
+{
+  "id": "zilloft-14",
+  "goal": "Find me houses in Boston, MA under 1 million dollars and then contact the agent of a house. For the house tour, schedule it for tomorrow 9 AM.",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_zilloft_14.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

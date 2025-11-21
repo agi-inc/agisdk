@@ -1,0 +1,22 @@
+{
+  "id": "gocalendar-13",
+  "goal": "I have math camp July 21st to 27th all day. Create a reminder and the camp is in Sunnyvale btw.",
+  "website": {
+    "id": "gocalendar",
+    "name": "Gocalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://real-gocalendar-n1nw9ran1-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gocalendar_13.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

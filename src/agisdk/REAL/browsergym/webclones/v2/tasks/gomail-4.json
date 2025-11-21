@@ -1,0 +1,22 @@
+{
+  "id": "gomail-4",
+  "goal": "Write an email to alexa richardson and ask to let me know when the files come in.",
+  "website": {
+    "id": "gomail",
+    "name": "Gomail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gomail_4.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

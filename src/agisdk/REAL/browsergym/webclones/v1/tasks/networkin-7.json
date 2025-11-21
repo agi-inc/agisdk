@@ -1,0 +1,31 @@
+{
+  "id": "networkin-7",
+  "goal": "Search for three users who have worked at Amazon and list their current job positions.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://evals-networkin.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "description": "This task is not possible. You can't really search for Amazon.",
+  "evals": [
+    {
+      "description": "search history recorded",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "length(searchHistoryDiff.added) >= `1`"
+    },
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "The answer should contain a list of at least 2 users who have worked at Amazon, including their current job positions."
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

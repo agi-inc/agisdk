@@ -1,0 +1,29 @@
+{
+  "id": "topwork-9",
+  "goal": "Draft a message to negotiate a lower hourly rate with a freelancer while maintaining professionalism and respect for their expertise. After sending the message, please share the content of your negotiation message.",
+  "website": {
+    "id": "topwork",
+    "name": "TopWork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://evals-topwork.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "jmespath",
+      "query": "differences.messagesDiff.added[0].type",
+      "expected_value": "text"
+    },
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer describe a professional message that attempts to negotiate a lower hourly rate while showing respect for the freelancer's expertise?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

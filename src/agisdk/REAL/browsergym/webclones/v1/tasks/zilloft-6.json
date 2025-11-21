@@ -1,0 +1,49 @@
+{
+  "id": "zilloft-6",
+  "goal": "Select a property listed in San Francisco as \"Condos\" within a price range under $300,000 and request a tour for tomorrow at 4:00 PM. Use these contact details: Name: Sarah Brown, Email: sarahbrown@example.com, Phone: 555-987-6543.",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://evals-zilloft.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "tour request submitted",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "differences.requestTours.added != null && length(differences.requestTours.added) > `0`"
+    },
+    {
+      "description": "correct name provided",
+      "type": "jmespath",
+      "expected_value": "Sarah Brown",
+      "query": "differences.requestTours.added.\"0\".requestTourData.formValues.name"
+    },
+    {
+      "description": "correct email provided",
+      "type": "jmespath",
+      "expected_value": "sarahbrown@example.com",
+      "query": "differences.requestTours.added.\"0\".requestTourData.formValues.email"
+    },
+    {
+      "description": "correct phone provided",
+      "type": "jmespath",
+      "expected_value": "555-987-6543",
+      "query": "differences.requestTours.added.\"0\".requestTourData.formValues.phone"
+    },
+    {
+      "description": "correct time selected",
+      "type": "jmespath",
+      "expected_value": "4:00 PM",
+      "query": "differences.requestTours.added.\"0\".requestTourData.options[0].time"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

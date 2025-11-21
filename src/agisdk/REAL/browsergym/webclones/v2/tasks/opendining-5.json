@@ -1,0 +1,22 @@
+{
+  "id": "opendining-5",
+  "goal": "Book me a 4+ star restaurant for my birthday tonight. It is going to be for my girlfriend and I.",
+  "website": {
+    "id": "opendining",
+    "name": "Opendining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_opendining_5.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}
