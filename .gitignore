@@ -1,0 +1,28 @@
+# Virtual environments
+.venv/
+venv/
+
+# Python cache / bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs / coverage / test artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+
+# Editor/OS junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local environment / secrets
+.env
+.env.*

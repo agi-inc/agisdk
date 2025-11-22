@@ -1,0 +1,101 @@
+{
+  "id": "gocalendar-10",
+  "goal": "Create an event \u201cTake Vitamins\u201d, repeating every weekday from 8AM-9AM and add a description saying \u201cVitamin B, D\u201d, selecting the \u201cPersonal\u201d calendar.",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "url": "https://real-gocalendar.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Take Vitamins event created with correct title",
+      "type": "jmespath",
+      "expected_value": "Take Vitamins",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins'].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event has correct description 'Vitamin B, D'",
+      "type": "jmespath",
+      "expected_value": "Vitamin B, D",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins'].description | [0]"
+    },
+    {
+      "description": "Take Vitamins event assigned to Personal calendar",
+      "type": "jmespath",
+      "expected_value": "Personal",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins'].calendarOptions.calendar.name | [0]"
+    },
+    {
+      "description": "Take Vitamins event exists on July 18",
+      "type": "jmespath",
+      "expected_value": "Take Vitamins",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-18')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event exists on July 19",
+      "type": "jmespath",
+      "expected_value": "Take Vitamins",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-19')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event exists on July 22",
+      "type": "jmespath",
+      "expected_value": "Take Vitamins",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-22')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event exists on July 23",
+      "type": "jmespath",
+      "expected_value": "Take Vitamins",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-23')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event exists on July 24",
+      "type": "jmespath",
+      "expected_value": "Take Vitamins",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-24')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event exists on July 25",
+      "type": "jmespath",
+      "expected_value": "Take Vitamins",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-25')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event exists on July 26",
+      "type": "jmespath",
+      "expected_value": "Take Vitamins",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-26')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event does NOT exist on July 13",
+      "type": "jmespath",
+      "expected_value": null,
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-13')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event does NOT exist on July 14",
+      "type": "jmespath",
+      "expected_value": null,
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-14')].title | [0]"
+    },
+    {
+      "description": "Take Vitamins event has correct start time",
+      "type": "jmespath",
+      "expected_value": "2024-07-19T15:00:00.000Z",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-19')].start | [0]"
+    },
+    {
+      "description": "Take Vitamins event has correct end time",
+      "type": "jmespath",
+      "expected_value": "2024-07-19T16:00:00.000Z",
+      "query": "iterable_item_added.* | [?title=='Take Vitamins' && contains(start, '2024-07-19')].end | [0]"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

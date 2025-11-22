@@ -1,0 +1,41 @@
+{
+  "id": "gocalendar-2",
+  "goal": "Create a new event titled \"Team Meeting\" on July 19, 2024, from 2 PM to 2:30 PM, and include \"Conference Room A\" as the location.",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "url": "https://real-gocalendar.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "A new event titled 'Team Meeting' was added",
+      "type": "jmespath",
+      "expected_value": "Team Meeting",
+      "query": "iterable_item_added.* | [?title==`Team Meeting`].title | [0]"
+    },
+    {
+      "description": "The new event starts at 2024-07-19T21:00:00.000Z (2:00 PM local)",
+      "type": "jmespath",
+      "expected_value": "2024-07-19T21:00:00.000Z",
+      "query": "iterable_item_added.* | [?title==`Team Meeting`].start | [0]"
+    },
+    {
+      "description": "The new event ends at 2024-07-19T21:30:00.000Z (2:30 PM local)",
+      "type": "jmespath",
+      "expected_value": "2024-07-19T21:30:00.000Z",
+      "query": "iterable_item_added.* | [?title==`Team Meeting`].end | [0]"
+    },
+    {
+      "description": "The new event location is set to 'Conference Room A'",
+      "type": "jmespath",
+      "expected_value": "Conference Room A",
+      "query": "iterable_item_added.* | [?title==`Team Meeting`].location | [0]"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

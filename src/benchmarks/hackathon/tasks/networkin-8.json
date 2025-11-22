@@ -1,0 +1,47 @@
+{
+  "id": "networkin-8",
+  "goal": "Accept Michael Brown\u2019s connection request.",
+  "website": {
+    "id": "networkin",
+    "name": "NetworkIn",
+    "similarTo": "LinkedIn",
+    "url": "https://real-networkin.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Michael Brown appears in acceptedConnections list",
+      "type": "jmespath",
+      "expected_value": "Michael Brown",
+      "query": "iterable_item_added.\"root['ui']['profiles']['acceptedConnections'][0]\".name"
+    },
+    {
+      "description": "Michael Brown is removed from connectionRequests list",
+      "type": "jmespath",
+      "expected_value": "michaelbrown",
+      "query": "iterable_item_removed.\"root['ui']['profiles']['connectionRequests'][0]\""
+    },
+    {
+      "description": "Connection grade for Michael Brown set to 1st",
+      "type": "jmespath",
+      "expected_value": "1st",
+      "query": "dictionary_item_added.\"root['ui']['profiles']['connectionGrades']['michaelbrown']\""
+    },
+    {
+      "description": "Connection name for Michael Brown stored correctly",
+      "type": "jmespath",
+      "expected_value": "Michael Brown",
+      "query": "dictionary_item_added.\"root['ui']['profiles']['connectionNames']['michaelbrown']\""
+    },
+    {
+      "description": "Michael Brown added to dynamicConnections list",
+      "type": "jmespath",
+      "expected_value": "michaelbrown",
+      "query": "iterable_item_added.\"root['ui']['profiles']['dynamicConnections'][0]\".id"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

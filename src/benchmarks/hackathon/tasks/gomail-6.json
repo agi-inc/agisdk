@@ -1,0 +1,47 @@
+{
+  "id": "gomail-6",
+  "goal": "Schedule an email to jane.doe@example.com with the subject \"Weekly Update\" to be sent Aug 25 at 9:00 AM.",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "url": "https://real-gomail.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "A new email was added with recipient jane.doe@example.com",
+      "type": "jmespath",
+      "expected_value": "jane.doe@example.com",
+      "query": "iterable_item_added.* | [0].to[0]"
+    },
+    {
+      "description": "Newly scheduled email has the correct subject 'Weekly Update'",
+      "type": "jmespath",
+      "expected_value": "Weekly Update",
+      "query": "iterable_item_added.* | [0].subject"
+    },
+    {
+      "description": "Scheduled flag is set to true for the new email",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "iterable_item_added.* | [0].scheduled"
+    },
+    {
+      "description": "Scheduled email date is set to 2025-08-25 (next Monday)",
+      "type": "jmespath",
+      "expected_value": "2024-08-25",
+      "query": "iterable_item_added.* | [0].date"
+    },
+    {
+      "description": "Scheduled email time is set to 09:00 AM",
+      "type": "jmespath",
+      "expected_value": "09:00 AM",
+      "query": "iterable_item_added.* | [0].time"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

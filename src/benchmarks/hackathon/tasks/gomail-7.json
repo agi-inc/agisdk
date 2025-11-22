@@ -1,0 +1,59 @@
+{
+  "id": "gomail-7",
+  "goal": "Reply to Jane Smith\u2019s email with: \u201cThanks for the update! Let\u2019s schedule a one-on-one call to discuss in further detail before we take these next steps with our team.\u201d Also, tell me how many days the project has been extended and summarize the reasons for the extension.",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "url": "https://real-gomail.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Reply email addressed to Jane Smith",
+      "type": "jmespath",
+      "expected_value": "jane.smith@example.com",
+      "query": "values_changed.\"root['email']['emails'][1]['to'][0]\".new_value"
+    },
+    {
+      "description": "Reply email subject correctly prefixed with Re:",
+      "type": "jmespath",
+      "expected_value": "Re: Project Update: Deadline Extended",
+      "query": "values_changed.\"root['email']['emails'][1]['subject']\".new_value"
+    },
+    {
+      "description": "Reply email marked as sent",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "dictionary_item_added.\"root['email']['emails'][1]['sent']\""
+    },
+    {
+      "description": "Reply email flagged as a reply in thread",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "dictionary_item_added.\"root['email']['emails'][1]['isReply']\""
+    },
+    {
+      "description": "Reply email body thanks Jane and proposes a one-on-one call using requested wording",
+      "type": "llm_judge_diff",
+      "expected_value": "Contains the exact or near-exact sentence: \"Thanks for the update! Let\u2019s schedule a one-on-one call to discuss in further detail before we take these next steps with our team.\"",
+      "query": "values_changed.\"root['email']['emails'][1]['content']\".new_value"
+    },
+    {
+      "description": "Agent states project was extended by 30 days",
+      "type": "llm_judge_response",
+      "expected_value": "Mentions that the project deadline was extended by 30 days.",
+      "query": "user_response"
+    },
+    {
+      "description": "Agent summarizes all four stated reasons: quality assurance, client feedback integration, technical challenges, and resource availability",
+      "type": "llm_judge_response",
+      "expected_value": "Provides a brief summary including the four reasons for extension: Quality Assurance, Client Feedback Integration, Technical Challenges, and Resource Availability (or clear paraphrases of these).",
+      "query": "user_response"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

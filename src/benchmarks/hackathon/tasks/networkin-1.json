@@ -1,0 +1,23 @@
+{
+    "id": "networkin-1",
+    "goal": "Summarize the 4 most recent posts on the homepage feed, providing a brief description of each and identifying any recurring themes.",
+    "website": {
+        "id": "networkin",
+        "name": "NetworkIn",
+        "similarTo": "LinkedIn",
+        "url": "https://real-networkin.vercel.app/"
+    },
+    "difficulty": "medium",
+    "challengeType": "action",
+    "possible": true,
+    "evals": [
+        {
+            "description": "Agent provides comprehensive summary of all posts and identifies common theme",
+            "type": "llm_judge_response",
+            "expected_value": "The response should mention all four posts: 1) Alexa Richardson (Software Engineer) exploring new features in Next.js 14, 2) Jane Doe (Product Manager) sharing a product demo, 3) John Smith (Designer) discussing design trends for 2024, and 4) Michael Brown (Data Scientist) analyzing AI data trends. Any reasonable identification of recurring themes such as technology trends, product updates, professional development, or innovation is acceptable.",
+            "query": "user_response"
+        }
+    ],
+    "points": 1,
+    "config": {}
+}

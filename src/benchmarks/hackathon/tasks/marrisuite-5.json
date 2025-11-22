@@ -1,0 +1,41 @@
+{
+  "id": "marrisuite-5",
+  "goal": "Buy 10000 points, fill in dummy information for the purchase, this is a test environment",
+  "website": {
+    "id": "marrisuite",
+    "name": "MarriSuite",
+    "similarTo": "Marriott",
+    "url": "https://real-marrisuite.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Purchase confirmation flag set to true",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "values_changed.\"root['points']['showConfirmation']\".new_value"
+    },
+    {
+      "description": "Current step updated to confirmation",
+      "type": "jmespath",
+      "expected_value": "confirmation",
+      "query": "values_changed.\"root['points']['currentStep']\".new_value"
+    },
+    {
+      "description": "Purchase history entry added with 10,000 points",
+      "type": "jmespath",
+      "expected_value": 10000,
+      "query": "iterable_item_added.* | [?points==`10000`].points | [0]"
+    },
+    {
+      "description": "Purchase history entry records 1,000 bonus points",
+      "type": "jmespath",
+      "expected_value": 1000,
+      "query": "iterable_item_added.* | [?bonusPoints==`1000`].bonusPoints | [0]"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

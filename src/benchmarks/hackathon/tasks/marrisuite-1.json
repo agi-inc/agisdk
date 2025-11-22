@@ -1,0 +1,53 @@
+{
+  "id": "marrisuite-1",
+  "goal": "Book a hotel to Miami trip for July 21st for one night with 2 adults and a child and book with points. If it is not possible, add card. Fill in dummy information such as name, email, etc. to complete the task (This is a test environment).",
+  "website": {
+    "id": "marrisuite",
+    "name": "MarriSuite",
+    "similarTo": "Marriott",
+    "url": "https://real-marrisuite.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Destination contains 'Miami'",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(type_changes.\"root['booking']['currentBooking']\".new_value.destination, 'Miami')"
+    },
+    {
+      "description": "Check-in date set to July 21st, 2024",
+      "type": "jmespath",
+      "expected_value": "2024-07-21T08:00:00.000Z",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.dates.startDate"
+    },
+    {
+      "description": "Check-out date set to July 22nd, 2024",
+      "type": "jmespath",
+      "expected_value": "2024-07-22T08:00:00.000Z",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.dates.endDate"
+    },
+    {
+      "description": "Guest count set to 2 adults",
+      "type": "jmespath",
+      "expected_value": 2,
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.guestCounts.Adults"
+    },
+    {
+      "description": "Guest count set to 1 child",
+      "type": "jmespath",
+      "expected_value": 1,
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.guestCounts.Children"
+    },
+    {
+      "description": "Payment method set to points",
+      "type": "jmespath",
+      "expected_value": "points",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.paymentInfo.payWith"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

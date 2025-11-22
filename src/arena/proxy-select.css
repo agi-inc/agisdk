@@ -1,0 +1,33 @@
+div.cb-pvt-dropdown {
+    position: absolute !important;
+    background-color: beige !important;
+    border: 1px solid #7f9db9 !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: Arial;
+    line-height: normal;
+    font-size: 13px;
+    cursor: Default;
+    /* 1e90ff */
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+div.cb-pvt-dropdown .cb-pvt-option {
+    padding: 0 5px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+div.cb-pvt-dropdown .cb-pvt-option.cb-pvt-selected {
+    background-color: #1e90ff;
+    color: beige;
+}
+
+div.cb-pvt-dropdown.cb-pvt-hidden {
+    display: none;
+}

@@ -1,0 +1,29 @@
+{
+  "id": "networkin-13",
+  "goal": "Look through Newsletters and under Discover section, subscribe to \"Remote Work Chronicles\" and \"Leadership Insights\".",
+  "website": {
+    "id": "networkin",
+    "name": "NetworkIn",
+    "similarTo": "LinkedIn",
+    "url": "https://real-networkin.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Newsletter with id newsletter9 was added to subscribedNewsletters and set to true",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "dictionary_item_added.\"root['ui']['myNetwork']['newsletters']['subscribedNewsletters']['newsletter9']\""
+    },
+    {
+      "description": "Newsletter with id newsletter7 was added to subscribedNewsletters and set to true",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "dictionary_item_added.\"root['ui']['myNetwork']['newsletters']['subscribedNewsletters']['newsletter7']\""
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

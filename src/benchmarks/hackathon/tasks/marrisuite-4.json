@@ -1,0 +1,77 @@
+{
+  "id": "marrisuite-4",
+  "goal": "Book a trip to Hong Kong, using points, from August 7-9 for 2 adults, room must have 1 king bed. Use these credentials to make the purchase: Guest: John Doe, [John.doe@gmail.com](mailto:John.doe@gmail.com), USA, 123 Elm Street, Los Angeles, CA, 92345.",
+  "website": {
+    "id": "marrisuite",
+    "name": "MarriSuite",
+    "similarTo": "Marriott",
+    "url": "https://real-marrisuite.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Destination set to Hong Kong",
+      "type": "jmespath",
+      "expected_value": "Hong Kong, China",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.destination"
+    },
+    {
+      "description": "Check-in date set to August 7th, 2024",
+      "type": "jmespath",
+      "expected_value": "2024-08-07T08:00:00.000Z",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.dates.startDate"
+    },
+    {
+      "description": "Check-out date set to August 9th, 2024",
+      "type": "jmespath",
+      "expected_value": "2024-08-09T08:00:00.000Z",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.dates.endDate"
+    },
+    {
+      "description": "Guest count set to 2 adults",
+      "type": "jmespath",
+      "expected_value": 2,
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.guestCounts.Adults"
+    },
+    {
+      "description": "Payment method set to points",
+      "type": "jmespath",
+      "expected_value": "points",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.paymentInfo.payWith"
+    },
+    {
+      "description": "Guest first name set to John",
+      "type": "jmespath",
+      "expected_value": "John",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.userInfo.firstName"
+    },
+    {
+      "description": "Guest last name set to Doe",
+      "type": "jmespath",
+      "expected_value": "Doe",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.userInfo.lastName"
+    },
+    {
+      "description": "Guest email set to John.doe@gmail.com",
+      "type": "jmespath",
+      "expected_value": "John.doe@gmail.com",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.userInfo.email"
+    },
+    {
+      "description": "Address set to 123 Elm Street",
+      "type": "jmespath",
+      "expected_value": "123 Elm Street",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.address.address1"
+    },
+    {
+      "description": "City set to Los Angeles",
+      "type": "jmespath",
+      "expected_value": "Los Angeles",
+      "query": "type_changes.\"root['booking']['currentBooking']\".new_value.address.city"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

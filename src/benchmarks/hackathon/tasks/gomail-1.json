@@ -1,0 +1,23 @@
+{
+  "id": "gomail-1",
+  "goal": "Find how many unread emails are in the Inbox.",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "url": "https://real-gomail.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Agent states the correct number of unread emails",
+      "type": "llm_judge_response",
+      "expected_value": "437",
+      "query": "user_response"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

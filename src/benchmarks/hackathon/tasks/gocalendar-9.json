@@ -1,0 +1,47 @@
+{
+  "id": "gocalendar-9",
+  "goal": "Create a recurring \"Daily Standup\" event at 9am on July 18, 2024, that repeats daily, and adjust the July 22, 2024, event to start at 10 AM.",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "url": "https://real-gocalendar.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Daily Standup event created with correct title",
+      "type": "jmespath",
+      "expected_value": "Daily Standup",
+      "query": "iterable_item_added.* | [?title==`Daily Standup`].title | [0]"
+    },
+    {
+      "description": "Daily Standup event set to repeat daily (at least 7 days)",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "iterable_item_added.* | [?title==`Daily Standup` && (contains(@.start, '2024-07-18') || contains(@.start, '2024-07-19') || contains(@.start, '2024-07-20') || contains(@.start, '2024-07-21') || contains(@.start, '2024-07-22') || contains(@.start, '2024-07-23') || contains(@.start, '2024-07-24'))] | length(@) >= `7`"
+    },
+    {
+      "description": "Daily Standup event starts from July 18, 2024",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "iterable_item_added.* | [?title==`Daily Standup`] | [0] | contains(@.start, '2024-07-18')"
+    },
+    {
+      "description": "Daily Standup event scheduled at 9 AM",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "iterable_item_added.* | [?title==`Daily Standup`] | [0] | contains(@.start, 'T16:00:00')"
+    },
+    {
+      "description": "July 22, 2024 event adjusted to start at 10 AM",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "(iterable_item_added.* || `[]`) | [?contains(@.start || '', '2024-07-22') && contains(@.start || '', 'T17:00:00')] | length(@) > `0`"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}

@@ -1,0 +1,23 @@
+{
+  "id": "gomail-5",
+  "goal": "Search \u201cfacebook\u201d and tell me what the latest notification is about.",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "url": "https://real-gomail.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "Agent states that the latest Facebook notification is about a friend request being accepted",
+      "type": "llm_judge_response",
+      "expected_value": "Mentions that the latest Facebook notification is about a friend request being accepted",
+      "query": "user_response"
+    }
+  ],
+  "points": 1,
+  "config": {}
+}
