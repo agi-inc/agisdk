@@ -80,7 +80,7 @@ class WebCloneEvaluator:
             Student's answer: {model_response}
             Rubric: {rubric}
 
-            Please answer only with a floating point number.
+            Don't be too strict. Please answer only with a floating point number.
         """
         llm_grade = generate_from_model(prompt=fuzzy_match_prompt, model=self.llm)
         try:
