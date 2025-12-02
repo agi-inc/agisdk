@@ -75,12 +75,14 @@ class WebCloneEvaluator:
     def evaluate_with_llm(self, model_response: str, rubric: str, threshold: float = 0.8):
         """Performs fuzzy matching using an LLM."""
         fuzzy_match_prompt = f"""
-            Given a student's answer and a rubric, grade the answer on a scale of 0 to 1.
+            Given a student's answer and a rubric, help a teacher grade the answer. Keep in mind
+            that the student may use different words or phrases to express the same idea.
 
             Student's answer: {model_response}
             Rubric: {rubric}
 
-            Don't be too strict. Please answer only with a floating point number.
+            Grade the student's answer on a scale of 0 to 1, where 1 means the student's answer matches the rubric. Don't be too strict.
+            Please answer only with a floating point number and nothing else.
         """
         llm_grade = generate_from_model(prompt=fuzzy_match_prompt, model=self.llm)
         try:
