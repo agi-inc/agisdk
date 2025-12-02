@@ -64,9 +64,15 @@ def load_json_file(file_path: Path, allow_empty: bool = False) -> Optional[any]:
         # Try to parse as JSON
         data = json.loads(content)
 
-        # If it's a string, try to parse again (double-encoded)
+        # If it's a string, check if it might be double-encoded JSON
         if isinstance(data, str):
-            data = json.loads(data)
+            # Only try to parse again if it looks like JSON (starts with { [ or ")
+            if data.strip() and data.strip()[0] in ('{', '[', '"'):
+                try:
+                    data = json.loads(data)
+                except json.JSONDecodeError:
+                    # Not double-encoded, just a regular string - return as-is
+                    pass
 
         return data
     except json.JSONDecodeError as e:
