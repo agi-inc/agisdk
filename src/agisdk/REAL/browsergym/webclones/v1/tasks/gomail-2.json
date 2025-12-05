@@ -1,0 +1,26 @@
+{
+  "id": "gomail-2",
+  "goal": "Mark the first email in the Inbox as \"read\".",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://evals-gomail.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "description": "email marked as read",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "differences.emails.updated[0].isRead"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

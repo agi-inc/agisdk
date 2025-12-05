@@ -1,0 +1,25 @@
+{
+  "id": "gomail-6",
+  "goal": "Find the email with the subject \"Project Update: Deadline Extended\" and tell me if it is marked as read or unread.",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://evals-gomail.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer correctly indicate that the email with subject \"Project Update: Deadline Extended\" is read?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

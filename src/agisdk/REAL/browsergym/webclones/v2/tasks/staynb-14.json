@@ -1,0 +1,22 @@
+{
+  "id": "staynb-14",
+  "goal": "Show me available places in Rome, Italy for the first weekend of January. I need a place with 2+ bedrooms and wifi for 4 guests.",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_14.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "networkin-11",
+  "goal": "Create a post talking about my networking event and tell everyone to dm me if interested. Then send the post to a couple people I have connected.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_networkin_11.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

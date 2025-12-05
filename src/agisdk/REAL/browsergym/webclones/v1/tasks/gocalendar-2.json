@@ -1,0 +1,24 @@
+{
+  "id": "gocalendar-2",
+  "goal": "Switch to the \"Month\" view and list all events displayed for July 2024",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer accurately list all events displayed for July 2024 including Team Standup Meeting, Client Call, Team Brainstorming Session, Morning Walk, Team Workshop, Lunch with Boss, Project Sync, Customer Feedback Session, Team Collaboration Work, Morning Coffee with sister, Team Check-In, Lunch with Marketing Team, Breakfast Metting with Client, Team Progress Check, and Client Presentation?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

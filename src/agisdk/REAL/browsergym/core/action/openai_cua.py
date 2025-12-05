@@ -1,5 +1,6 @@
 import time
-from typing import Callable, List, Dict
+from typing import Callable
+
 from playwright.sync_api import Page
 
 # Optional: key mapping if your model uses "CUA" style keys
@@ -31,8 +32,9 @@ CUA_KEY_TO_PLAYWRIGHT_KEY = {
     "win": "Meta",
 }
 
+
 def execute_openai_cua_action(
-    action: Dict, # Action is expected to be a dictionary from the OperatorAgent
+    action: dict,  # Action is expected to be a dictionary from the OperatorAgent
     page: Page,
     send_message_to_user: Callable[[str], None],
     report_infeasible_instructions: Callable[[str], None],
@@ -68,7 +70,9 @@ def execute_openai_cua_action(
                     case "forward":
                         page.go_forward()
                     case "wheel":
-                        page.mouse.wheel(x, y) # Note: Playwright wheel doesn't use x,y like this. Might need adjustment.
+                        page.mouse.wheel(
+                            x, y
+                        )  # Note: Playwright wheel doesn't use x,y like this. Might need adjustment.
                     case _:
                         button_mapping = {"left": "left", "right": "right"}
                         button_type = button_mapping.get(button, "left")
@@ -81,7 +85,9 @@ def execute_openai_cua_action(
             if x is not None and y is not None:
                 page.mouse.dblclick(x, y)
             else:
-                report_infeasible_instructions("Double click action requires 'x' and 'y' coordinates.")
+                report_infeasible_instructions(
+                    "Double click action requires 'x' and 'y' coordinates."
+                )
         elif action_type == "scroll":
             # Scroll based on scroll_x and scroll_y, ignore x, y for move
             scroll_x = action_args.get("scroll_x", 0)
@@ -93,7 +99,7 @@ def execute_openai_cua_action(
             page.keyboard.type(text)
         elif action_type == "wait":
             ms = action_args.get("ms", 5000)
-            print(f"Waiting for {ms/1000} seconds")
+            print(f"Waiting for {ms / 1000} seconds")
             time.sleep(ms / 1000)
         elif action_type == "move":
             x = action_args.get("x")
@@ -101,7 +107,7 @@ def execute_openai_cua_action(
             if x is not None and y is not None:
                 page.mouse.move(x, y)
             else:
-                 report_infeasible_instructions("Move action requires 'x' and 'y' coordinates.")
+                report_infeasible_instructions("Move action requires 'x' and 'y' coordinates.")
         elif action_type == "keypress":
             keys = action_args.get("keys")
             if keys and isinstance(keys, list):
@@ -115,17 +121,19 @@ def execute_openai_cua_action(
         elif action_type == "drag":
             path = action_args.get("path")
             if path and isinstance(path, list) and len(path) > 0:
-                 if all("x" in p and "y" in p for p in path):
+                if all("x" in p and "y" in p for p in path):
                     page.mouse.move(path[0]["x"], path[0]["y"])
                     page.mouse.down()
                     for point in path[1:]:
                         page.mouse.move(point["x"], point["y"])
                     page.mouse.up()
-                 else:
-                     report_infeasible_instructions("Drag path items must contain 'x' and 'y' coordinates.")
+                else:
+                    report_infeasible_instructions(
+                        "Drag path items must contain 'x' and 'y' coordinates."
+                    )
             else:
                 report_infeasible_instructions("Drag action requires a non-empty 'path' list.")
-        elif action_type == "message": # Handle message type
+        elif action_type == "message":  # Handle message type
             content = action_args.get("content")
             send_message_to_user(content)
         else:

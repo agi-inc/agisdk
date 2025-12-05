@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
 
 import numpy as np
 import playwright.sync_api
@@ -49,7 +48,7 @@ class AbstractBrowserTask(ABC):
     @abstractmethod
     def validate(
         self, page: playwright.sync_api.Page, chat_messages: list[str]
-    ) -> Tuple[float, bool, str, dict]:
+    ) -> tuple[float, bool, str, dict]:
         """
         Validate the task was completed successfully
 
@@ -99,7 +98,7 @@ class OpenEndedTask(AbstractBrowserTask):
 
     def validate(
         self, page: playwright.sync_api.Page, chat_messages: list[str]
-    ) -> Tuple[float, bool, str, dict]:
+    ) -> tuple[float, bool, str, dict]:
         reward, done, msg, info = 0, False, "", {}
 
         for message in chat_messages:

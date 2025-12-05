@@ -1,0 +1,24 @@
+{
+  "id": "fly-unified-3",
+  "goal": "What is the price for a Premium Economy flight from Indiana to New York at 12:00 on December 2nd?",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer indicate that the price for Premium Economy is $453?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

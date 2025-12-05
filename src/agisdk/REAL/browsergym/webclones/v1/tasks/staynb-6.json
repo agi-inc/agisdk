@@ -1,0 +1,31 @@
+{
+  "id": "staynb-6",
+  "goal": "Find and book the stay with the best value for money (cheapest stay with the best reviews) for 1 day. For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "website": {
+    "id": "staynb",
+    "name": "StayNB",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://evals-staynb.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "booking was made",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\" != null"
+    },
+    {
+      "description": "correct stay price",
+      "type": "jmespath",
+      "expected_value": 14,
+      "query": "bookingDetailsDiff.added.\"0\".stay.price"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

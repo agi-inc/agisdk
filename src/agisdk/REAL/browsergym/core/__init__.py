@@ -1,9 +1,10 @@
 __version__ = "0.8.0"
 
-import playwright.sync_api
-import os
 import importlib.resources
+import os
 from pathlib import Path
+
+import playwright.sync_api
 
 # we use a global playwright instance
 _PLAYWRIGHT = None

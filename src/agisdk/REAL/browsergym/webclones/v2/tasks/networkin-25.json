@@ -1,0 +1,22 @@
+{
+  "id": "networkin-25",
+  "goal": "Network In: Find an event that would be worth attending and click that you will attend",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_networkin_25.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

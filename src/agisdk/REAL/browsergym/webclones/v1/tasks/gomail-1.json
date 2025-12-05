@@ -1,0 +1,25 @@
+{
+  "id": "gomail-1",
+  "goal": "How many unread emails are in the Inbox?",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://evals-gomail.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer reflect that there are 17 unread emails in the Inbox?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

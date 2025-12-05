@@ -1,0 +1,43 @@
+{
+  "id": "topwork-3",
+  "goal": "Create a job listing for a Full-Stack Developer with expertise in Java, Spring Boot, and Angular, outlining the project scope, estimated duration, and required skills (MySQL, Docker, Kubernetes, and Jenkins). The ideal candidate should have experience in enterprise-level applications and building scalable microservices. After creating the job post, please describe what you included in the job listing.",
+  "website": {
+    "id": "topwork",
+    "name": "TopWork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://evals-topwork.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct job title",
+      "type": "jmespath",
+      "expected_value": "Full-Stack Developer",
+      "query": "jobsDiff.added.\"0\".title"
+    },
+    {
+      "description": "includes Java skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Java')"
+    },
+    {
+      "description": "includes Spring Boot skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Spring Boot')"
+    },
+    {
+      "description": "includes Angular skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Angular')"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

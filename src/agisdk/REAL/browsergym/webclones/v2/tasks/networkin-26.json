@@ -1,0 +1,22 @@
+{
+  "id": "networkin-26",
+  "goal": "NetworkIn: Search for a Software Engineer and reach out to them for advice",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_networkin_26.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

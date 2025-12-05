@@ -1,0 +1,22 @@
+{
+  "id": "udriver-3",
+  "goal": "Book me a ride from 1001 Castro Street to 1030 Post Street Apartments.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_3.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

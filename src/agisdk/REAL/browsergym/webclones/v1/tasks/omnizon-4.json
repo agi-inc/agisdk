@@ -1,0 +1,34 @@
+{
+  "id": "omnizon-4",
+  "goal": "Search for a \"Marshall Emberton II Portable Bluetooth Speaker\" and add it to your cart, then search for the \"Michael Kors Oversized Slim Runway Men's Watch,\" add it to the cart, and complete the checkout with both items.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "jmespath",
+      "description": "exact product match",
+      "expected_value": [
+        "15",
+        "61"
+      ],
+      "query": "sort_by(orderDetailsDiff.added.\"0\".order.cart, &id)[].id"
+    },
+    {
+      "type": "jmespath",
+      "description": "1 of each product",
+      "expected_value": true,
+      "query": "length(orderDetailsDiff.added.\"0\".order.cart[?quantity != `1`]) == `0`"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

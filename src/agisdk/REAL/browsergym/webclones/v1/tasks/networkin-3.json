@@ -1,0 +1,40 @@
+{
+  "id": "networkin-3",
+  "goal": "Write a post inviting users to a networking event, including details about the event's purpose, date, and target audience.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://evals-networkin.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "description": "at least one post added",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "length(feedPostsDiff.added) >= `1`"
+    },
+    {
+      "possible": true,
+      "description": "post contains event mention",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(feedPostsDiff.added[0].description, 'event') || contains(feedPostsDiff.added[0].description, 'Event')"
+    },
+    {
+      "possible": true,
+      "description": "post contains network mention",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(feedPostsDiff.added[0].description, 'network') || contains(feedPostsDiff.added[0].description, 'Network')"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

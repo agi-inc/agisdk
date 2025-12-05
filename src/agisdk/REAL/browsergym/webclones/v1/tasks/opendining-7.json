@@ -1,0 +1,24 @@
+{
+  "id": "opendining-7",
+  "goal": "Compare the restaurants in the \"Available for Lunch Now\" section and choose the one with the best reviews relative to price. Book a table at this restaurant and provide an explanation of why you selected it. For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "website": {
+    "id": "opendining",
+    "name": "OpenDining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://evals-opendining.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer explain which restaurant was chosen based on having the best reviews relative to its price, and does it provide numerical ratings and price information to justify the selection?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "udriver-9",
+  "goal": "I want to book a a UdriverXL ride from 1 Hotel San Francisco to 1030 Post Street Apartments picking me up now using cash.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_9.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

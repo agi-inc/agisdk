@@ -1,0 +1,22 @@
+{
+  "id": "topwork-7",
+  "goal": "Topwork: Hire a potential candidate and send them a valid message with the offer",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_7.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

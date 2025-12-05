@@ -1,0 +1,49 @@
+{
+  "id": "fly-unified-6",
+  "goal": "Reserve me a seat for the flight from Austin to Pittsburgh departing on December 11th, 2024 at 8:00 in Basic Economy.\nPassenger: Alice Brown\nDate of Birth: 05/20/1992\nSex: Female\nSeat Selection: Yes (Aisle seat)\nPayment: Credit Card (378342143523967), Exp: 09/27, security code: 332 Address: 789 Pine St, Los Angeles, CA, 90012, USA, Phone: 555-456-7890, Email: alicebrown@example.com.",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct departure city",
+      "type": "jmespath",
+      "expected_value": "Austin",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct destination city",
+      "type": "jmespath",
+      "expected_value": "Pittsburgh",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.to.destination.city"
+    },
+    {
+      "description": "correct passenger first name",
+      "type": "jmespath",
+      "expected_value": "Alice",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].firstName"
+    },
+    {
+      "description": "correct passenger last name",
+      "type": "jmespath",
+      "expected_value": "Brown",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].lastName"
+    },
+    {
+      "description": "correct fare type",
+      "type": "jmespath",
+      "expected_value": "Basic Economy",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.selectedPrice.type"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

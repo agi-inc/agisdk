@@ -1,0 +1,22 @@
+{
+  "id": "topwork-10",
+  "goal": "TopWork: Respond to Alex Rodriguez saying that I am open to help her get set up",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_10.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -1,0 +1,30 @@
+{
+  "id": "dashdish-9",
+  "goal": "Add a \"Large Classic Cheeseburger\" from \"RT Rotisserie\" to the cart, then remove it.",
+  "website": {
+    "id": "dashdish",
+    "name": "DashDish",
+    "similarTo": "Doordash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://evals-dashdish.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer confirm that the item was first added to the cart and then removed successfully?"
+    },
+    {
+      "description": "cart is empty",
+      "type": "jmespath",
+      "expected_value": 0,
+      "query": "length(differences.foodOrders.added)"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,49 @@
+{
+  "id": "topwork-2",
+  "goal": "Create a job posting for a Backend Developer specializing in Python, Django, and Flask to develop a high-performance web application. Include project details such as required skills (PostgreSQL, Docker, AWS, CI/CD), estimated project timeline, and budget.",
+  "website": {
+    "id": "topwork",
+    "name": "TopWork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://evals-topwork.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct job title",
+      "type": "jmespath",
+      "expected_value": "Backend Developer",
+      "query": "jobsDiff.added.\"0\".title"
+    },
+    {
+      "description": "includes Python skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Python')"
+    },
+    {
+      "description": "includes Django skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Django')"
+    },
+    {
+      "description": "includes Flask skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'Flask')"
+    },
+    {
+      "description": "includes PostgreSQL skill",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(jobsDiff.added.\"0\".skills, 'PostgreSQL')"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

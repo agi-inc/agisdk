@@ -1,11 +1,10 @@
 import copy
+import json
 import logging
 import os
 import re
-import shutil
 import tempfile
 import time
-import json
 from abc import ABC
 from pathlib import Path
 from typing import Literal, Optional, Union
@@ -16,8 +15,8 @@ import playwright.sync_api
 
 from . import _get_global_playwright
 from .action.base import execute_python_code
-from .action.openai_cua import execute_openai_cua_action
 from .action.highlevel import HighLevelActionSet
+from .action.openai_cua import execute_openai_cua_action
 from .chat import Chat
 from .constants import BROWSERGYM_ID_ATTRIBUTE, EXTRACT_OBS_MAX_TRIES, TEXT_MAX_LENGTH
 from .observation import (
@@ -64,7 +63,7 @@ class BrowserEnv(gym.Env, ABC):
         self,
         # task-related arguments
         task_entrypoint: type[AbstractBrowserTask],
-        task_kwargs: dict = {},
+        task_kwargs: dict = None,
         viewport: Optional[dict] = None,  # will override the task's viewport
         slow_mo: Optional[int] = None,  # will override the task's slow_mo
         timeout: Optional[int] = None,  # will override the task's timeout
@@ -75,8 +74,8 @@ class BrowserEnv(gym.Env, ABC):
         terminate_on_infeasible: bool = True,
         resizeable_window: bool = False,
         record_video_dir: Optional[str] = None,
-        pw_chromium_kwargs: dict = {},
-        pw_context_kwargs: dict = {},
+        pw_chromium_kwargs: dict = None,
+        pw_context_kwargs: dict = None,
         golden_user_data_dir: Optional[str] = None,
         extensions_dir: Optional[str] = None,
         # agent-related arguments
@@ -103,6 +102,12 @@ class BrowserEnv(gym.Env, ABC):
             extensions_dir: directory containing Chrome extensions to load (can be a single extension directory or a directory of extensions). Requires persistent context and disables headless mode.
 
         """
+        if pw_context_kwargs is None:
+            pw_context_kwargs = {}
+        if pw_chromium_kwargs is None:
+            pw_chromium_kwargs = {}
+        if task_kwargs is None:
+            task_kwargs = {}
         super().__init__()
         self.task_entrypoint = task_entrypoint
         self.task_kwargs = dict(**task_kwargs)
@@ -121,7 +126,7 @@ class BrowserEnv(gym.Env, ABC):
         self.extensions_dir = extensions_dir
         self._temp_user_data_dir = None
         self.action_mapping = action_mapping
-        self.active_agent_name = None # Add attribute to store agent name
+        self.active_agent_name = None  # Add attribute to store agent name
 
         # check argument values
         assert tags_to_mark in ("all", "standard_html")
@@ -188,11 +193,14 @@ class BrowserEnv(gym.Env, ABC):
             # close the browser
             self.browser.close()
             self.task = None
-            
+
             # Clean up temporary directory if we created one
             if self._temp_user_data_dir:
                 import shutil
-                logger.info(f"Cleaning up temporary user data directory: {self._temp_user_data_dir}")
+
+                logger.info(
+                    f"Cleaning up temporary user data directory: {self._temp_user_data_dir}"
+                )
                 shutil.rmtree(self._temp_user_data_dir, ignore_errors=True)
                 self._temp_user_data_dir = None
 
@@ -235,18 +243,18 @@ class BrowserEnv(gym.Env, ABC):
         args = []
         if self.resizeable_window:
             args.append(f"--window-size={viewport['width']},{viewport['height']}")
-            
+
         # Add extension arguments if needed
         if self.extensions_dir:
             # Extensions require non-headless mode
             assert not self.headless, "Extensions cannot be used in headless mode."
-            
+
             # Get absolute path to extensions directory
             extensions_dir = os.path.abspath(self.extensions_dir)
-            
+
             # Look for extensions directories (containing manifest.json)
             extensions_paths = []
-            
+
             # First check if the directory itself is an extension (has manifest.json)
             if os.path.isfile(os.path.join(extensions_dir, "manifest.json")):
                 extensions_paths.append(extensions_dir)
@@ -254,38 +262,44 @@ class BrowserEnv(gym.Env, ABC):
                 # Otherwise, look for subdirectories containing manifest.json
                 for item in os.listdir(extensions_dir):
                     item_path = os.path.join(extensions_dir, item)
-                    if os.path.isdir(item_path) and os.path.isfile(os.path.join(item_path, "manifest.json")):
+                    if os.path.isdir(item_path) and os.path.isfile(
+                        os.path.join(item_path, "manifest.json")
+                    ):
                         extensions_paths.append(item_path)
-            
+
             if not extensions_paths:
                 logger.warning(f"No valid Chrome extensions found in {extensions_dir}")
             else:
                 logger.info(f"Found {len(extensions_paths)} Chrome extensions to load")
-                extensions_str = ','.join(extensions_paths)
+                extensions_str = ",".join(extensions_paths)
                 args.append(f"--disable-extensions-except={extensions_str}")
                 args.append(f"--load-extension={extensions_str}")
-            
+
             # Extensions require persistent context
             if not self.golden_user_data_dir:
-                logger.warning("Extensions require persistent context. Creating a temporary user data directory.")
+                logger.warning(
+                    "Extensions require persistent context. Creating a temporary user data directory."
+                )
                 self._temp_user_data_dir = tempfile.mkdtemp(prefix="browsergym_extensions_")
-                
+
         args = None if not args else args
 
         # Setup temp directory for golden profile if needed
         if self.golden_user_data_dir:
-            import tempfile
             import shutil
-            
+            import tempfile
+
             self._temp_user_data_dir = tempfile.mkdtemp(prefix="browsergym_")
-            logger.info(f"Copying golden profile from {self.golden_user_data_dir} to {self._temp_user_data_dir}")
+            logger.info(
+                f"Copying golden profile from {self.golden_user_data_dir} to {self._temp_user_data_dir}"
+            )
             shutil.copytree(self.golden_user_data_dir, self._temp_user_data_dir, dirs_exist_ok=True)
 
         # PERSISTENT CONTEXT PATH
         if self.golden_user_data_dir or self.extensions_dir:
             if self.extensions_dir:
                 assert not self.headless, "Extensions cannot be used in headless mode."
-            
+
             # Launch persistent context
             self.context = pw.chromium.launch_persistent_context(
                 user_data_dir=self._temp_user_data_dir,
@@ -311,7 +325,7 @@ class BrowserEnv(gym.Env, ABC):
                 args=args,
                 **self.pw_chromium_kwargs,
             )
-            
+
             # Create context
             self.context = self.browser.new_context(
                 no_viewport=True if self.resizeable_window else None,
@@ -330,9 +344,10 @@ class BrowserEnv(gym.Env, ABC):
         # there is no concept of active page in playwright
         # https://github.com/microsoft/playwright/issues/2603
         self.context.expose_binding(
-            "browsergym_page_activated", lambda source: self._activate_page_from_js(source["page"])
+            "browsergym_page_activated",
+            lambda source: self._activate_page_from_js(source["page"]),
         )
-        
+
         self.context.add_init_script(
             r"""
 window.browsergym_page_activated();
@@ -441,7 +456,6 @@ document.addEventListener("visibilitychange", () => {
         return obs, info
 
     def step(self, action: Union[dict, str]) -> tuple:
-
         # Get agent_name from instance attribute
         agent_name = self.active_agent_name
 
@@ -450,8 +464,8 @@ document.addEventListener("visibilitychange", () => {
             try:
                 # Convert dict action to a JSON string
                 self.last_action = json.dumps(action)
-            except TypeError: # Handle potential non-serializable items if any
-                 self.last_action = str(action) # Fallback to simple string conversion
+            except TypeError:  # Handle potential non-serializable items if any
+                self.last_action = str(action)  # Fallback to simple string conversion
         else:
             # Action is already a string
             self.last_action = action
@@ -469,8 +483,8 @@ document.addEventListener("visibilitychange", () => {
 
         # Reset last action error at the start of the step
         self.last_action_error = ""
-        action_executed = False # Flag to track if a browser action was attempted
-        agent_reported_error = False # Flag if agent itself reported an error
+        action_executed = False  # Flag to track if a browser action was attempted
+        agent_reported_error = False  # Flag if agent itself reported an error
 
         # try to execute the action
         # Use agent_name read from self.active_agent_name
@@ -482,35 +496,41 @@ document.addEventListener("visibilitychange", () => {
                     # Check for special non-executable actions from the agent
                     action_type = action.get("type")
                     if action_type in ["no_op", "error"]:
-                        logger.info(f"Received non-executable action from agent: {self.last_action}")
+                        logger.info(
+                            f"Received non-executable action from agent: {self.last_action}"
+                        )
                         if action_type == "error":
                             # Store the error message from the agent itself
-                            self.last_action_error = action.get("message", "Agent reported an unspecified error")
-                            agent_reported_error = True # Mark that agent reported error
+                            self.last_action_error = action.get(
+                                "message", "Agent reported an unspecified error"
+                            )
+                            agent_reported_error = True  # Mark that agent reported error
                         # Do not attempt to execute this in the browser
                         action_executed = False
                     else:
                         # Execute the CUA action dictionary
                         execute_openai_cua_action(
-                            action, # Pass the dict directly
+                            action,  # Pass the dict directly
                             self.page,
                             send_message_to_user=send_message_to_user,
                             report_infeasible_instructions=report_infeasible_instructions,
                         )
-                        action_executed = True # A browser action was attempted
+                        action_executed = True  # A browser action was attempted
                 else:
                     # Handle case where CUA agent returns a string unexpectedly
-                    logger.warning(f"Received string action '{action}' from CUA agent, expected dict. Attempting Python execution.")
+                    logger.warning(
+                        f"Received string action '{action}' from CUA agent, expected dict. Attempting Python execution."
+                    )
                     # Fallback to execute as Python code
                     execute_python_code(
-                        action, # Assume the string is code
+                        action,  # Assume the string is code
                         self.page,
                         send_message_to_user=send_message_to_user,
                         report_infeasible_instructions=report_infeasible_instructions,
                     )
                     action_executed = True
 
-            else: # Handle other agents (assuming string actions)
+            else:  # Handle other agents (assuming string actions)
                 if isinstance(action, str):
                     code_to_execute = action
                     if self.action_mapping:
@@ -529,26 +549,31 @@ document.addEventListener("visibilitychange", () => {
                     error_msg = f"Received unexpected dictionary action from agent '{agent_name}'"
                     self.last_action_error = error_msg
                     report_infeasible_instructions(error_msg)
-                    action_executed = False # No action attempted
+                    action_executed = False  # No action attempted
 
         except Exception as e:
             self.last_action_error = f"{type(e).__name__}: {e}"
-            logger.error(f"Error during action execution attempt: {self.last_action_error}", exc_info=True) # Log with traceback
+            logger.error(
+                f"Error during action execution attempt: {self.last_action_error}",
+                exc_info=True,
+            )  # Log with traceback
             # Check for timeout specifically
-            timeout_match = re.match(r"TimeoutError: Timeout (\d+)ms exceeded", self.last_action_error)
+            timeout_match = re.match(
+                r"TimeoutError: Timeout (\d+)ms exceeded", self.last_action_error
+            )
             if timeout_match:
                 info["action_exec_timeout"] = float(timeout_match.group(1)) / 1000  # ms to sec
 
             # Report as infeasible only if we actually tried to execute something
             # and it wasn't an error already reported by the agent itself.
             if action_executed and not agent_reported_error:
-                 report_infeasible_instructions(f"Execution failed: {self.last_action_error}")
+                report_infeasible_instructions(f"Execution failed: {self.last_action_error}")
 
         # Log whether an action was executed or not
         if action_executed:
-             logger.debug(f"Action execution attempt finished.")
-        elif not agent_reported_error: # Avoid double logging if agent already reported error
-             logger.debug(f"No browser action executed for this step (Action: {self.last_action}).")
+            logger.debug("Action execution attempt finished.")
+        elif not agent_reported_error:  # Avoid double logging if agent already reported error
+            logger.debug(f"No browser action executed for this step (Action: {self.last_action}).")
 
         info["action_exec_stop"] = time.time()
 
@@ -561,24 +586,23 @@ document.addEventListener("visibilitychange", () => {
             except Exception as e:
                 logger.warning(f"Could not trigger Playwright callbacks via context.cookies(): {e}")
 
-
         # wait for the network to idle before extracting the observation, reward etc.
         self._wait_dom_loaded()
 
         # after the action is executed, the active page might have changed
         # perform a safety check
         self._active_page_check()
-        logger.debug(f"Active page checked")
+        logger.debug("Active page checked")
 
         # if asked, wait for user message
         self._wait_for_user_message()
-        logger.debug(f"User message done")
+        logger.debug("User message done")
 
-        logger.debug(f"Initiating task validation")
+        logger.debug("Initiating task validation")
         # extract reward, done, user_message, info (task-specific)
         reward, done, user_message, task_info = self._task_validate()
         info["task_info"] = task_info
-        logger.debug(f"Task validation done")
+        logger.debug("Task validation done")
 
         # add any user message sent by the task to the chat
         if user_message:
@@ -586,7 +610,7 @@ document.addEventListener("visibilitychange", () => {
 
         # extract observation (generic)
         obs = self._get_obs()
-        logger.debug(f"Observation extracted")
+        logger.debug("Observation extracted")
 
         # new step API wants a 5-tuple (gymnasium)
         terminated = done or (
@@ -652,7 +676,7 @@ document.addEventListener("visibilitychange", () => {
         # make sure there is always a page open
         # if all pages have been closed, create a new page
         if len(self.context.pages) == 0:
-            logger.warning(f"All pages are closed, opening a new page.")
+            logger.warning("All pages are closed, opening a new page.")
             self.page = self.context.new_page()
 
         # if the active page got closed, get the last active page from the history
@@ -673,7 +697,6 @@ document.addEventListener("visibilitychange", () => {
             raise RuntimeError(f"Unexpected: active page has been closed ({self.page}).")
 
     def _get_obs(self):
-
         for retries_left in reversed(range(EXTRACT_OBS_MAX_TRIES)):
             try:
                 # pre-extraction, mark dom elements (set bid, set dynamic attributes like value and checked)

@@ -1,0 +1,22 @@
+{
+  "id": "topwork-4",
+  "goal": "Invite a full-stack developer to a job.",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_4.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

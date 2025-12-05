@@ -1,0 +1,22 @@
+{
+  "id": "udriver-4",
+  "goal": "Show me rides from 1000 Chestnut St  to Rooftop 25 and book one of the rides.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_4.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

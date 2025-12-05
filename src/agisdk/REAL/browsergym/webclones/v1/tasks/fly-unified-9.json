@@ -1,0 +1,55 @@
+{
+  "id": "fly-unified-9",
+  "goal": "Book me a flight from San Francisco to Chicago in Basic Economy on December 18th at 10:00. Ensure no seat selection is made.\nPassenger: David Lee\nDate of Birth: 07/22/1985\nSex: Male\nSeat Selection: No\nPayment: Credit Card (9999 8888 7777), Exp: 03/30, Address: 987 Cedar St, Chicago, IL, 60601, USA, Phone: 555-987-1234, Email: davidlee@example.com.",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct departure city",
+      "type": "jmespath",
+      "expected_value": "San Francisco",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct destination city",
+      "type": "jmespath",
+      "expected_value": "Chicago",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.to.destination.city"
+    },
+    {
+      "description": "correct passenger first name",
+      "type": "jmespath",
+      "expected_value": "David",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].firstName"
+    },
+    {
+      "description": "correct passenger last name",
+      "type": "jmespath",
+      "expected_value": "Lee",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].lastName"
+    },
+    {
+      "description": "correct fare type (Basic Economy)",
+      "type": "jmespath",
+      "expected_value": "Basic Economy",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.selectedPrice.type"
+    },
+    {
+      "description": "correct departure time (10:00 AM)",
+      "type": "jmespath",
+      "expected_value": "2024-12-18T18:00:00.000Z",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.segments[0].departureTime"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

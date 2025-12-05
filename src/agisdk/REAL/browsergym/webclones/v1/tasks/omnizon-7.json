@@ -1,0 +1,24 @@
+{
+  "id": "omnizon-7",
+  "goal": "Go to the \"Gaming\" category from the homepage and identify the most expensive product.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer identify the SAMSUNG Galaxy Z Fold as the most expensive product in the Gaming category?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

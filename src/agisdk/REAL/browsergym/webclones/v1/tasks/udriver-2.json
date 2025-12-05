@@ -1,0 +1,24 @@
+{
+  "id": "udriver-2",
+  "goal": "What was the name of the Thai restaurant I last got a ride to?",
+  "website": {
+    "id": "udriver",
+    "name": "UDriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://evals-udriver.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer reflect that the last Thai restaurant visted was 'Phat Thai'?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

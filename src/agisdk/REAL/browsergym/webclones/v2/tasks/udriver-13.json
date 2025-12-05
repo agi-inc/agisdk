@@ -1,0 +1,22 @@
+{
+  "id": "udriver-13",
+  "goal": "Book me an UdriverX to any chase bank from Golden Gates apartments. Need the ride asap.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_13.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

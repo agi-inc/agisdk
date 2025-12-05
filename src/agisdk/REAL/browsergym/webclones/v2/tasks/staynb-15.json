@@ -1,0 +1,22 @@
+{
+  "id": "staynb-15",
+  "goal": "Just show me places in San Jose, Costa Rica. Date and guest number doesn't matter, just trying to see what kind of places there are.",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_15.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

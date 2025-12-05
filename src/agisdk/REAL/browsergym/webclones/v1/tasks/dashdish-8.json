@@ -1,0 +1,24 @@
+{
+  "id": "dashdish-8",
+  "goal": "What are first three categories of deliverable food displayed on the homepage?",
+  "website": {
+    "id": "dashdish",
+    "name": "DashDish",
+    "similarTo": "Doordash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://evals-dashdish.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer include \"Under $1 delivery fee\", \"Best of lunch\", and \"The Infatuation's picks\" as the top three categories?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

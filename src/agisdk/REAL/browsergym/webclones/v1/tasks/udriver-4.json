@@ -1,0 +1,36 @@
+{
+  "id": "udriver-4",
+  "goal": "Book me a ride home",
+  "website": {
+    "id": "udriver",
+    "name": "UDriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://evals-udriver.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "no-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer request the user's home address or otherwise ask for clarification from the user, or ask any question?"
+    },
+    {
+      "description": "no current trips added",
+      "type": "jmespath",
+      "expected_value": {},
+      "query": "differences.currentTrips.added"
+    },
+    {
+      "description": "no booked trips added",
+      "type": "jmespath",
+      "expected_value": {},
+      "query": "differences.bookedTrips.added"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

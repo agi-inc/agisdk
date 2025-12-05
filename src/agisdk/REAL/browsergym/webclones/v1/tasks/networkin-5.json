@@ -1,0 +1,25 @@
+{
+  "id": "networkin-5",
+  "goal": "Send a connection request to John Smith.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://evals-networkin.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "connection with John Smith established",
+      "type": "jmespath",
+      "expected_value": "1st",
+      "query": "profilesDiff.updated.\"1\".connectionGrade"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "gocalendar-16",
+  "goal": "GoCalendar: Reading time on Wednesday needs to be cancelled as I need to be asleep by 10",
+  "website": {
+    "id": "gocalendar",
+    "name": "Gocalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://real-gocalendar-n1nw9ran1-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gocalendar_16.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

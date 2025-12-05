@@ -1,0 +1,22 @@
+{
+  "id": "udriver-7",
+  "goal": "Need a ride to any 7/11 from 22 and Irving Street.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_7.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

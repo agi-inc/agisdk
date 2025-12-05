@@ -1,0 +1,25 @@
+{
+  "id": "staynb-2",
+  "goal": "Click on one of the stays displayed on the homepage and book it for a family of 4 (2 adults and 2 children). For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "website": {
+    "id": "staynb",
+    "name": "StayNB",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://evals-staynb.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "description": "booking doesn't work",
+  "evals": [
+    {
+      "type": "jmespath",
+      "expected_value": "4 Guests",
+      "query": "bookingDetailsDiff.added.\"0\".guests"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

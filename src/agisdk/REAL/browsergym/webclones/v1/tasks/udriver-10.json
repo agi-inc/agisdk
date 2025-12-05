@@ -1,0 +1,43 @@
+{
+  "id": "udriver-10",
+  "goal": "Order me a ride for 4pm, I'll be at the de Young muesum headed to the Waterbar, fanciest option possible please.",
+  "website": {
+    "id": "udriver",
+    "name": "UDriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://evals-udriver.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct pickup location",
+      "type": "jmespath",
+      "expected_value": "de Young Museum",
+      "query": "differences.bookedTrips.added.\"0\".pickup.name"
+    },
+    {
+      "description": "correct destination",
+      "type": "jmespath",
+      "expected_value": "Waterbar Restaurant",
+      "query": "differences.bookedTrips.added.\"0\".destination.name"
+    },
+    {
+      "description": "correct scheduled time",
+      "type": "jmespath",
+      "expected_value": "04:00 PM",
+      "query": "differences.bookedTrips.added.\"0\".time"
+    },
+    {
+      "description": "correct car type (fanciest option)",
+      "type": "jmespath",
+      "expected_value": "Comfort",
+      "query": "differences.bookedTrips.added.\"0\".car.type"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

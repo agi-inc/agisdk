@@ -1,0 +1,32 @@
+{
+  "id": "gocalendar-7",
+  "goal": "Reschedule the \"Morning Coffee with sister\" event from July 18, 2024, at 9 AM to July 19, 2024, at 10AM using drag-and-drop functionality",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "description": "status not updated",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct updated start time",
+      "type": "jmespath",
+      "expected_value": "2024-07-18T17:00:00.000Z",
+      "query": "(eventsDiff.updated.*.start)[0]"
+    },
+    {
+      "description": "correct updated end time",
+      "type": "jmespath",
+      "expected_value": "2024-07-18T18:00:00.000Z",
+      "query": "(eventsDiff.updated.*.end)[0]"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,11 +1,11 @@
 import base64
-from pathlib import Path
-from typing import Literal
 import logging
-import playwright.sync_api
 import re
 import time
-import os
+from pathlib import Path
+from typing import Literal
+
+import playwright.sync_api
 
 from . import _get_global_playwright, chat_files
 
@@ -29,14 +29,15 @@ class Chat:
         self.context = self.browser.new_context(
             no_viewport=True,
             record_video_dir=Path(record_video_dir) / "chat_video" if record_video_dir else None,
-            record_video_size=dict(width=chat_size[0], height=chat_size[1]),
+            record_video_size={"width": chat_size[0], "height": chat_size[1]},
         )
         self.page = self.context.new_page()
         self.recording_start_time = time.time() if record_video_dir else None
 
         # setup the chat page
         self.page.expose_function(
-            "send_user_message", lambda msg: self._js_user_message_received_callback(msg=msg)
+            "send_user_message",
+            lambda msg: self._js_user_message_received_callback(msg=msg),
         )
 
         if modern:
@@ -52,7 +53,9 @@ class Chat:
         return ["user", time.strftime("%H:%M", time.localtime(utc_time)), msg]
 
     def add_message(
-        self, role: Literal["user", "user_image", "assistant", "info", "infeasible"], msg: str
+        self,
+        role: Literal["user", "user_image", "assistant", "info", "infeasible"],
+        msg: str,
     ):
         """Add a message to the chatbox and update the page accordingly."""
         utc_time = time.time()
@@ -77,14 +80,14 @@ class Chat:
 
 
 def get_chatbox_modern(chatbox_dir) -> str:
-    with open(chatbox_dir / "chatbox_modern.html", "r") as file:
+    with open(chatbox_dir / "chatbox_modern.html") as file:
         chatbox_html = file.read()
 
     return chatbox_html
 
 
 def get_chatbox_classic(chatbox_dir) -> str:
-    with open(chatbox_dir / "chatbox.html", "r") as file:
+    with open(chatbox_dir / "chatbox.html") as file:
         chatbox_html = file.read()
     with open(chatbox_dir / "assistant.png", "rb") as f:
         image_base64 = base64.b64encode(f.read()).decode("utf-8")

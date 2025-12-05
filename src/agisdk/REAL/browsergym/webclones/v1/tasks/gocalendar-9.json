@@ -1,0 +1,37 @@
+{
+  "id": "gocalendar-9",
+  "goal": "Create a recurring \"Daily Standup\" event from July 18, 2024 that repeats daily, and adjust the July 22, 2024, event to start at 10 AM",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct event title",
+      "type": "jmespath",
+      "expected_value": "Daily Standup",
+      "query": "(eventsDiff.added.*.title)[0]"
+    },
+    {
+      "description": "has recurring daily events",
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Has a daily recurring 'Daily Standup' event been created starting from July 18, 2024?"
+    },
+    {
+      "description": "has July 22 event with correct time",
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Has the July 22, 2024 occurrence of the 'Daily Standup' event been adjusted to start at 10 AM?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

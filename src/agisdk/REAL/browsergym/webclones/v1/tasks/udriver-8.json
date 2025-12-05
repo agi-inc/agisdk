@@ -1,0 +1,36 @@
+{
+  "id": "udriver-8",
+  "goal": "Book me a ride from 333 Fremont Apartments to Le Colonial",
+  "website": {
+    "id": "udriver",
+    "name": "UDriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://evals-udriver.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "no-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer state that the destination, \"Le Colonial\" is not available? or not valid"
+    },
+    {
+      "description": "no current trips added",
+      "type": "jmespath",
+      "expected_value": {},
+      "query": "differences.currentTrips.added"
+    },
+    {
+      "description": "no booked trips added",
+      "type": "jmespath",
+      "expected_value": {},
+      "query": "differences.bookedTrips.added"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

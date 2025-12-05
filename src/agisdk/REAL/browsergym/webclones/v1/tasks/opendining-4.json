@@ -1,0 +1,55 @@
+{
+  "id": "opendining-4",
+  "goal": "Use the search bar to search for a restaurant on September 2nd at 4:30 PM for 7 people, using \"Japanese\" as the search term, and book the first result. For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "website": {
+    "id": "opendining",
+    "name": "OpenDining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://evals-opendining.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "booking was made",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\" != null"
+    },
+    {
+      "description": "correct restaurant selected",
+      "type": "jmespath",
+      "expected_value": "Sushi Zen",
+      "query": "bookingDetailsDiff.added.\"0\".restaurant.name"
+    },
+    {
+      "description": "correct party size",
+      "type": "jmespath",
+      "expected_value": "7 people",
+      "query": "bookingDetailsDiff.added.\"0\".guests"
+    },
+    {
+      "description": "correct reservation time",
+      "type": "jmespath",
+      "expected_value": "4:30 PM",
+      "query": "bookingDetailsDiff.added.\"0\".time"
+    },
+    {
+      "description": "correct reservation date",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "contains(bookingDetailsDiff.added.\"0\".date, '2024-09-02')"
+    },
+    {
+      "description": "phone number provided",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\".tel != null && length(bookingDetailsDiff.added.\"0\".tel) > `5`"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,42 @@
+{
+  "id": "dashdish-11",
+  "goal": "Can you find out how much a medium 'Chicken Biryani' from 'Mashaallah Halal Food Pakistani Food' costs? And while you're at it, add one to the cart, buy it, and let me know the total price.",
+  "website": {
+    "id": "dashdish",
+    "name": "DashDish",
+    "similarTo": "Doordash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://evals-dashdish.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer indicate the cost of the purchased food?"
+    },
+    {
+      "description": "correct restaurant",
+      "type": "jmespath",
+      "expected_value": "Mashaallah Halal Food Pakistani Food",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].restaurantName"
+    },
+    {
+      "description": "correct food",
+      "type": "jmespath",
+      "expected_value": "Chicken Biryani",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].name"
+    },
+    {
+      "description": "correct size",
+      "type": "jmespath",
+      "expected_value": "Medium",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].size"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

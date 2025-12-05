@@ -1,0 +1,22 @@
+{
+  "id": "staynb-1",
+  "goal": "Show me places with 2 bedrooms in Austria. This trip is for my wife and I along with my 3 year old child for the dates of August 1st to 5th.",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_1.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

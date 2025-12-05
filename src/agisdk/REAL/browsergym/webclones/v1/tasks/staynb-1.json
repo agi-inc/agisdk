@@ -1,0 +1,24 @@
+{
+  "id": "staynb-1",
+  "goal": "Can you book any stay for July 1st to July 16th 2024?",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://evals-staynb.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the response indicate that it's not possible to book a stay for July 1st to July 16th specifically because the date range is not available?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

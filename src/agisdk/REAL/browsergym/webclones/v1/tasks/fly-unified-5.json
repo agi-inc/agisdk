@@ -1,0 +1,49 @@
+{
+  "id": "fly-unified-5",
+  "goal": "Find me the cheapest fare for a flight from Orlando to Milwaukee on December 5th, 2024 and book it.\nPassenger: John Doe\nDate of Birth: 01/01/1990\nSex: Male\nSeat Selection: No\nPayment: Credit Card (378342143523967), Exp: 12/25, Security Code: 420 Address: 123 Main St, San Francisco, CA, 94105, USA, Phone: 555-123-4567, Email: johndoe@example.com.",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct departure city",
+      "type": "jmespath",
+      "expected_value": "Orlando",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.from.destination.city"
+    },
+    {
+      "description": "correct destination city",
+      "type": "jmespath",
+      "expected_value": "Milwaukee",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.info.to.destination.city"
+    },
+    {
+      "description": "correct passenger first name",
+      "type": "jmespath",
+      "expected_value": "John",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].firstName"
+    },
+    {
+      "description": "correct passenger last name",
+      "type": "jmespath",
+      "expected_value": "Doe",
+      "query": "differences.bookedFlights.added.\"0\".passengersInfo[0].lastName"
+    },
+    {
+      "description": "correct fare type (cheapest)",
+      "type": "jmespath",
+      "expected_value": "Basic Economy",
+      "query": "differences.bookedFlights.added.\"0\".flight.outboundFlight.selectedPrice.type"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

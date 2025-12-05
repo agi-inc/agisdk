@@ -1,0 +1,24 @@
+{
+  "id": "staynb-7",
+  "goal": "Compare all the stays listed by review quality and price and rank them by affordability. Please provide a ranked list showing each stay's name, rating, and price.",
+  "website": {
+    "id": "staynb",
+    "name": "StayNB",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://evals-staynb.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the response provide a ranked list with City Hideaway ($14) as the best value stay, followed by Beach House ($19), and include at least 5 stays sorted by value for money with their specific names, ratings, and prices?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

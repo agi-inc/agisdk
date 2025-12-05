@@ -1,0 +1,31 @@
+{
+  "id": "opendining-10",
+  "goal": "Check the menus of all restaurants for vegetarian options and make a reservation at the one with the most vegetarian choices. For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "website": {
+    "id": "opendining",
+    "name": "OpenDining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://evals-opendining.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "booking was made",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\" != null"
+    },
+    {
+      "description": "correct restaurant selected",
+      "type": "jmespath",
+      "expected_value": "The Vegan Table",
+      "query": "bookingDetailsDiff.added.\"0\".restaurant.name"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

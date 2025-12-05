@@ -1,0 +1,22 @@
+{
+  "id": "topwork-13",
+  "goal": "I need a data annotator for my company, Verita AI. It is a small job and is not permanent. Pay is 20-25 an hour. Create a job posting.",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_13.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

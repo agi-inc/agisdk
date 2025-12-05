@@ -1,0 +1,31 @@
+{
+  "id": "gocalendar-4",
+  "goal": "Change the \"Team Check-In\" event on July 18, 2024, name to \"Project Kickoff\" and update the location to \"Zoom\"",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct updated event title",
+      "type": "jmespath",
+      "expected_value": "Project Kickoff",
+      "query": "(eventsDiff.updated.*.title)[0]"
+    },
+    {
+      "description": "correct updated location",
+      "type": "jmespath",
+      "expected_value": "Zoom",
+      "query": "(eventsDiff.updated.*.location)[0]"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

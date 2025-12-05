@@ -1,0 +1,22 @@
+{
+  "id": "topwork-2",
+  "goal": "Invite a backend or full stack developer asking if they are interested in building a fitness app with me.",
+  "website": {
+    "id": "topwork",
+    "name": "Topwork",
+    "similarTo": "Upwork",
+    "previewImage": "/websitePreviews/topwork_preview.jpg",
+    "url": "https://real-topwork-git-v2-all-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_topwork_2.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

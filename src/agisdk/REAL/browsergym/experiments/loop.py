@@ -22,6 +22,12 @@ from PIL import Image
 from tqdm import tqdm
 
 from agisdk.REAL.browsergym.core.chat import Chat
+from agisdk.REAL.browsergym.webclones.task_config import (
+    DEFAULT_VERSION as WEBCLONE_DEFAULT_VERSION,
+)
+from agisdk.REAL.browsergym.webclones.task_config import (
+    VERSION_DIRS as WEBCLONE_VERSION_DIRS,
+)
 
 from .agent import Agent
 from .utils import count_messages_token, count_tokens
@@ -41,7 +47,9 @@ class EnvArgs:
     slow_mo: int = None  # use default value from BrowserGym
     storage_state: Optional[str | Path | dict] = None
     golden_user_data_dir: Optional[str | Path] = None  # use a golden profile directory
-    extensions_dir: Optional[str | Path] = None  # directory containing Chrome extensions to load (can be a single extension or a directory of extensions)
+    extensions_dir: Optional[str | Path] = (
+        None  # directory containing Chrome extensions to load (can be a single extension or a directory of extensions)
+    )
     task_kwargs: dict = None  # use default value from BrowserGym
 
     def make_env(self, action_mapping, exp_dir):
@@ -100,7 +108,7 @@ def save_package_versions(exp_dir: Path):
     python_dists = "\n".join(
         sorted(
             [
-                f'{dist.metadata["Name"]}=={dist.metadata["Version"]}'
+                f"{dist.metadata['Name']}=={dist.metadata['Version']}"
                 for dist in importlib.metadata.distributions()
             ]
         )
@@ -207,14 +215,19 @@ class ExpArgs:
 
         episode_info = []
         env, step_info, err_msg, stack_trace = None, None, None, None
-        
+
         try:
             logger.info(f"Running experiment {self.exp_name} in:\n  {self.exp_dir}")
 
             # Check agent type and pass dimensions if needed
             if self.agent_args.__class__.__name__ == "OperatorAgentArgs":
                 viewport = self.env_args.viewport
-                if viewport and isinstance(viewport, dict) and "width" in viewport and "height" in viewport:
+                if (
+                    viewport
+                    and isinstance(viewport, dict)
+                    and "width" in viewport
+                    and "height" in viewport
+                ):
                     browser_dimensions = (viewport["width"], viewport["height"])
                     agent = self.agent_args.make_agent(browser_dimensions=browser_dimensions)
                 else:
@@ -224,18 +237,18 @@ class ExpArgs:
             else:
                 # Default agent creation for other types
                 agent = self.agent_args.make_agent()
-            logger.debug(f"Agent created.")
+            logger.debug("Agent created.")
 
             # Determine action mapping (handle cases where agent might not have action_set, e.g., Operator)
             action_mapping = None
-            if hasattr(agent, 'action_set') and agent.action_set is not None:
-                 action_mapping = agent.action_set.to_python_code
+            if hasattr(agent, "action_set") and agent.action_set is not None:
+                action_mapping = agent.action_set.to_python_code
 
             env = self.env_args.make_env(
-                action_mapping=action_mapping, # Pass mapping or None
-                exp_dir=self.exp_dir
+                action_mapping=action_mapping,  # Pass mapping or None
+                exp_dir=self.exp_dir,
             )
-            logger.debug(f"Environment created.")
+            logger.debug("Environment created.")
 
             # Set the agent name on the environment instance
             env.unwrapped.active_agent_name = self.agent_args.agent_name
@@ -243,9 +256,11 @@ class ExpArgs:
             step_info = StepInfo(step=0)
             episode_info = [step_info]
             step_info.from_reset(
-                env, seed=self.env_args.task_seed, obs_preprocessor=agent.obs_preprocessor
+                env,
+                seed=self.env_args.task_seed,
+                obs_preprocessor=agent.obs_preprocessor,
             )
-            logger.debug(f"Environment reset.")
+            logger.debug("Environment reset.")
 
             while not step_info.is_done:  # set a limit
                 logger.debug(f"Starting step {step_info.step}.")
@@ -262,21 +277,21 @@ class ExpArgs:
                     save_som=self.save_som,
                     save_pkl=self.save_step_info_pkl,
                 )
-                logger.debug(f"Step info saved.")
+                logger.debug("Step info saved.")
 
                 _send_chat_info(env.unwrapped.chat, action, step_info.agent_info)
-                logger.debug(f"Chat info sent.")
+                logger.debug("Chat info sent.")
 
                 if action is None:
-                    logger.debug(f"Agent returned None action. Ending episode.")
+                    logger.debug("Agent returned None action. Ending episode.")
                     break
 
                 step_info = StepInfo(step=step_info.step + 1)
                 episode_info.append(step_info)
 
-                logger.debug(f"Sending action to environment.")
+                logger.debug("Sending action to environment.")
                 step_info.from_step(env, action, obs_preprocessor=agent.obs_preprocessor)
-                logger.debug(f"Environment stepped.")
+                logger.debug("Environment stepped.")
 
         except Exception as e:
             err_msg = f"Exception uncaught by agent or environment in task {self.env_args.task_name}.\n{type(e).__name__}:\n{e}"
@@ -440,7 +455,6 @@ class StepInfo:
         return self.terminated or self.truncated
 
     def make_stats(self):
-
         stats = {
             f"n_token_{key}": count_tokens(val)
             for key, val in self.obs.items()
@@ -458,8 +472,14 @@ class StepInfo:
 
         self.stats = stats
 
-    def save_step_info(self, exp_dir, save_json=False, save_screenshot=True, save_som=False, save_pkl=True):
-
+    def save_step_info(
+        self,
+        exp_dir,
+        save_json=False,
+        save_screenshot=True,
+        save_som=False,
+        save_pkl=True,
+    ):
         screenshot = self.obs.pop("screenshot", None)
         screenshot_som = self.obs.pop("screenshot_som", None)
         # Temporarily remove browser object to avoid serialization issues
@@ -566,12 +586,12 @@ def _save_summary_info(
     summary_info_path = exp_dir / "summary_info.json"
     if summary_info_path.exists():
         try:
-            with open(summary_info_path, "r") as f:
+            with open(summary_info_path) as f:
                 summary_info = json.load(f)
         except Exception:
             # If we can't load the existing file, start fresh
             pass
-    
+
     # Extract agent response (last message from agent or error message)
     agent_response = ""
     # Try multiple ways to get the agent response
@@ -582,78 +602,92 @@ def _save_summary_info(
                 if msg.get("role") == "assistant":
                     agent_response = msg.get("message", "")
                     break
-        
+
         # Method 2: Check model_response directly in agent_info
         if not agent_response and episode_info[-1].agent_info.get("model_response"):
             agent_response = episode_info[-1].agent_info.get("model_response")
-        
+
         # Method 3: Check last action/response message
-        if not agent_response and episode_info[-1].action and "send_msg_to_user" in episode_info[-1].action:
+        if (
+            not agent_response
+            and episode_info[-1].action
+            and "send_msg_to_user" in episode_info[-1].action
+        ):
             # Extract the message from send_msg_to_user("message")
             match = re.search(r'send_msg_to_user\("(.+?)"\)', episode_info[-1].action)
             if match:
                 agent_response = match.group(1)
-        
+
         # Method 4: Check task_info for criteria responses
-        if not agent_response and episode_info[-1].task_info and "criteria" in episode_info[-1].task_info:
+        if (
+            not agent_response
+            and episode_info[-1].task_info
+            and "criteria" in episode_info[-1].task_info
+        ):
             for criterion in episode_info[-1].task_info.get("criteria", []):
                 if criterion.get("model_response"):
                     agent_response = criterion.get("model_response")
                     break
-    
+
     # Extract task_id from path if possible
     task_id = None
     exp_dir_str = str(exp_dir)
     # Try to extract the task name/ID from the directory path
-    task_match = re.search(r'on_([\w.-]+)_', exp_dir_str)
+    task_match = re.search(r"on_([\w.-]+)_", exp_dir_str)
     if task_match:
         task_id = task_match.group(1)
-    
+
     # Check if there was an error
     had_error = err_msg is not None and len(err_msg) > 0
-    
+
     # Calculate success based on rewards and errors
     success = False
     if len(episode_info) > 0:
         # Consider success if terminal state reached with positive reward and no errors
-        success = (episode_info[-1].terminated and 
-                  sum([step.reward for step in episode_info]) > 0 and 
-                  not had_error)
-    
+        success = (
+            episode_info[-1].terminated
+            and sum([step.reward for step in episode_info]) > 0
+            and not had_error
+        )
+
     # Extract finish state if available
     finish_state = {}
     if len(episode_info) > 0 and episode_info[-1].task_info:
         finish_state = episode_info[-1].task_info
-    
+
     # Get configuration from the task info if available
-    config = {}
     if len(episode_info) > 0 and episode_info[-1].obs and "config" in episode_info[-1].obs:
-        config = episode_info[-1].obs["config"]
+        episode_info[-1].obs["config"]
     elif finish_state and "config" in finish_state:
-        config = finish_state["config"]
-    
+        finish_state["config"]
+
     # Update with new results data
-    summary_info.update({
-        # Legacy fields (keep for backward compatibility)
-        "n_steps": len(episode_info) - 1,
-        "cum_reward": sum([step.reward for step in episode_info]),
-        "cum_raw_reward": sum([step.raw_reward for step in episode_info if step.raw_reward]),
-        "err_msg": err_msg,
-        "stack_trace": stack_trace,
-        "experiment_status": "completed",
-        
-        # New fields matching the desired format
-        "completed": True,
-        "success": success,
-        "error": had_error,
-        "score": float(sum([step.raw_reward for step in episode_info if step.raw_reward]) or 0.0),
-        "task_id": task_id or "",
-        "agent_response": agent_response,
-        "finish_state": finish_state,
-        "eval_results": [],  # This would need to be populated by an evaluation system
-        "env_setup_error": err_msg if "Executable doesn't exist" in str(err_msg) or "playwright" in str(err_msg) else None,
-    })
-    
+    summary_info.update(
+        {
+            # Legacy fields (keep for backward compatibility)
+            "n_steps": len(episode_info) - 1,
+            "cum_reward": sum([step.reward for step in episode_info]),
+            "cum_raw_reward": sum([step.raw_reward for step in episode_info if step.raw_reward]),
+            "err_msg": err_msg,
+            "stack_trace": stack_trace,
+            "experiment_status": "completed",
+            # New fields matching the desired format
+            "completed": True,
+            "success": success,
+            "error": had_error,
+            "score": float(
+                sum([step.raw_reward for step in episode_info if step.raw_reward]) or 0.0
+            ),
+            "task_id": task_id or "",
+            "agent_response": agent_response,
+            "finish_state": finish_state,
+            "eval_results": [],  # This would need to be populated by an evaluation system
+            "env_setup_error": err_msg
+            if "Executable doesn't exist" in str(err_msg) or "playwright" in str(err_msg)
+            else None,
+        }
+    )
+
     # Add stats
     for key, val in _aggregate_episode_stats(episode_info).items():
         summary_info[f"stats.{key}"] = val
@@ -661,6 +695,13 @@ def _save_summary_info(
     if len(episode_info) > 0:
         summary_info["terminated"] = episode_info[-1].terminated
         summary_info["truncated"] = episode_info[-1].truncated
+
+    if finish_state:
+        try:
+            with open(exp_dir / "finish_state.json", "w") as finish_file:
+                json.dump(finish_state, finish_file, indent=4)
+        except Exception as exc:
+            logger.error(f"Failed to write finish_state.json: {exc}")
 
     # Write updated summary info
     with open(summary_info_path, "w") as f:
@@ -752,10 +793,10 @@ class ExpResult:
     @property
     def summary_info(self) -> dict:
         if self._summary_info is None:
-            with open(self.exp_dir / "summary_info.json", "r") as f:
+            with open(self.exp_dir / "summary_info.json") as f:
                 # if length is zero raise file not found error
                 if os.fstat(f.fileno()).st_size == 0:
-                    raise FileNotFoundError(f"summary_info.json is empty.")
+                    raise FileNotFoundError("summary_info.json is empty.")
                 self._summary_info = json.load(f)
         return self._summary_info
 
@@ -901,23 +942,21 @@ def _move_old_exp(exp_dir):
 def _get_env_name(task_name: str):
     """Register tasks if needed (lazy import) and return environment name."""
 
-    # lazy benchmark import
-    # if task_name.startswith("miniwob"):
-    #     import browsergym.miniwob
-    # elif task_name.startswith("workarena"):
-    #     import browsergym.workarena
-    # elif task_name.startswith("webarena"):
-    #     import browsergym.webarena
-    # elif task_name.startswith("visualwebarena"):
-    #     import browsergym.visualwebarena
-    if task_name.startswith("webclones"):
-        import agisdk.REAL.browsergym.webclones
-    else:
-        raise ValueError(
-            f"Task {task_name} not found. Please register the task in browsergym."
-        )
+    cleaned = task_name.strip()
+    if cleaned.startswith("browsergym/"):
+        cleaned = cleaned.split("/", 1)[1]
 
-    return f"browsergym/{task_name}"
+    if cleaned.startswith("webclones."):
+        cleaned = cleaned.split(".", 1)[1]
+        cleaned = f"{WEBCLONE_DEFAULT_VERSION}.{cleaned}"
+
+    prefix = cleaned.split(".", 1)[0]
+    if prefix in WEBCLONE_VERSION_DIRS:
+        pass
+    else:
+        raise ValueError(f"Task {task_name} not found. Please register the task in browsergym.")
+
+    return f"browsergym/{cleaned}"
 
 
 def _send_chat_info(chat: Chat, action: str, agent_info: dict):

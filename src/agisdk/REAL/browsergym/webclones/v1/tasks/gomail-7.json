@@ -1,0 +1,26 @@
+{
+  "id": "gomail-7",
+  "goal": "Delete the email with the subject \"New Leadership Articles You Can't Miss\" from the Inbox.",
+  "website": {
+    "id": "gomail",
+    "name": "GoMail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://evals-gomail.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "description": "email moved to trash",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "differences.emails.updated[0].trash"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

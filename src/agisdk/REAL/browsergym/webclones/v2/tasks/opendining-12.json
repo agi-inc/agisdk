@@ -1,0 +1,22 @@
+{
+  "id": "opendining-12",
+  "goal": "I want to make a reservation for 5 people at River View Cafe on September 29th, 2025 at 3PM.",
+  "website": {
+    "id": "opendining",
+    "name": "Opendining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://real-opendining-fdcw98zrb-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_opendining_12.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

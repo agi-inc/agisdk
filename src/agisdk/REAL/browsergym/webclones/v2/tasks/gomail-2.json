@@ -1,0 +1,22 @@
+{
+  "id": "gomail-2",
+  "goal": "Clear any uber emails and notifications emails. I am trying to clean up my emails.",
+  "website": {
+    "id": "gomail",
+    "name": "Gomail",
+    "similarTo": "Gmail",
+    "previewImage": "/websitePreviews/gomail_preview.jpg",
+    "url": "https://real-gomail-1glk4rtaf-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_gomail_2.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

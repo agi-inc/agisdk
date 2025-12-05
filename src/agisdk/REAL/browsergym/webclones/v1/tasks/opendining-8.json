@@ -1,0 +1,37 @@
+{
+  "id": "opendining-8",
+  "goal": "Identify and book the restaurant with the lowest rating. For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "website": {
+    "id": "opendining",
+    "name": "OpenDining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://evals-opendining.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "booking was made",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\" != null"
+    },
+    {
+      "description": "correct restaurant selected",
+      "type": "jmespath",
+      "expected_value": "Bar Central",
+      "query": "bookingDetailsDiff.added.\"0\".restaurant.name"
+    },
+    {
+      "description": "reservation details provided",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\".date != null && bookingDetailsDiff.added.\"0\".time != null"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

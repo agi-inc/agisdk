@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: agisdk
-Version: 0.2.9
+Version: 0.3.5
 Summary: AGI SDK - tools for building and evaluating AI web agents
 Author-email: Diego Caples <diego@theagi.company>, Prannay Hebbar <prannay@theagi.company>
 Project-URL: Homepage, https://github.com/agi-inc/agisdk
@@ -8,7 +8,7 @@ Project-URL: Bug Tracker, https://github.com/agi-inc/agisdk/issues
 Project-URL: Documentation, https://github.com/agi-inc/agisdk
 Project-URL: Leaderboard, https://realevals.xyz
 Classifier: Programming Language :: Python :: 3
-Classifier: License :: OSI Approved :: MIT License
+Classifier: License :: OSI Approved :: Apache Software License
 Classifier: Operating System :: OS Independent
 Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Developers
@@ -150,23 +150,25 @@ pip install -e .
 
 ## 🌐 Available Tasks
 
+> **Versioning:** The SDK ships both `v1` and `v2` task sets; if you omit the version when selecting tasks or running experiments the harness defaults to `v1`. Specify `task_version="v2"` (or use `v2.*` task ids) to target the newer scenarios.
+
 The AGI SDK includes high-fidelity, fully-deterministic websites for agents to explore. These are modern web stack sites (React + Next.js) with rich functionality for core user flows, realistic mock data, and consistent behavior for testing and evaluation.
 
 The benchmark includes these environments:
 
 | App Clone | Task Prefix | Example Use Case |
 | :--- | :--- | :--- |
-| 🛒 Amazon → Omnizon | `webclones.omnizon-*` | Buy a laptop, find a gift |
-| 🍔 DoorDash → DashDish | `webclones.dashdish-*` | Order dinner |
-| ✈️ United → FlyUnified | `webclones.fly-unified-*` | Book a flight |
-| 🏡 Airbnb → Staynb | `webclones.staynb-*` | Reserve accommodation |
-| 📅 Google Calendar → GoCalendar | `webclones.gocalendar-*` | Schedule a meeting |
-| 📬 Gmail → GoMail | `webclones.gomail-*` | Compose an email |
-| 🍽️ OpenTable → OpenDining | `webclones.opendining-*` | Book a restaurant |
-| 👔 LinkedIn → NetworkIn | `webclones.networkin-*` | Accept a connection |
-| 🚗 Uber → Udriver | `webclones.udriver-*` | Book a ride |
-| 💼 UpWork → TopWork | `webclones.topwork-*` | Find a freelance gig |
-| 🏠 Zillow → Zilloft | `webclones.zilloft-*` | Browse houses |
+| 🛒 Amazon → Omnizon | `v2.omnizon-*` | Buy a laptop, find a gift |
+| 🍔 DoorDash → DashDish | `v2.dashdish-*` | Order dinner |
+| ✈️ United → FlyUnified | `v2.flyunified-*` | Book a flight |
+| 🏡 Airbnb → Staynb | `v2.staynb-*` | Reserve accommodation |
+| 📅 Google Calendar → GoCalendar | `v2.gocalendar-*` | Schedule a meeting |
+| 📬 Gmail → GoMail | `v2.gomail-*` | Compose an email |
+| 🍽️ OpenTable → OpenDining | `v2.opendining-*` | Book a restaurant |
+| 👔 LinkedIn → NetworkIn | `v2.networkin-*` | Accept a connection |
+| 🚗 Uber → Udriver | `v2.udriver-*` | Book a ride |
+| 💼 UpWork → TopWork | `v2.topwork-*` | Find a freelance gig |
+| 🏠 Zillow → Zilloft | `v2.zilloft-*` | Browse houses |
 
 Each task comes with **human-written goals** designed to stress-test agent capabilities.
 
@@ -238,7 +240,7 @@ REAL.harness(
     agentargs=MyAgentArgs(),                       # Or provide your own agent arguments
 
     # Task selection (provide one of these or don't provide any to run all tasks)
-    task_name="webclones.omnizon-1",  # Specific task to run
+    task_name="v2.omnizon-1",  # Specific task to run
     task_type="omnizon",              # Run all tasks of this type
     task_id=1,                        # Run specific task ID within a type
 
@@ -295,7 +297,7 @@ REAL.harness(
    ```
    https://web-eval-leaderboard.vercel.app/api/getRunTask?api_key=<API_KEY>&display_name=<RUN_NAME>&task_id=<TASK_ID>
    ```
-   to fetch stored results (use bare task IDs such as `omnizon-1`; inside the SDK you reference tasks with the `webclones.` prefix).
+   to fetch stored results (use bare task IDs such as `omnizon-1`; inside the SDK you reference tasks with the `v2.` prefix).
 
 
 ## 🤝 Contributing

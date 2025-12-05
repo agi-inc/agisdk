@@ -1,0 +1,22 @@
+{
+  "id": "dashdish-24",
+  "goal": "DashDish: Order me a Rotisserie Chicken Sandwich for less than $30",
+  "website": {
+    "id": "dashdish",
+    "name": "Dashdish",
+    "similarTo": "DoorDash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://real-dashdish-1rmq4pjxg-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_dashdish_24.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

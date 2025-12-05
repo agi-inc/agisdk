@@ -1,0 +1,22 @@
+{
+  "id": "udriver-17",
+  "goal": "Show me how much it costs to get picked up from 333 Fremont Apartments and dropped at 201 Turk Street Apartments on July 18th at 3:30PM.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_17.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

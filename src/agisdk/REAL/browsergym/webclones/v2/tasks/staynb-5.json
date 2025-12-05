@@ -1,0 +1,22 @@
+{
+  "id": "staynb-5",
+  "goal": "Show me places in Paris, France with wifi, parking, and AC. This place is for oct 15th to 19th for 3 adults.",
+  "website": {
+    "id": "staynb",
+    "name": "Staynb",
+    "similarTo": "Airbnb",
+    "previewImage": "/websitePreviews/staynb_preview.jpg",
+    "url": "https://real-staynb-jbf17z6s2-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_staynb_5.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

@@ -8,14 +8,14 @@ class PythonActionSet(AbstractActionSet):
         """
         Returns a textual description of this action space.
         """
-        description = f"""
+        description = """
 Each action consists of executable Python code (python>=3.10) that uses the Playwright library (playwright==1.32)
 to interact with the current webpage and the browser context. The currently active webpage is accessible via the
 global variable `page`. A function `send_message_to_user(text)` is also accessible and can be used to send a
 message to the user, as well as a function `report_infeasible_instructions(reason)` to notify the user when their
 instructions are infeasible."""
         if with_long_description:
-            description += f"""
+            description += """
 The browser context is in `page.context`, and all open webpages (tabs and popups)
 are in `page.context.pages`. Here is is an example of a valid action:
 ```
@@ -39,11 +39,11 @@ elem = frame.get_by_test_id("ac2")
 ```
 """
         else:
-            description += f"""\
+            description += """\
 
 """
         if with_examples:
-            description += f"""\
+            description += """\
 Here are other examples of valid actions:
 ```
 page = page.context.new_page()

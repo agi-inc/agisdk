@@ -1,0 +1,61 @@
+{
+  "id": "dashdish-10",
+  "goal": "Place an order from \"Souvla\" for a \"Medium Classic Cheeseburger\" and a \"Small Bacon Double Cheeseburger\" with \"Standard Delivery\" as the method with the default charged options.",
+  "website": {
+    "id": "dashdish",
+    "name": "DashDish",
+    "similarTo": "Doordash",
+    "previewImage": "/websitePreviews/dashdish_preview.jpg",
+    "url": "https://evals-dashdish.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "correct restaurant for first item",
+      "type": "jmespath",
+      "expected_value": "Souvla",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].restaurantName"
+    },
+    {
+      "description": "correct food for first item",
+      "type": "jmespath",
+      "expected_value": "Classic Cheeseburger",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].name"
+    },
+    {
+      "description": "correct size for first item",
+      "type": "jmespath",
+      "expected_value": "Medium",
+      "query": "differences.foodOrders.added.\"0\".cartItems[0].size"
+    },
+    {
+      "description": "correct restaurant for second item",
+      "type": "jmespath",
+      "expected_value": "Souvla",
+      "query": "differences.foodOrders.added.\"0\".cartItems[1].restaurantName"
+    },
+    {
+      "description": "correct food for second item",
+      "type": "jmespath",
+      "expected_value": "Bacon Double Cheeseburger",
+      "query": "differences.foodOrders.added.\"0\".cartItems[1].name"
+    },
+    {
+      "description": "correct size for second item",
+      "type": "jmespath",
+      "expected_value": "Small",
+      "query": "differences.foodOrders.added.\"0\".cartItems[1].size"
+    },
+    {
+      "description": "correct delivery option",
+      "type": "jmespath",
+      "expected_value": "Standard",
+      "query": "differences.foodOrders.added.\"0\".checkoutDetails.shipping.deliveryOption"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

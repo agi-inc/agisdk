@@ -1,0 +1,22 @@
+{
+  "id": "zilloft-23",
+  "goal": "Show me houses in California under 900k and have 3+ bedrooms",
+  "website": {
+    "id": "zilloft",
+    "name": "Zilloft",
+    "similarTo": "Zillow",
+    "previewImage": "/websitePreviews/zilloft_preview.jpg",
+    "url": "https://real-zilloft-46k595h3n-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_zilloft_23.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

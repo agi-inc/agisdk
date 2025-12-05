@@ -1,0 +1,24 @@
+{
+  "id": "omnizon-3",
+  "goal": "Scroll through the homepage, click on the \"Headphones\" category card, and retrieve all product listings within that category.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer list multiple headphone products from the Headphones category, including their names and basic details?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,49 @@
+{
+  "id": "opendining-5",
+  "goal": "Scroll through the homepage carousel until \"Ocean Breeze\" is visible, select the second available time slot, and complete the reservation. For fields you don't know the answer for, just fill them in with anything of your choice.",
+  "website": {
+    "id": "opendining",
+    "name": "OpenDining",
+    "similarTo": "OpenTable",
+    "previewImage": "/websitePreviews/opendining_preview.jpg",
+    "url": "https://evals-opendining.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "booking was made",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\" != null"
+    },
+    {
+      "description": "correct restaurant selected",
+      "type": "jmespath",
+      "expected_value": "Ocean Breeze",
+      "query": "bookingDetailsDiff.added.\"0\".restaurant.name"
+    },
+    {
+      "description": "reservation time provided",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\".time != null"
+    },
+    {
+      "description": "reservation date provided",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\".date != null"
+    },
+    {
+      "description": "phone number provided",
+      "type": "jmespath",
+      "expected_value": true,
+      "query": "bookingDetailsDiff.added.\"0\".tel != null && length(bookingDetailsDiff.added.\"0\".tel) > `5`"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "udriver-16",
+  "goal": "Find me and book a ride from 1 Hotel San Francisco to 100 Van Ness Ave, San Francisco.",
+  "website": {
+    "id": "udriver",
+    "name": "Udriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://real-udriver-3ufk0q1v4-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_udriver_16.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

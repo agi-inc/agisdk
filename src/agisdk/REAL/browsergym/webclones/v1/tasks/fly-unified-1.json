@@ -1,0 +1,25 @@
+{
+  "id": "fly-unified-1",
+  "goal": "What is the earliest available flight from Savannah to Albuquerque on December 1st, 2024?",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval",
+  "possible": true,
+  "evals": [
+    {
+      "possible": true,
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer indicate that the earliest flight is at 8:00 AM?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

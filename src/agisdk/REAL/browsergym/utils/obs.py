@@ -1,17 +1,21 @@
 import ast
 import logging
+import re
+from collections import defaultdict
+
 import numpy as np
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
-import re
-
-from collections import defaultdict
 from bs4 import BeautifulSoup
 
 from agisdk.REAL.browsergym.core.constants import BROWSERGYM_ID_ATTRIBUTE as BID_ATTR
-from agisdk.REAL.browsergym.core.constants import BROWSERGYM_VISIBILITY_ATTRIBUTE as VIS_ATTR
-from agisdk.REAL.browsergym.core.constants import BROWSERGYM_SETOFMARKS_ATTRIBUTE as SOM_ATTR
+from agisdk.REAL.browsergym.core.constants import (
+    BROWSERGYM_SETOFMARKS_ATTRIBUTE as SOM_ATTR,
+)
+from agisdk.REAL.browsergym.core.constants import (
+    BROWSERGYM_VISIBILITY_ATTRIBUTE as VIS_ATTR,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +66,6 @@ def flatten_dom_to_str(
                 node_children[parent_idx].append(node_idx)
 
         def dfs(node_idx: int, parent_node_skipped: bool) -> str:
-
             # https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
             # https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeName
             # https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeValue
@@ -258,11 +261,11 @@ def _process_bid(
                 skip_element = True
             # print extra attributes if requested (with new names)
             if with_som and node_in_som:
-                attributes_to_print.insert(0, f"som")
+                attributes_to_print.insert(0, "som")
             if with_visible and node_is_visible:
-                attributes_to_print.insert(0, f"visible")
+                attributes_to_print.insert(0, "visible")
             if with_clickable and node_is_clickable:
-                attributes_to_print.insert(0, f"clickable")
+                attributes_to_print.insert(0, "clickable")
             if with_center_coords and node_bbox is not None:
                 x, y, width, height = node_bbox
                 center = (x + width / 2, y + height / 2)
@@ -327,9 +330,9 @@ def flatten_axtree_to_str(
             # extract node attributes
             attributes = []
             for property in node.get("properties", []):
-                if not "value" in property:
+                if "value" not in property:
                     continue
-                if not "value" in property["value"]:
+                if "value" not in property["value"]:
                     continue
 
                 prop_name = property["name"]
@@ -392,7 +395,7 @@ def flatten_axtree_to_str(
                     node_str = f"[{bid}] " + node_str
 
                 if node_value is not None:
-                    node_str += f' value={repr(node["value"]["value"])}'
+                    node_str += f" value={repr(node['value']['value'])}"
 
                 if attributes:
                     node_str += ", ".join([""] + attributes)
@@ -456,7 +459,9 @@ def overlay_som(
             if a1 > vlen:
                 a1 = vlen
             draw.line(
-                (x0 + xa * a0, y0 + ya * a0, x0 + xa * a1, y0 + ya * a1), fill=fill, width=width
+                (x0 + xa * a0, y0 + ya * a0, x0 + xa * a1, y0 + ya * a1),
+                fill=fill,
+                width=width,
             )
             a0 += step
 

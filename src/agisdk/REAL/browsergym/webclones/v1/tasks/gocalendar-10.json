@@ -1,0 +1,43 @@
+{
+  "id": "gocalendar-10",
+  "goal": "Delete all events from the \"Family\" calendar, and delete the \"Personal\" calendar and display how many events are left",
+  "website": {
+    "id": "gocalendar",
+    "name": "GoCalendar",
+    "similarTo": "Google Calendar",
+    "previewImage": "/websitePreviews/gocalendar_preview.jpg",
+    "url": "https://evals-gocalendar.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "description": "deleted events count",
+      "type": "jmespath",
+      "expected_value": 5,
+      "query": "length(eventsDiff.deleted)"
+    },
+    {
+      "description": "personal calendar event deleted",
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Have all events from the 'Personal' calendar been deleted?"
+    },
+    {
+      "description": "family calendar event deleted",
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Have all events from the 'Family' calendar been deleted?"
+    },
+    {
+      "description": "correct event count reported",
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer correctly report 15 events left after the deletions?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

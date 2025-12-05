@@ -1,0 +1,25 @@
+{
+  "id": "fly-unified-13",
+  "goal": "Can you calculate the price difference between a Business Class seat and an Economy Class seat for a one-way flight from Austin (AUS) to Jacksonville (JAX) on December 3rd, 2024, departing at 8:00 AM?",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "retrieval",
+  "possible": true,
+  "description": "eval not implemented yet",
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer indicate that the price difference between Business Class and Economy Class is $400 USD (calculated from $620 - $220)?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

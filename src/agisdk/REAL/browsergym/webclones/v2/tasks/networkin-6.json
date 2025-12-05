@@ -1,0 +1,22 @@
+{
+  "id": "networkin-6",
+  "goal": "Invite someone working in the tech industry living in new york to join my new project.",
+  "website": {
+    "id": "networkin",
+    "name": "Networkin",
+    "similarTo": "LinkedIn",
+    "previewImage": "/websitePreviews/networkin_preview.jpg",
+    "url": "https://real-networkin-mtmzp58l6-real-sites.vercel.app/"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "evals": [
+    {
+      "script": "eval_networkin_6.py"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v2"
+}

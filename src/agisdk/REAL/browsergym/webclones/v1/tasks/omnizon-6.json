@@ -1,0 +1,41 @@
+{
+  "id": "omnizon-6",
+  "goal": "Compare the specifications and price of the \"SAMSUNG Galaxy S24 Ultra\" and \"SAMSUNG Galaxy Z Fold 6,\" and buy the one with better features relative to its price, using the \"Buy Now\" button in the product details. Explain your choice.",
+  "website": {
+    "id": "omnizon",
+    "name": "Omnizon",
+    "similarTo": "Amazon",
+    "previewImage": "/websitePreviews/omnizon_preview.jpg",
+    "url": "https://evals-omnizon.vercel.app"
+  },
+  "difficulty": "hard",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "evals": [
+    {
+      "type": "jmespath",
+      "expected_value": 1,
+      "query": "length(orderDetailsDiff.added.\"0\".order.cart)"
+    },
+    {
+      "type": "jmespath",
+      "description": "id match",
+      "expected_value": "22",
+      "query": "orderDetailsDiff.added.\"0\".order.cart[0].id"
+    },
+    {
+      "type": "jmespath",
+      "description": "1 of each product",
+      "expected_value": true,
+      "query": "length(orderDetailsDiff.added.\"0\".order.cart[?quantity != `1`]) == `0`"
+    },
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer explain why the Samsung Galaxy S24 Ultra offers better features relative to its price compared to the Galaxy Z Fold 6, and confirm that it was purchased?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

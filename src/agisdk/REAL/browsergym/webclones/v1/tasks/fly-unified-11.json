@@ -1,0 +1,25 @@
+{
+  "id": "fly-unified-11",
+  "goal": "Can you book a one-way flight from San Francisco (SFO) to New York (JFK) for December 18th, 2024?",
+  "website": {
+    "id": "fly-unified",
+    "name": "Fly Unified",
+    "similarTo": "United Airlines",
+    "previewImage": "/websitePreviews/fly-unified_preview.jpg",
+    "url": "https://evals-fly-unified.vercel.app"
+  },
+  "difficulty": "medium",
+  "challengeType": "action",
+  "possible": true,
+  "description": "eval not implemented yet",
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the response indicate that the booking system was unable to complete the request, specifically because it couldn't find a flight matching these criteria?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}

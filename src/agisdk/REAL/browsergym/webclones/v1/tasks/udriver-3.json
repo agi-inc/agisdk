@@ -1,0 +1,25 @@
+{
+  "id": "udriver-3",
+  "goal": "What's the cheapest ride price from Pacific Catch on Chestnut back home to 333 Fremont?",
+  "website": {
+    "id": "udriver",
+    "name": "UDriver",
+    "similarTo": "Uber",
+    "previewImage": "/websitePreviews/udriver_preview.jpg",
+    "url": "https://evals-udriver.vercel.app"
+  },
+  "difficulty": "easy",
+  "challengeType": "retrieval-action",
+  "possible": true,
+  "description": "eval not implemented yet",
+  "evals": [
+    {
+      "type": "llm_boolean",
+      "expected_value": true,
+      "rubric": "Does the answer reflect that the cheapest ride price is equivalant to $28.50?"
+    }
+  ],
+  "points": 1,
+  "config": {},
+  "version": "v1"
+}
